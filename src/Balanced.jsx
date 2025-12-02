@@ -85,6 +85,9 @@ const ASSET_CLASSES = {
   // Fixed Income & Cash
   BONDS: { id: 'bonds', name: 'Bonds', color: '#f43f5e', type: 'fixed', taxPref: ['deferred', 'roth', 'taxable'] },
 
+  // Individual Stocks (Track Only)
+  INDIVIDUAL_STOCK: { id: 'individual_stock', name: 'Individual Stock (Track Only)', color: '#a855f7', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'], trackOnly: true },
+
 };
 
 const TICKER_MAPPING = {
@@ -304,9 +307,9 @@ const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
 
       <div className="md:col-span-4">
         <label className="block md:hidden text-xs font-medium text-zinc-500 mb-1">Asset Class</label>
-        <div className="relative">
+        <div className="relative flex items-center gap-2">
           <select
-            className="w-full pl-3 pr-8 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer"
+            className="flex-1 pl-3 pr-8 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer"
             value={fund.type}
             onChange={(e) => updateFund(accountId, fund.id, 'type', e.target.value)}
           >
@@ -317,6 +320,11 @@ const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
             ))}
           </select>
           <ChevronDown className="w-4 h-4 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          {fund.type === 'individual_stock' && (
+            <span className="hidden md:inline text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded whitespace-nowrap">
+              📊 Track Only
+            </span>
+          )}
         </div>
       </div>
 
@@ -932,6 +940,9 @@ export default function PortfolioApp() {
 
           if (fund.isEmergency) {
             autoEmergencyFund += val;
+          } else if (fund.type === 'individual_stock') {
+            // Track in net worth but exclude from investable total (like emergency funds)
+            // Individual stocks are not included in rebalancing calculations
           } else {
             investableTotal += val;
             let type = fund.type || 'us_broad';
@@ -1092,7 +1103,7 @@ export default function PortfolioApp() {
         Object.keys(ASSET_CLASSES).forEach(k => currentHoldings[ASSET_CLASSES[k].id] = 0);
         if (accData && Array.isArray(accData.funds)) {
           accData.funds.forEach(f => {
-            if (f.isEmergency) return; // SKIP Emergency Funds
+            if (f.isEmergency || f.type === 'individual_stock') return; // SKIP Emergency Funds and Individual Stocks
             let type = f.type;
             currentHoldings[type] = (currentHoldings[type] || 0) + parseFloat(f.value);
           });
@@ -1232,7 +1243,7 @@ export default function PortfolioApp() {
 
         if (accData && Array.isArray(accData.funds)) {
           accData.funds.forEach(f => {
-            if (f.isEmergency) return; // SKIP Emergency Funds
+            if (f.isEmergency || f.type === 'individual_stock') return; // SKIP Emergency Funds and Individual Stocks
             let type = f.type;
             currentHoldings[type] = (currentHoldings[type] || 0) + parseFloat(f.value);
           });
