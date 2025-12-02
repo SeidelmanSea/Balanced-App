@@ -1,10 +1,10 @@
 # Balanced - Free Tax-Efficient Portfolio Rebalancing Tool
 
-![Balanced Logo](https://balanced.app/og-image.png)
+![Balanced Logo](https://www.balanced-portfolio.com/og-image.png)
 
 **Balanced** is a free, open-source, privacy-focused portfolio rebalancing tool designed for serious investors who want institutional-grade portfolio management without compromising their privacy.
 
-🔗 **Live App**: [balanced.app](https://balanced.app)  
+🔗 **Live App**: [www.balanced-portfolio.com](https://www.balanced-portfolio.com)  
 ☕ **Support Development**: [Buy Me a Coffee](https://buymeacoffee.com/balanced)
 
 ---
