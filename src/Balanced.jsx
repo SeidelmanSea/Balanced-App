@@ -1861,11 +1861,16 @@ export default function PortfolioApp() {
             })}
           </div>
           <div className="mt-4 relative">
-            <button onClick={() => setIsAddingAsset(!isAddingAsset)} className="w-full flex justify-center items-center gap-2 text-sm font-medium text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-400 dark:hover:border-emerald-600 bg-zinc-50 dark:bg-zinc-800/50 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 py-2 rounded-md transition-all"><Plus className="w-4 h-4" /> Add Asset Class</button>
+            <button
+              onClick={() => setIsAddingAsset(!isAddingAsset)}
+              className="w-full flex justify-center items-center gap-2 text-sm font-medium text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-400 dark:hover:border-emerald-600 bg-zinc-50 dark:bg-zinc-800/50 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 py-2 rounded-md transition-all"
+            >
+              <Plus className="w-4 h-4" /> Add Asset Class
+            </button>
             {isAddingAsset && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsAddingAsset(false)}></div>
-                <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 overflow-hidden py-1 max-h-60 overflow-y-auto">
+                <div className="fixed inset-0 z-40" onClick={() => setIsAddingAsset(false)}></div>
+                <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[calc(100%-2rem)] max-w-md bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 overflow-hidden py-1 max-h-60 overflow-y-auto">
                   <div className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">Available Assets</div>
                   {availableAssets.length > 0 ? availableAssets.map(asset => (
                     <button key={asset.id} onClick={() => addEquityAsset(asset.id)} className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: asset.color }}></div>{asset.name}</button>
