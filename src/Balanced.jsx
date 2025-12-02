@@ -2563,33 +2563,31 @@ export default function PortfolioApp() {
             </div>
           </div>
         )}
-      </main>
 
-      <footer className="max-w-5xl mx-auto px-4 py-6 border-t border-zinc-200 dark:border-zinc-800 mt-8">
-        <div className="text-center text-[10px] leading-relaxed text-zinc-400 dark:text-zinc-600 max-w-3xl mx-auto">
-          <p className="mb-2 font-semibold uppercase tracking-wider opacity-70">Risk Disclosure</p>
-          <p>This application is for informational and educational purposes only and does not constitute financial advice. All investing involves risk. Past performance is not indicative of future results.</p>
+        <footer className="max-w-5xl mx-auto px-4 py-8 border-t border-zinc-200 dark:border-zinc-800 mt-12">
+          <div className="flex flex-col items-center gap-6">
 
-          <div className="flex justify-center gap-6 mb-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <a href="/about.html" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">About & Methodology</a>
-            <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">GitHub</a>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-            <p className="text-zinc-500 dark:text-zinc-500">
-              Enjoying Balanced?
-              <a
-                href="https://buymeacoffee.com/balanced"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                Buy me a coffee ☕
+            {/* Main Footer Links */}
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              <a href="/about.html" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">About & Methodology</a>
+              <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">GitHub</a>
+              <a href="https://buymeacoffee.com/balanced" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                <span>Support Development</span>
+                <span className="text-xs">☕</span>
               </a>
-            </p>
+            </div>
+
+            {/* Risk Disclosure & Copyright */}
+            <div className="text-center max-w-2xl mx-auto">
+              <p className="text-[10px] leading-relaxed text-zinc-400 dark:text-zinc-600">
+                <span className="font-semibold uppercase tracking-wider opacity-80 block mb-1">Risk Disclosure</span>
+                This application is for informational and educational purposes only and does not constitute financial advice. All investing involves risk. Past performance is not indicative of future results.
+              </p>
+            </div>
+
           </div>
-        </div>
-      </footer>
+        </footer>
+      </main>
     </div>
   );
 }
