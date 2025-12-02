@@ -2138,7 +2138,7 @@ export default function PortfolioApp() {
                       Balanced is free and privacy-focused. No data ever leaves your device.
                     </p>
                     <a
-                      href="https://buymeacoffee.com/yourhandle"
+                      href="https://buymeacoffee.com/balanced"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
@@ -2258,7 +2258,7 @@ export default function PortfolioApp() {
             <div><h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Support Development</h3><p className="text-xs text-zinc-500 dark:text-zinc-400">Balanced is free and open-source. Help keep it that way!</p></div>
           </div>
           <a
-            href="https://buymeacoffee.com/yourhandle"
+            href="https://buymeacoffee.com/balanced"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-zinc-900 font-medium transition-all shadow-sm"
@@ -2567,7 +2567,7 @@ export default function PortfolioApp() {
             <p className="text-zinc-500 dark:text-zinc-500">
               Enjoying Balanced?
               <a
-                href="https://buymeacoffee.com/yourhandle"
+                href="https://buymeacoffee.com/balanced"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-1 text-emerald-600 dark:text-emerald-400 hover:underline"
