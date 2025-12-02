@@ -370,6 +370,7 @@ export default function PortfolioApp() {
   const [equityStrategy, setEquityStrategy] = useState(DEFAULT_EQUITY_SPLIT);
   const [isAddingAsset, setIsAddingAsset] = useState(false);
   const addAssetButtonRef = useRef(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const [taxStrategy, setTaxStrategy] = useState('standard');
 
   // Rebalancing Settings - Split by Account Type
@@ -465,6 +466,18 @@ export default function PortfolioApp() {
 
     return () => clearTimeout(timeoutId);
   }, [accounts, bondAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
+
+  // Calculate dropdown position when it opens
+  useEffect(() => {
+    if (isAddingAsset && addAssetButtonRef.current) {
+      const rect = addAssetButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  }, [isAddingAsset]);
 
   // --- Core Logic ---
 
