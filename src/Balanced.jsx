@@ -1870,7 +1870,7 @@ export default function PortfolioApp() {
             {isAddingAsset && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsAddingAsset(false)}></div>
-                <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[calc(100%-2rem)] max-w-md bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 overflow-hidden py-1 max-h-60 overflow-y-auto">
+                <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 py-1 max-h-96 overflow-y-auto">
                   <div className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">Available Assets</div>
                   {availableAssets.length > 0 ? availableAssets.map(asset => (
                     <button key={asset.id} onClick={() => addEquityAsset(asset.id)} className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: asset.color }}></div>{asset.name}</button>
@@ -2553,7 +2553,7 @@ export default function PortfolioApp() {
         <div className="flex-1 overflow-y-auto">
           {activeTab === 'dashboard' && renderDashboard()}
           {activeTab === 'accounts' && <div data-tour="accounts">{renderAccounts()}</div>}
-          {activeTab === 'configure' && <div data-tour="strategy">{renderConfigure()}</div>}
+          {activeTab === 'configure' && <div data-tour="strategy" className="overflow-visible">{renderConfigure()}</div>}
           {activeTab === 'rebalance' && <div data-tour="balance">{renderRebalance()}</div>}
           {activeTab === 'settings' && <div data-tour="settings">{renderSettings()}</div>}
         </div>
