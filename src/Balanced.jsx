@@ -2570,6 +2570,11 @@ export default function PortfolioApp() {
           <p className="mb-2 font-semibold uppercase tracking-wider opacity-70">Risk Disclosure</p>
           <p>This application is for informational and educational purposes only and does not constitute financial advice. All investing involves risk. Past performance is not indicative of future results.</p>
 
+          <div className="flex justify-center gap-6 mb-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <a href="/about.html" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">About & Methodology</a>
+            <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">GitHub</a>
+          </div>
+
           <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
             <p className="text-zinc-500 dark:text-zinc-500">
               Enjoying Balanced?
