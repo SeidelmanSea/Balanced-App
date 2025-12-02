@@ -1865,7 +1865,7 @@ export default function PortfolioApp() {
             {isAddingAsset && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setIsAddingAsset(false)}></div>
-                <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 z-20 overflow-hidden py-1 max-h-60 overflow-y-auto">
+                <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 overflow-hidden py-1 max-h-60 overflow-y-auto">
                   <div className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">Available Assets</div>
                   {availableAssets.length > 0 ? availableAssets.map(asset => (
                     <button key={asset.id} onClick={() => addEquityAsset(asset.id)} className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: asset.color }}></div>{asset.name}</button>
