@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts';
@@ -283,6 +284,56 @@ const formatCurrency = (value) => {
 
 // --- Sub-Components ---
 
+const PortalDropdown = ({ targetRef, isOpen, onClose, children }) => {
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
+
+  useEffect(() => {
+    if (isOpen && targetRef.current) {
+      const updatePosition = () => {
+        const rect = targetRef.current.getBoundingClientRect();
+        setPosition({
+          top: rect.bottom + 8, // 8px gap
+          left: rect.left,
+          width: rect.width
+        });
+      };
+
+      updatePosition();
+
+      // Close on scroll or resize to avoid detached floating UI
+      const handleScroll = () => onClose();
+      const handleResize = () => onClose();
+
+      window.addEventListener('scroll', handleScroll, true); // Capture phase for all scrollable parents
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true);
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, [isOpen, targetRef, onClose]);
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <>
+      <div className="fixed inset-0 z-[9998]" onClick={onClose} />
+      <div
+        className="fixed z-[9999] bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 max-h-96 overflow-y-auto animate-in fade-in zoom-in-95 duration-100"
+        style={{
+          top: `${position.top}px`,
+          left: `${position.left}px`,
+          width: `${position.width}px`
+        }}
+      >
+        {children}
+      </div>
+    </>,
+    document.body
+  );
+};
+
 const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center animate-in slide-in-from-left-2 duration-300 p-3 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg shadow-sm md:shadow-none md:border-0 md:bg-transparent md:p-0 mb-3 md:mb-0">
@@ -370,7 +421,6 @@ export default function PortfolioApp() {
   const [equityStrategy, setEquityStrategy] = useState(DEFAULT_EQUITY_SPLIT);
   const [isAddingAsset, setIsAddingAsset] = useState(false);
   const addAssetButtonRef = useRef(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const [taxStrategy, setTaxStrategy] = useState('standard');
 
   // Rebalancing Settings - Split by Account Type
@@ -466,18 +516,6 @@ export default function PortfolioApp() {
 
     return () => clearTimeout(timeoutId);
   }, [accounts, bondAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
-
-  // Calculate dropdown position when it opens
-  useEffect(() => {
-    if (isAddingAsset && addAssetButtonRef.current) {
-      const rect = addAssetButtonRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + 8,
-        left: rect.left,
-        width: rect.width
-      });
-    }
-  }, [isAddingAsset]);
 
   // --- Core Logic ---
 
@@ -1882,24 +1920,17 @@ export default function PortfolioApp() {
             >
               <Plus className="w-4 h-4" /> Add Asset Class
             </button>
-            {isAddingAsset && addAssetButtonRef.current && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setIsAddingAsset(false)}></div>
-                <div
-                  className="fixed bg-white dark:bg-zinc-900 rounded-md shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 py-1 max-h-96 overflow-y-auto"
-                  style={{
-                    top: `${addAssetButtonRef.current.getBoundingClientRect().bottom + 8}px`,
-                    left: `${addAssetButtonRef.current.getBoundingClientRect().left}px`,
-                    width: `${addAssetButtonRef.current.getBoundingClientRect().width}px`
-                  }}
-                >
-                  <div className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">Available Assets</div>
-                  {availableAssets.length > 0 ? availableAssets.map(asset => (
-                    <button key={asset.id} onClick={() => addEquityAsset(asset.id)} className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: asset.color }}></div>{asset.name}</button>
-                  )) : (<div className="px-4 py-4 text-sm text-zinc-500 text-center italic">All available asset classes have been added.</div>)}
-                </div>
-              </>
-            )}
+
+            <PortalDropdown
+              targetRef={addAssetButtonRef}
+              isOpen={isAddingAsset}
+              onClose={() => setIsAddingAsset(false)}
+            >
+              <div className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">Available Assets</div>
+              {availableAssets.length > 0 ? availableAssets.map(asset => (
+                <button key={asset.id} onClick={() => { addEquityAsset(asset.id); setIsAddingAsset(false); }} className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: asset.color }}></div>{asset.name}</button>
+              )) : (<div className="px-4 py-4 text-sm text-zinc-500 text-center italic">All available asset classes have been added.</div>)}
+            </PortalDropdown>
           </div>
           {!isEquityValid && (<p className="text-xs text-red-500 mt-4 text-center bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-100 dark:border-red-900/30">Total equity allocation must equal 100%. Please adjust your values.</p>)}
         </Card>
