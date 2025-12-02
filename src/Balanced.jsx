@@ -1343,7 +1343,14 @@ export default function PortfolioApp() {
     const chartData = chartDataRaw.filter(d => d.current > 1 || d.target > 1);
 
     const chartTextColor = isDarkMode ? '#a1a1aa' : '#64748b';
-    const chartTooltipStyle = { backgroundColor: isDarkMode ? '#18181b' : '#fff', borderColor: isDarkMode ? '#27272a' : '#e5e7eb', color: isDarkMode ? '#f4f4f5' : '#000', borderRadius: '8px' };
+    const chartTooltipStyle = {
+      backgroundColor: isDarkMode ? '#18181b' : '#fff',
+      borderColor: isDarkMode ? '#52525b' : '#e5e7eb',
+      color: isDarkMode ? '#ffffff' : '#000',
+      borderRadius: '8px',
+      borderWidth: '1px',
+      borderStyle: 'solid'
+    };
 
     return (
       <div className="space-y-6 animate-in fade-in duration-500">
