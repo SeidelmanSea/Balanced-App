@@ -86,7 +86,7 @@ const ASSET_CLASSES = {
   BONDS: { id: 'bonds', name: 'Bonds', color: '#f43f5e', type: 'fixed', taxPref: ['deferred', 'roth', 'taxable'] },
 
   // Individual Stocks
-  INDIVIDUAL_STOCK: { id: 'individual_stock', name: 'Individual Stocks', color: '#a855f7', type: 'equity', taxPref: [] },
+  INDIVIDUAL_STOCK: { id: 'individual_stock', name: 'Individual Stocks', color: '#a855f7', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
 
 };
 
