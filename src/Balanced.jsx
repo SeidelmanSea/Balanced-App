@@ -320,6 +320,7 @@ const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
             type="number"
             className="w-full pl-6 pr-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md focus:ring-1 focus:ring-emerald-500 outline-none"
             value={fund.value}
+            onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
             onWheel={(e) => e.target.blur()}
             onChange={(e) => updateFund(accountId, fund.id, 'value', e.target.value)}
           />
@@ -1253,7 +1254,7 @@ export default function PortfolioApp() {
     }
 
     return { efAction, accountActions };
-  }, [portfolioMetrics, accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
+  }, [accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
 
   // ... (Helper functions remain same)
   const updateAccount = (accId, field, val) => {
@@ -1490,7 +1491,8 @@ export default function PortfolioApp() {
                             <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400">$</span>
                             <input
                               type="number"
-                              value={accountData.cash || 0}
+                              value={accountData.cash}
+                              onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
                               onWheel={(e) => e.target.blur()}
                               onChange={(e) => updateAccountCash(accountData.id, e.target.value)}
                               className="w-24 pl-5 pr-2 py-1 text-sm border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 focus:ring-1 focus:ring-emerald-500 outline-none"
@@ -1652,12 +1654,14 @@ export default function PortfolioApp() {
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span className="text-zinc-500">$</span></div>
               <input
                 type="number"
+                min="0"
                 value={emergencyFund}
-                onWheel={(e) => e.target.blur()}
+                onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
                 onChange={(e) => {
                   const val = e.target.value;
                   setEmergencyFund(val === '' ? '' : parseInt(val));
                 }}
+                onWheel={(e) => e.target.blur()}
                 className="block w-full pl-7 pr-12 py-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-md focus:ring-emerald-500 focus:border-emerald-500 outline-none"
               />
             </div>
@@ -1770,7 +1774,7 @@ export default function PortfolioApp() {
                     min="0"
                     max="100"
                     value={bondAllocation}
-                    onWheel={(e) => e.target.blur()}
+                    onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
                     onChange={(e) => {
                       const val = e.target.value;
                       if (val === '') {
@@ -1838,7 +1842,7 @@ export default function PortfolioApp() {
                     <button onClick={() => removeEquityAsset(key)} className="text-zinc-300 hover:text-red-500 dark:text-zinc-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity" title="Remove Asset Class"><X className="w-3 h-3" /></button>
                   </div>
                   <div className="relative">
-                    <input type="number" value={val} onWheel={(e) => e.target.blur()} onChange={(e) => updateEquityStrategy(key, e.target.value)} className={`block w-full pl-3 pr-8 py-2 border bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-md outline-none focus:ring-1 ${isEquityValid ? 'border-zinc-300 dark:border-zinc-700 focus:ring-emerald-500' : 'border-red-300 focus:border-red-500 focus:ring-red-500'}`} />
+                    <input type="number" value={val} onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }} onWheel={(e) => e.target.blur()} onChange={(e) => updateEquityStrategy(key, e.target.value)} className={`block w-full pl-3 pr-8 py-2 border bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-md outline-none focus:ring-1 ${isEquityValid ? 'border-zinc-300 dark:border-zinc-700 focus:ring-emerald-500' : 'border-red-300 focus:border-red-500 focus:ring-red-500'}`} />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Percent className="w-3 h-3 text-zinc-400" /></div>
                   </div>
                 </div>
