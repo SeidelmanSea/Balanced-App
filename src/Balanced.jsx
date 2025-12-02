@@ -41,6 +41,7 @@ import {
   Coffee,
   Heart
 } from 'lucide-react';
+import tickerDatabase from './tickerDatabase.json';
 
 // --- Constants & Configuration ---
 
@@ -291,6 +292,13 @@ const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
           className="w-full px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md focus:ring-1 focus:ring-emerald-500 outline-none"
           value={fund.name}
           onChange={(e) => updateFund(accountId, fund.id, 'name', e.target.value)}
+          onBlur={(e) => {
+            const ticker = e.target.value.trim().toUpperCase();
+            const assetClass = tickerDatabase[ticker];
+            if (assetClass && fund.type !== assetClass) {
+              updateFund(accountId, fund.id, 'type', assetClass);
+            }
+          }}
         />
       </div>
 
@@ -661,8 +669,8 @@ export default function PortfolioApp() {
       let type = 'us_broad'; // Default
 
       // Check ticker mapping first
-      if (TICKER_MAPPING[upperSymbol]) {
-        type = TICKER_MAPPING[upperSymbol];
+      if (tickerDatabase[upperSymbol]) {
+        type = tickerDatabase[upperSymbol];
       }
       // Check fund name for keywords
       else if (combined.includes('BOND') || combined.includes('FIXED') || combined.includes('TREASURY')) {
@@ -773,11 +781,11 @@ export default function PortfolioApp() {
       const value = parseFloat(valueStr);
 
       if (!isNaN(value)) {
-        // Guess type
+        // Guess type using tickerDatabase
         const upperName = name.toUpperCase();
         let type = 'us_broad'; // Default
-        if (TICKER_MAPPING[upperName]) {
-          type = TICKER_MAPPING[upperName];
+        if (tickerDatabase[upperName]) {
+          type = tickerDatabase[upperName];
         } else if (upperName.includes('BOND') || upperName.includes('AGG')) {
           type = 'bonds';
         } else if (upperName.includes('INTL') || upperName.includes('EMERG')) {
