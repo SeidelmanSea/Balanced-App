@@ -173,30 +173,47 @@ export default function LandingPage() {
                                             <div className="text-3xl font-bold tracking-tight">$142,500.00</div>
                                         </div>
 
-                                        {/* Asset Allocation List */}
-                                        <div className="space-y-4">
-                                            {[
-                                                { name: "US Stocks", current: 52, target: 45, color: "emerald", drift: "+7%" },
-                                                { name: "Intl Stocks", current: 18, target: 25, color: "blue", drift: "-7%" },
-                                                { name: "Bonds", current: 30, target: 30, color: "purple", drift: "0%" }
-                                            ].map((asset, i) => (
-                                                <div key={i} className="space-y-2">
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="font-medium">{asset.name}</span>
-                                                        <div className="flex gap-3 text-xs">
-                                                            <span className="text-zinc-500">Target: {asset.target}%</span>
-                                                            <span className={asset.current > asset.target ? "text-red-500 font-medium" : asset.current < asset.target ? "text-emerald-500 font-medium" : "text-zinc-400"}>
-                                                                {asset.drift}
-                                                            </span>
-                                                        </div>
+                                        {/* Asset Allocation - Pie Chart */}
+                                        <div className="flex items-center gap-6">
+                                            {/* Pie Chart */}
+                                            <svg viewBox="0 0 100 100" className="w-32 h-32">
+                                                {/* US Stocks - 52% (Emerald) */}
+                                                <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" strokeWidth="20"
+                                                    strokeDasharray="187 314" strokeDashoffset="0" transform="rotate(-90 50 50)" />
+
+                                                {/* Intl Stocks - 18% (Blue) */}
+                                                <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" strokeWidth="20"
+                                                    strokeDasharray="56.5 314" strokeDashoffset="-187" transform="rotate(-90 50 50)" />
+
+                                                {/* Bonds - 30% (Purple) */}
+                                                <circle cx="50" cy="50" r="40" fill="none" stroke="#a855f7" strokeWidth="20"
+                                                    strokeDasharray="94 314" strokeDashoffset="-243.5" transform="rotate(-90 50 50)" />
+                                            </svg>
+
+                                            {/* Legend */}
+                                            <div className="flex-1 space-y-2">
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-3 h-3 rounded-sm bg-emerald-500"></div>
+                                                        <span className="font-medium">US Stocks</span>
                                                     </div>
-                                                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex">
-                                                        {/* Target Marker Line (Simulated by width calc) */}
-                                                        <div className={`h-full bg-${asset.color}-500 rounded-full transition-all duration-1000 ease-out`}
-                                                            style={{ width: `${asset.current}%` }} />
-                                                    </div>
+                                                    <span className="font-bold">52%</span>
                                                 </div>
-                                            ))}
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-3 h-3 rounded-sm bg-blue-500"></div>
+                                                        <span className="font-medium">Intl Stocks</span>
+                                                    </div>
+                                                    <span className="font-bold">18%</span>
+                                                </div>
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-3 h-3 rounded-sm bg-purple-500"></div>
+                                                        <span className="font-medium">Bonds</span>
+                                                    </div>
+                                                    <span className="font-bold">30%</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
