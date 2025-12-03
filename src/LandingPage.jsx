@@ -12,18 +12,49 @@ import {
     CheckCircle2,
     Sparkles,
     Zap,
-    Target
+    Target,
+    BarChart3,
+    Wallet
 } from 'lucide-react';
 
 export default function LandingPage() {
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Balanced",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "description": "Free, privacy-focused portfolio rebalancing tool with tax-efficient asset location and drift band rebalancing.",
+        "featureList": [
+            "Tax-efficient asset location",
+            "Drift band rebalancing",
+            "Roth growth optimization",
+            "Privacy-focused local storage",
+            "Emergency fund tracking"
+        ]
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-zinc-900 text-zinc-900 dark:text-zinc-100">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-emerald-500/30">
+            <script type="application/ld+json">
+                {JSON.stringify(structuredData)}
+            </script>
+
+            {/* Background Grid Pattern */}
+            <div className="fixed inset-0 bg-grid-zinc-900 dark:bg-grid-white bg-[size:32px_32px] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none opacity-[0.03] dark:opacity-[0.05]" />
 
             {/* Navigation */}
-            <nav className="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <nav className="border-b border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-                        <PieChart className="w-6 h-6 text-emerald-500" />
+                        <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                            <PieChart className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
                         <span>Balanced</span>
                     </div>
                     <div className="flex items-center gap-4">
@@ -37,7 +68,7 @@ export default function LandingPage() {
                         </a>
                         <Link
                             to="/app"
-                            className="text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors"
+                            className="text-sm font-medium bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 px-4 py-2 rounded-lg transition-all hover:shadow-lg hover:shadow-zinc-500/20"
                         >
                             Open App
                         </Link>
@@ -46,253 +77,326 @@ export default function LandingPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="max-w-6xl mx-auto px-6 pt-20 pb-24 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-sm font-medium mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Free, Open Source, Privacy-First</span>
-                </div>
+            <section className="relative pt-20 pb-32 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
 
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-zinc-900 via-zinc-700 to-zinc-900 dark:from-white dark:via-zinc-300 dark:to-white bg-clip-text text-transparent leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                    Rebalance Your Portfolio.<br />
-                    <span className="bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">Tax-Efficiently.</span>
-                </h1>
+                        {/* Hero Text */}
+                        <div className="flex-1 text-center lg:text-left">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100/50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-medium mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                <Sparkles className="w-3 h-3" />
+                                <span>Free, Open Source, Privacy-First</span>
+                            </div>
 
-                <p className="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-                    Institutional-grade portfolio management strategies, simplified for everyday investors.
-                    Optimize your asset allocation while minimizing taxes and maximizing growth.
-                </p>
+                            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+                                Rebalance Simple.<br />
+                                <span className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                                    Tax Efficiently.
+                                </span>
+                            </h1>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-                    <Link
-                        to="/app"
-                        className="group inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-lg font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25"
-                    >
-                        <span>Try It Now</span>
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                            <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                                Institutional-grade portfolio management strategies, simplified for everyday investors.
+                                Optimize your asset location to minimize taxes and maximize growth.
+                            </p>
 
-                    <a
-                        href="https://buymeacoffee.com/balanced"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-2 px-8 py-4 bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 hover:border-emerald-500 dark:hover:border-emerald-500 text-zinc-900 dark:text-zinc-100 text-lg font-semibold rounded-xl transition-all hover:scale-105"
-                    >
-                        <Coffee className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                        <span>Support This Project</span>
-                    </a>
-                </div>
+                            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+                                <Link
+                                    to="/app"
+                                    className="group inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/20"
+                                >
+                                    <span>Start Rebalancing</span>
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </Link>
 
-                {/* Trust Badges */}
-                <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-sm text-zinc-500 dark:text-zinc-500 animate-in fade-in duration-700 delay-500">
-                    <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        <span>No Account Required</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        <span>100% Free Forever</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        <span>Your Data Stays Local</span>
+                                <a
+                                    href="https://buymeacoffee.com/balanced"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group inline-flex items-center gap-2 px-8 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-lg font-semibold rounded-2xl transition-all hover:scale-[1.02]"
+                                >
+                                    <Heart className="w-5 h-5 text-rose-500 group-hover:scale-110 transition-transform" />
+                                    <span>Support Project</span>
+                                </a>
+                            </div>
+
+                            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-3 mt-10 text-sm font-medium text-zinc-500 dark:text-zinc-500 animate-in fade-in duration-700 delay-500">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                    <span>No Account Required</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                    <span>100% Free Forever</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                    <span>Local Data Storage</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Hero Visualization */}
+                        <div className="flex-1 w-full max-w-[500px] lg:max-w-none animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
+                            <div className="relative aspect-square md:aspect-[4/3] lg:aspect-square">
+                                {/* Abstract Background Blobs */}
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl animate-pulse" />
+                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl animate-pulse delay-700" />
+
+                                {/* Main Card */}
+                                <div className="absolute inset-4 md:inset-8 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl shadow-2xl p-6 flex flex-col">
+                                    {/* Header */}
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                                                <Wallet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                            </div>
+                                            <div>
+                                                <div className="h-2 w-24 bg-zinc-200 dark:bg-zinc-800 rounded mb-1.5" />
+                                                <div className="h-2 w-16 bg-zinc-100 dark:bg-zinc-800/50 rounded" />
+                                            </div>
+                                        </div>
+                                        <div className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-full">
+                                            Balanced
+                                        </div>
+                                    </div>
+
+                                    {/* Chart Area */}
+                                    <div className="flex-1 flex items-end justify-between gap-2 px-2 pb-4">
+                                        {[40, 65, 45, 80, 55, 70, 90].map((h, i) => (
+                                            <div key={i} className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-t-lg relative group overflow-hidden" style={{ height: `${h}%` }}>
+                                                <div className="absolute bottom-0 left-0 right-0 bg-emerald-500/80 dark:bg-emerald-500/60 transition-all duration-1000 ease-out"
+                                                    style={{ height: i === 6 ? '0%' : '100%', animation: `fillUp 1.5s ease-out ${i * 0.1}s forwards` }} />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Floating Badge */}
+                                    <div className="absolute -right-4 top-1/4 bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-700 animate-bounce delay-1000 duration-[3000ms]">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                                                <Shield className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Tax Savings</div>
+                                                <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">+$1,240</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Floating Badge 2 */}
+                                    <div className="absolute -left-4 bottom-1/4 bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-700 animate-bounce delay-500 duration-[4000ms]">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400">
+                                                <Target className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Allocation</div>
+                                                <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Perfect</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* Key Features */}
-            <section className="max-w-6xl mx-auto px-6 py-20 border-t border-zinc-200 dark:border-zinc-800">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                        Everything You Need to Optimize Your Portfolio
+            <section className="max-w-7xl mx-auto px-6 py-24">
+                <div className="text-center mb-20">
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
+                        Professional Tools.<br className="hidden md:block" />
+                        <span className="text-zinc-400">Simplified for Everyone.</span>
                     </h2>
                     <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-                        Powerful features that help you make smarter investment decisions
+                        Powerful features that help you make smarter investment decisions, without the complexity or fees of a financial advisor.
                     </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Feature 1 */}
-                    <div className="group p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-emerald-500 dark:hover:border-emerald-500 transition-all hover:shadow-lg hover:shadow-emerald-500/10">
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <TrendingUp className="w-6 h-6 text-white" />
+                    {[
+                        {
+                            icon: TrendingUp,
+                            color: "emerald",
+                            title: "Tax-Efficient Rebalancing",
+                            desc: "Smart asset location strategies that minimize your tax burden while maximizing after-tax returns."
+                        },
+                        {
+                            icon: Shield,
+                            color: "blue",
+                            title: "Emergency Fund Tracking",
+                            desc: "Separate your safety net from investments. Track emergency funds at the account or fund level."
+                        },
+                        {
+                            icon: BarChart3,
+                            color: "purple",
+                            title: "Individual Stock Support",
+                            desc: "Hold individual stocks alongside ETFs. Perfect for concentrated positions or employer stock."
+                        },
+                        {
+                            icon: Lock,
+                            color: "amber",
+                            title: "Privacy-First Design",
+                            desc: "Your financial data never leaves your device. No servers, no tracking, no data breaches."
+                        }
+                    ].map((feature, i) => (
+                        <div key={i} className="group p-8 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-3xl hover:border-zinc-300 dark:hover:border-zinc-700 transition-all hover:shadow-xl hover:shadow-zinc-500/5">
+                            <div className={`w-14 h-14 bg-${feature.color}-100 dark:bg-${feature.color}-900/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                                <feature.icon className={`w-7 h-7 text-${feature.color}-600 dark:text-${feature.color}-400`} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                            <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+                                {feature.desc}
+                            </p>
                         </div>
-                        <h3 className="text-xl font-bold mb-2">Tax-Efficient Rebalancing</h3>
-                        <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
-                            Smart asset location strategies that minimize your tax burden while maximizing after-tax returns.
-                        </p>
-                    </div>
-
-                    {/* Feature 2 */}
-                    <div className="group p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/10">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <Shield className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Emergency Fund Tracking</h3>
-                        <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
-                            Separate your safety net from investments. Track emergency funds at the account or fund level.
-                        </p>
-                    </div>
-
-                    {/* Feature 3 */}
-                    <div className="group p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-purple-500 dark:hover:border-purple-500 transition-all hover:shadow-lg hover:shadow-purple-500/10">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <Target className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Individual Stock Support</h3>
-                        <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
-                            Hold individual stocks alongside ETFs. Perfect for concentrated positions or employer stock.
-                        </p>
-                    </div>
-
-                    {/* Feature 4 */}
-                    <div className="group p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-amber-500 dark:hover:border-amber-500 transition-all hover:shadow-lg hover:shadow-amber-500/10">
-                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <Lock className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Privacy-First Design</h3>
-                        <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
-                            Your financial data never leaves your device. No servers, no tracking, no data breaches.
-                        </p>
-                    </div>
+                    ))}
                 </div>
             </section>
 
             {/* How It Works */}
-            <section className="max-w-6xl mx-auto px-6 py-20 border-t border-zinc-200 dark:border-zinc-800">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                        Get Started in 3 Simple Steps
-                    </h2>
-                    <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-                        No complex setup. Start optimizing your portfolio in minutes.
-                    </p>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-8 relative">
-                    {/* Connecting Line (hidden on mobile) */}
-                    <div className="hidden md:block absolute top-16 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 opacity-20" style={{ top: '4rem' }}></div>
-
-                    {/* Step 1 */}
-                    <div className="relative">
-                        <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 mx-auto shadow-lg shadow-emerald-500/25">
-                            1
-                        </div>
-                        <h3 className="text-xl font-bold mb-3 text-center">Import Your Portfolio</h3>
-                        <p className="text-zinc-600 dark:text-zinc-400 text-center leading-relaxed">
-                            Add your accounts manually or paste data from your brokerage. Supports CSV import from Vanguard, Fidelity, Schwab, and more.
+            <section className="py-24 bg-zinc-50 dark:bg-zinc-900/30 border-y border-zinc-200 dark:border-zinc-800">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center mb-20">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                            Get Started in Minutes
+                        </h2>
+                        <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+                            No complex setup. Start optimizing your portfolio immediately.
                         </p>
                     </div>
 
-                    {/* Step 2 */}
-                    <div className="relative">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 mx-auto shadow-lg shadow-blue-500/25">
-                            2
-                        </div>
-                        <h3 className="text-xl font-bold mb-3 text-center">Set Your Target Allocation</h3>
-                        <p className="text-zinc-600 dark:text-zinc-400 text-center leading-relaxed">
-                            Choose from preset strategies or build your own. Customize your bond allocation, equity mix, and tax strategy.
-                        </p>
+                    <div className="grid md:grid-cols-3 gap-12 relative">
+                        {/* Connecting Line (hidden on mobile) */}
+                        <div className="hidden md:block absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500/20 via-blue-500/20 to-purple-500/20"></div>
+
+                        {[
+                            {
+                                step: 1,
+                                title: "Import Portfolio",
+                                desc: "Paste data from your brokerage or enter manually. Supports CSV import from major brokers.",
+                                color: "emerald"
+                            },
+                            {
+                                step: 2,
+                                title: "Set Targets",
+                                desc: "Choose from preset strategies or build your own custom asset allocation.",
+                                color: "blue"
+                            },
+                            {
+                                step: 3,
+                                title: "Rebalance",
+                                desc: "Get specific buy/sell recommendations to reach your target tax-efficiently.",
+                                color: "purple"
+                            }
+                        ].map((item, i) => (
+                            <div key={i} className="relative">
+                                <div className={`w-24 h-24 bg-white dark:bg-zinc-900 rounded-3xl border-4 border-${item.color}-100 dark:border-${item.color}-900/30 flex items-center justify-center text-3xl font-bold text-${item.color}-600 dark:text-${item.color}-400 mb-8 mx-auto shadow-lg relative z-10`}>
+                                    {item.step}
+                                </div>
+                                <h3 className="text-xl font-bold mb-3 text-center">{item.title}</h3>
+                                <p className="text-zinc-600 dark:text-zinc-400 text-center leading-relaxed max-w-xs mx-auto">
+                                    {item.desc}
+                                </p>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Step 3 */}
-                    <div className="relative">
-                        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 mx-auto shadow-lg shadow-purple-500/25">
-                            3
-                        </div>
-                        <h3 className="text-xl font-bold mb-3 text-center">Get Recommendations</h3>
-                        <p className="text-zinc-600 dark:text-zinc-400 text-center leading-relaxed">
-                            See exactly what to buy and sell to reach your target allocation. Tax-optimized trades across all your accounts.
-                        </p>
+                    <div className="text-center mt-16">
+                        <Link
+                            to="/app"
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-lg font-semibold rounded-2xl transition-all hover:scale-[1.02] hover:shadow-xl"
+                        >
+                            <Zap className="w-5 h-5" />
+                            <span>Start Rebalancing Now</span>
+                        </Link>
                     </div>
-                </div>
-
-                <div className="text-center mt-12">
-                    <Link
-                        to="/app"
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-lg font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25"
-                    >
-                        <Zap className="w-5 h-5" />
-                        <span>Start Rebalancing Now</span>
-                    </Link>
                 </div>
             </section>
 
             {/* Support Section */}
-            <section className="max-w-6xl mx-auto px-6 py-20 border-t border-zinc-200 dark:border-zinc-800">
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800 rounded-3xl p-12 text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-6 shadow-lg shadow-emerald-500/25">
-                        <Heart className="w-8 h-8 text-white" />
+            <section className="max-w-4xl mx-auto px-6 py-24">
+                <div className="relative overflow-hidden bg-gradient-to-br from-emerald-900 to-teal-900 rounded-[2.5rem] p-12 text-center text-white shadow-2xl">
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/30 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/30 rounded-full blur-3xl"></div>
+
+                    <div className="relative z-10">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl mb-8 border border-white/20">
+                            <Heart className="w-8 h-8 text-emerald-300" />
+                        </div>
+
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
+                            Support Open Source
+                        </h2>
+
+                        <p className="text-lg text-emerald-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+                            Balanced is free and always will be. Your contribution helps keep this tool ad-free and privacy-focused for everyone.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <a
+                                href="https://buymeacoffee.com/balanced"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-white text-lg font-semibold rounded-xl transition-all hover:scale-[1.02] shadow-lg shadow-amber-900/20"
+                            >
+                                <Coffee className="w-5 h-5" />
+                                <span>Buy Me a Coffee</span>
+                            </a>
+
+                            <a
+                                href="https://github.com/SeidelmanSea/Balanced-App"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-lg font-semibold rounded-xl transition-all hover:scale-[1.02]"
+                            >
+                                <Github className="w-5 h-5" />
+                                <span>Star on GitHub</span>
+                            </a>
+                        </div>
+
+                        <p className="text-sm text-emerald-200/60 mt-8">
+                            100% of contributions go directly to development costs
+                        </p>
                     </div>
-
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                        Support Open Source Development
-                    </h2>
-
-                    <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-                        Balanced is free and always will be. If you find it valuable, consider supporting its development.
-                        Your contribution helps keep this tool free, ad-free, and privacy-focused for everyone.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a
-                            href="https://buymeacoffee.com/balanced"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group inline-flex items-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-xl hover:shadow-amber-500/25"
-                        >
-                            <Coffee className="w-5 h-5" />
-                            <span>Buy Me a Coffee</span>
-                        </a>
-
-                        <a
-                            href="https://github.com/SeidelmanSea/Balanced-App"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group inline-flex items-center gap-2 px-8 py-4 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-lg font-semibold rounded-xl transition-all hover:scale-105"
-                        >
-                            <Github className="w-5 h-5" />
-                            <span>Star on GitHub</span>
-                        </a>
-                    </div>
-
-                    <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-6">
-                        100% of contributions go directly to development and hosting costs
-                    </p>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="max-w-6xl mx-auto px-6 py-12 border-t border-zinc-200 dark:border-zinc-800">
-                <div className="flex flex-col items-center gap-6">
+            <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-zinc-200 dark:border-zinc-800">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-2 font-bold text-xl tracking-tight opacity-50 grayscale hover:grayscale-0 transition-all">
+                        <PieChart className="w-6 h-6 text-emerald-500" />
+                        <span>Balanced</span>
+                    </div>
 
-                    {/* Footer Links */}
-                    <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                        <a href="/about.html" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                    <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm font-medium text-zinc-500 dark:text-zinc-500">
+                        <a href="/about.html" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             About & Methodology
                         </a>
-                        <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                        <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             GitHub
                         </a>
-                        <a href="https://buymeacoffee.com/balanced" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                            Support Development
+                        <a href="https://buymeacoffee.com/balanced" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                            Support
                         </a>
                     </div>
 
-                    {/* Risk Disclosure */}
-                    <div className="text-center max-w-2xl mx-auto">
-                        <p className="text-[10px] leading-relaxed text-zinc-400 dark:text-zinc-600">
-                            <span className="font-semibold uppercase tracking-wider opacity-80 block mb-1">Risk Disclosure</span>
-                            This application is for informational and educational purposes only and does not constitute financial advice.
-                            All investing involves risk. Past performance is not indicative of future results.
-                        </p>
-                    </div>
-
-                    {/* Copyright */}
                     <div className="text-xs text-zinc-400 dark:text-zinc-600">
-                        © {new Date().getFullYear()} Balanced. Open source under MIT License.
+                        © {new Date().getFullYear()} Balanced. MIT License.
                     </div>
                 </div>
             </footer>
+
+            <style>{`
+                @keyframes fillUp {
+                    from { height: 0%; }
+                    to { height: 100%; }
+                }
+            `}</style>
         </div>
     );
 }
