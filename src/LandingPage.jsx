@@ -14,7 +14,10 @@ import {
     Zap,
     Target,
     BarChart3,
-    Wallet
+    Wallet,
+    Sliders,
+    ArrowLeftRight,
+    ChevronDown
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -35,7 +38,8 @@ export default function LandingPage() {
             "Drift band rebalancing",
             "Roth growth optimization",
             "Privacy-focused local storage",
-            "Emergency fund tracking"
+            "Emergency fund tracking",
+            "Customizable asset allocation"
         ]
     };
 
@@ -96,7 +100,7 @@ export default function LandingPage() {
                             </h1>
 
                             <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-                                Institutional-grade portfolio management strategies, simplified for everyday investors.
+                                Institutional-grade portfolio management strategies, <strong>customized to your goals</strong>.
                                 Optimize your asset location to minimize taxes and maximize growth.
                             </p>
 
@@ -145,57 +149,91 @@ export default function LandingPage() {
 
                                 {/* Main Card */}
                                 <div className="absolute inset-4 md:inset-8 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl shadow-2xl p-6 flex flex-col">
-                                    {/* Header */}
+
+                                    {/* Mock Header with Strategy Selector */}
                                     <div className="flex items-center justify-between mb-8">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
                                                 <Wallet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                             </div>
                                             <div>
-                                                <div className="h-2 w-24 bg-zinc-200 dark:bg-zinc-800 rounded mb-1.5" />
-                                                <div className="h-2 w-16 bg-zinc-100 dark:bg-zinc-800/50 rounded" />
+                                                <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Target Strategy</div>
+                                                <div className="flex items-center gap-1 text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                                                    Custom Growth
+                                                    <ChevronDown className="w-3 h-3 text-zinc-400" />
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-full">
-                                            Balanced
+                                        <div className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-full flex items-center gap-1">
+                                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                            Active
                                         </div>
                                     </div>
 
-                                    {/* Chart Area */}
-                                    <div className="flex-1 flex items-end justify-between gap-2 px-2 pb-4">
-                                        {[40, 65, 45, 80, 55, 70, 90].map((h, i) => (
-                                            <div key={i} className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-t-lg relative group overflow-hidden" style={{ height: `${h}%` }}>
-                                                <div className="absolute bottom-0 left-0 right-0 bg-emerald-500/80 dark:bg-emerald-500/60 transition-all duration-1000 ease-out"
-                                                    style={{ height: i === 6 ? '0%' : '100%', animation: `fillUp 1.5s ease-out ${i * 0.1}s forwards` }} />
+                                    {/* Visualization Content */}
+                                    <div className="flex-1 flex flex-col justify-center gap-6">
+
+                                        {/* Donut Chart Animation */}
+                                        <div className="flex items-center justify-center gap-8">
+                                            <div className="relative w-32 h-32">
+                                                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                                                    {/* Background Circle */}
+                                                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="12" className="text-zinc-100 dark:text-zinc-800" />
+
+                                                    {/* US Stocks Segment (Emerald) */}
+                                                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="12"
+                                                        strokeDasharray="150 251"
+                                                        className="text-emerald-500 transition-all duration-[2000ms] ease-out"
+                                                        style={{ strokeDasharray: '180 251', animation: 'pulseSegment 4s infinite alternate' }} />
+
+                                                    {/* Intl Stocks Segment (Blue) */}
+                                                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="12"
+                                                        strokeDasharray="60 251" strokeDashoffset="-180"
+                                                        className="text-blue-500 transition-all duration-[2000ms] ease-out" />
+                                                </svg>
+                                                <div className="absolute inset-0 flex items-center justify-center flex-col">
+                                                    <span className="text-xs text-zinc-500 dark:text-zinc-400">Drift</span>
+                                                    <span className="text-sm font-bold text-red-500">-4.2%</span>
+                                                </div>
                                             </div>
-                                        ))}
+
+                                            <ArrowRight className="w-6 h-6 text-zinc-300 dark:text-zinc-600 animate-pulse" />
+
+                                            {/* Trade List */}
+                                            <div className="flex-1 space-y-3">
+                                                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 shadow-sm animate-in slide-in-from-right-4 fade-in duration-700 delay-500">
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">BUY VTI</span>
+                                                        <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded">Taxable</span>
+                                                    </div>
+                                                    <div className="text-xs text-zinc-500 dark:text-zinc-400">Tax-Efficient Location</div>
+                                                </div>
+
+                                                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 shadow-sm animate-in slide-in-from-right-4 fade-in duration-700 delay-700">
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <span className="text-xs font-bold text-red-500">SELL BND</span>
+                                                        <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">IRA</span>
+                                                    </div>
+                                                    <div className="text-xs text-zinc-500 dark:text-zinc-400">No Tax Impact</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
 
-                                    {/* Floating Badge */}
-                                    <div className="absolute -right-4 top-1/4 bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-700 animate-bounce delay-1000 duration-[3000ms]">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                                                <Shield className="w-5 h-5" />
+                                    {/* Floating Badge - Tax Savings */}
+                                    <div className="absolute -right-4 top-20 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-xl border border-zinc-100 dark:border-zinc-700 animate-bounce delay-1000 duration-[3000ms]">
+                                        <div className="flex items-center gap-2">
+                                            <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
+                                                <TrendingUp className="w-4 h-4" />
                                             </div>
                                             <div>
-                                                <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Tax Savings</div>
-                                                <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">+$1,240</div>
+                                                <div className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium uppercase tracking-wider">Tax Saved</div>
+                                                <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">+$842</div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Floating Badge 2 */}
-                                    <div className="absolute -left-4 bottom-1/4 bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-700 animate-bounce delay-500 duration-[4000ms]">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400">
-                                                <Target className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Allocation</div>
-                                                <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Perfect</div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -224,10 +262,10 @@ export default function LandingPage() {
                             desc: "Smart asset location strategies that minimize your tax burden while maximizing after-tax returns."
                         },
                         {
-                            icon: Shield,
+                            icon: Sliders,
                             color: "blue",
-                            title: "Emergency Fund Tracking",
-                            desc: "Separate your safety net from investments. Track emergency funds at the account or fund level."
+                            title: "Flexible Strategies",
+                            desc: "Choose from standard presets or build a completely custom allocation that fits your goals."
                         },
                         {
                             icon: BarChart3,
@@ -280,8 +318,8 @@ export default function LandingPage() {
                             },
                             {
                                 step: 2,
-                                title: "Set Targets",
-                                desc: "Choose from preset strategies or build your own custom asset allocation.",
+                                title: "Customize Strategy",
+                                desc: "Set your target allocation, asset location preferences, and drift tolerances.",
                                 color: "blue"
                             },
                             {
@@ -392,9 +430,9 @@ export default function LandingPage() {
             </footer>
 
             <style>{`
-                @keyframes fillUp {
-                    from { height: 0%; }
-                    to { height: 100%; }
+                @keyframes pulseSegment {
+                    0% { stroke-width: 12; opacity: 0.8; }
+                    100% { stroke-width: 14; opacity: 1; }
                 }
             `}</style>
         </div>
