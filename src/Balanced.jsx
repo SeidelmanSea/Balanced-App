@@ -362,7 +362,7 @@ const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
 // --- Main Application Component ---
 
 export default function PortfolioApp() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [bondAllocation, setBondAllocation] = useState(10);
   const [emergencyFund, setEmergencyFund] = useState(10000);
   const [userAge, setUserAge] = useState(38);
