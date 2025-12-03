@@ -167,15 +167,10 @@ export default function LandingPage() {
 
                                     {/* App Content */}
                                     <div className="p-6 space-y-6">
-                                        {/* Total Portfolio Value */}
-                                        <div className="flex items-end justify-between mb-2">
-                                            <div>
-                                                <div className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Total Portfolio</div>
-                                                <div className="text-3xl font-bold tracking-tight">$142,500.00</div>
-                                            </div>
-                                            <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">
-                                                +12.4% YTD
-                                            </div>
+                                        {/* Total Net Worth */}
+                                        <div className="mb-2">
+                                            <div className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Total Net Worth</div>
+                                            <div className="text-3xl font-bold tracking-tight">$142,500.00</div>
                                         </div>
 
                                         {/* Asset Allocation List */}
