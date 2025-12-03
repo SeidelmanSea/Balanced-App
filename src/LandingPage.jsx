@@ -438,6 +438,9 @@ export default function LandingPage() {
                         <Link to="/calculators" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             Calculators
                         </Link>
+                        <Link to="/resources" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                            Resources
+                        </Link>
                         <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             GitHub
                         </a>
