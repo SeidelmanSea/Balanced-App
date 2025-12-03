@@ -2607,7 +2607,7 @@ export default function PortfolioApp() {
 
             {/* Main Footer Links */}
             <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              <a href="/about.html" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">About & Methodology</a>
+              <a href="/" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">About & Methodology</a>
               <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">GitHub</a>
               <a href="https://buymeacoffee.com/balanced" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 <span>Support Development</span>
