@@ -107,8 +107,8 @@ const TICKER_MAPPING = {
   'VHT': 'sector_health', 'XLV': 'sector_health',
   // Money Market Funds (Cash)
   'SWVXX': 'cash', 'SNOXX': 'cash', 'SNVXX': 'cash', // Schwab money market
-  'VMFXX': 'cash', 'VMMXX': 'cash', // Vanguard money market
-  'FDRXX': 'cash', 'SPAXX': 'cash', 'FCASH': 'cash' // Fidelity money market
+  'VMFXX': 'cash', 'VMMXX': 'cash', 'VUSXX': 'cash', // Vanguard money market
+  'FDRXX': 'cash', 'SPAXX': 'cash', 'FCASH': 'cash', 'FGTXX': 'cash', 'SPRXX': 'cash' // Fidelity money market
 };
 
 // Strategies for Asset Location

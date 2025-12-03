@@ -125,10 +125,6 @@
     "TIP": "bonds",
     "VTIP": "bonds",
     "SCHP": "bonds",
-    "VMFXX": "cash",
-    "SPAXX": "cash",
-    "FDRXX": "cash",
-    "VUSXX": "cash",
     "AAPL": "individual_stock",
     "MSFT": "individual_stock",
     "GOOGL": "individual_stock",
@@ -181,5 +177,16 @@
     "BA": "individual_stock",
     "CAT": "individual_stock",
     "DE": "individual_stock",
-    "MMM": "individual_stock"
+    "MMM": "individual_stock",
+    "SWVXX": "cash",
+    "SNOXX": "cash",
+    "SNVXX": "cash",
+    "VMFXX": "cash",
+    "VMMXX": "cash",
+    "VUSXX": "cash",
+    "SPAXX": "cash",
+    "FDRXX": "cash",
+    "FGTXX": "cash",
+    "SPRXX": "cash",
+    "FCASH": "cash"
 }
