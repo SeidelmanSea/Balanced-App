@@ -1101,7 +1101,7 @@ export default function PortfolioApp() {
           });
         }
         const actualCashInAccount = accData ? (parseFloat(accData.cash) || 0) : 0;
-        const cashKey = 'cash';
+        const cashKey = 'money_market';
         if (!accData.cashIsEmergency) { // SKIP Emergency Cash
           currentHoldings[cashKey] = (currentHoldings[cashKey] || 0) + actualCashInAccount;
         }
@@ -1184,14 +1184,14 @@ export default function PortfolioApp() {
         }
       }
 
-      allocateAssetStandard('cash');
+      allocateAssetStandard('money_market');
       if (targets['bonds']) allocateAssetStandard('bonds');
 
       if (taxStrategy !== 'mirrored') {
         const taxableCapacity = buckets.taxable.capacity - buckets.taxable.filled;
         if (taxableCapacity > 0) {
           const taxableCandidates = Object.keys(remainingTargets).filter(key => {
-            if (key === 'cash' || key === 'bonds') return false;
+            if (key === 'money_market' || key === 'bonds') return false;
             if (remainingTargets[key] <= 0) return false;
             const asset = Object.values(ASSET_CLASSES).find(a => a.id === key);
             let prefs = asset?.taxPref || ['taxable'];
@@ -1241,7 +1241,7 @@ export default function PortfolioApp() {
           });
         }
         const actualCashInAccount = accData ? (parseFloat(accData.cash) || 0) : 0;
-        const cashKey = 'cash';
+        const cashKey = 'money_market';
         if (!accData.cashIsEmergency) { // SKIP Emergency Cash
           currentHoldings[cashKey] = (currentHoldings[cashKey] || 0) + actualCashInAccount;
         }
