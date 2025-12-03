@@ -1369,6 +1369,10 @@ export default function PortfolioApp() {
       fontWeight: '500'
     };
 
+    const chartTooltipItemStyle = {
+      color: isDarkMode ? '#ffffff' : '#000'
+    };
+
     return (
       <div className="space-y-6 animate-in fade-in duration-500">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1407,7 +1411,7 @@ export default function PortfolioApp() {
                     <Pie data={chartData} dataKey="current" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={50} stroke={isDarkMode ? '#18181b' : '#fff'}>
                       {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
-                    <RechartsTooltip formatter={(val) => formatCurrency(val)} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} />
+                    <RechartsTooltip formatter={(val) => formatCurrency(val)} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} itemStyle={chartTooltipItemStyle} />
                     <Legend formatter={(value) => <span style={{ color: chartTextColor }}>{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -1425,7 +1429,7 @@ export default function PortfolioApp() {
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={isDarkMode ? '#27272a' : '#e5e7eb'} />
                     <XAxis type="number" hide />
                     <YAxis dataKey="name" type="category" width={100} style={{ fontSize: '10px', fill: chartTextColor }} />
-                    <RechartsTooltip formatter={(val) => formatCurrency(val)} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} />
+                    <RechartsTooltip formatter={(val) => formatCurrency(val)} contentStyle={chartTooltipStyle} labelStyle={chartTooltipLabelStyle} itemStyle={chartTooltipItemStyle} />
                     <Bar dataKey="current" name="Current" fill="#10b981" radius={[0, 4, 4, 0]} barSize={20} />
                     <Bar dataKey="target" name="Target" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20} />
                   </BarChart>
