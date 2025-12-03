@@ -1113,7 +1113,8 @@ export default function PortfolioApp() {
           const current = currentHoldings[assetId] || 0;
           const diff = target - current;
 
-          if (current > 1 || target > 1) {
+          // Only suggest actions if there's a meaningful amount AND a meaningful difference
+          if ((current > 1 || target > 1) && Math.abs(diff) > 0.01) {
             rawActions.push({ assetId, assetName: assetClass.name, current, target, diff });
           }
         });
@@ -1252,7 +1253,8 @@ export default function PortfolioApp() {
           const current = currentHoldings[assetId] || 0;
           const diff = target - current; // Positive = Buy, Negative = Sell
 
-          if (current > 1 || target > 1) {
+          // Only suggest actions if there's a meaningful amount AND a meaningful difference
+          if ((current > 1 || target > 1) && Math.abs(diff) > 0.01) {
             rawActions.push({ assetId, assetName: assetClass.name, current, target, diff });
           }
         });
