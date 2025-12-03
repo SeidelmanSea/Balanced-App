@@ -47,7 +47,7 @@ import tickerDatabase from './tickerDatabase.json';
 
 const ASSET_CLASSES = {
   // Cash & Equivalents
-  CASH: { id: 'cash', name: 'Money Market / Cash Equiv.', color: '#71717a', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+  CASH: { id: 'money_market', name: 'Money Market / Cash Equiv.', color: '#71717a', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
 
   // US Equities - Core
   US_BROAD: { id: 'us_broad', name: 'US Broad Market', color: '#10b981', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
@@ -106,9 +106,9 @@ const TICKER_MAPPING = {
   'VGT': 'sector_tech', 'XLK': 'sector_tech',
   'VHT': 'sector_health', 'XLV': 'sector_health',
   // Money Market Funds (Cash)
-  'SWVXX': 'cash', 'SNOXX': 'cash', 'SNVXX': 'cash', // Schwab money market
-  'VMFXX': 'cash', 'VMMXX': 'cash', 'VUSXX': 'cash', // Vanguard money market
-  'FDRXX': 'cash', 'SPAXX': 'cash', 'FCASH': 'cash', 'FGTXX': 'cash', 'SPRXX': 'cash' // Fidelity money market
+  'SWVXX': 'money_market', 'SNOXX': 'money_market', 'SNVXX': 'money_market', // Schwab money market
+  'VMFXX': 'money_market', 'VMMXX': 'money_market', 'VUSXX': 'money_market', // Vanguard money market
+  'FDRXX': 'money_market', 'SPAXX': 'money_market', 'FCASH': 'money_market', 'FGTXX': 'money_market', 'SPRXX': 'money_market' // Fidelity money market
 };
 
 // Strategies for Asset Location
@@ -743,7 +743,7 @@ export default function PortfolioApp() {
         type = 'crypto';
       }
       else if (combined.includes('CASH') || combined.includes('MONEY MARKET')) {
-        type = 'cash';
+        type = 'money_market';
       }
 
       parsed.push({ id: Date.now() + Math.random(), name: displayName, value, type });
@@ -924,7 +924,7 @@ export default function PortfolioApp() {
         autoEmergencyFund += effectiveCash;
       } else {
         investableTotal += effectiveCash;
-        const cashKey = 'cash';
+        const cashKey = 'money_market';
         currentAllocation[cashKey] = (currentAllocation[cashKey] || 0) + effectiveCash;
       }
 
@@ -957,7 +957,7 @@ export default function PortfolioApp() {
     const effectiveInvestableTotal = investableTotal + emergencySurplus;
 
     const targets = {};
-    const cashKey = 'cash';
+    const cashKey = 'money_market';
     const bondKey = 'bonds';
 
     targets[cashKey] = 0; // Investment cash target is 0 (fully invested assumption)
@@ -999,7 +999,7 @@ export default function PortfolioApp() {
       // Pre-calculation for Inflow Mode: Check if we can afford all buys
       let inflowRatio = 1;
       if (mode === 'inflow') {
-        const totalBuyNeeded = rawActions.reduce((sum, a) => (a.diff > 0 && a.assetId !== 'cash') ? sum + a.diff : sum, 0);
+        const totalBuyNeeded = rawActions.reduce((sum, a) => (a.diff > 0 && a.assetId !== 'money_market') ? sum + a.diff : sum, 0);
         if (totalBuyNeeded > availableCash && totalBuyNeeded > 0) {
           inflowRatio = Math.max(0, availableCash) / totalBuyNeeded;
         }
@@ -1058,11 +1058,11 @@ export default function PortfolioApp() {
         // MODE 3: INFLOW ONLY
         if (mode === 'inflow') {
           // Logic: never sell assets (unless it's purely cash management)
-          if (diff < 0 && assetId !== 'cash') {
+          if (diff < 0 && assetId !== 'money_market') {
             finalAction = 'HOLD';
           }
           // Logic: Only suggest buying if there is cash available
-          if (diff > 0 && assetId !== 'cash') {
+          if (diff > 0 && assetId !== 'money_market') {
             if (availableCash <= 0) {
               finalAction = 'HOLD';
               explanation = 'No settlement cash';
@@ -1161,7 +1161,7 @@ export default function PortfolioApp() {
         const assetInfo = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
         let prefs = ['taxable'];
 
-        if (assetId === 'cash') {
+        if (assetId === 'money_market') {
           prefs = ['taxable', 'deferred', 'roth'];
         } else if (taxStrategy === 'roth_growth') {
           if (assetInfo?.type === 'fixed') {
