@@ -1265,7 +1265,7 @@ export default function PortfolioApp() {
     }
 
     return { efAction, accountActions };
-  }, [accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
+  }, [portfolioMetrics, accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, equityStrategy]);
 
   // ... (Helper functions remain same)
   const updateAccount = (accId, field, val) => {
