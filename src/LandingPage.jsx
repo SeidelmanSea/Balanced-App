@@ -17,7 +17,10 @@ import {
     Wallet,
     Sliders,
     ArrowLeftRight,
-    ChevronDown
+    ChevronDown,
+    MoreHorizontal,
+    ArrowUpRight,
+    ArrowDownRight
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -93,9 +96,9 @@ export default function LandingPage() {
                             </div>
 
                             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                                Rebalance Simple.<br />
+                                Portfolio Rebalancing<br />
                                 <span className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-                                    Tax Efficiently.
+                                    Made Simple.
                                 </span>
                             </h1>
 
@@ -140,100 +143,107 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        {/* Hero Visualization */}
+                        {/* Hero Visualization - Dashboard Preview */}
                         <div className="flex-1 w-full max-w-[500px] lg:max-w-none animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
-                            <div className="relative aspect-square md:aspect-[4/3] lg:aspect-square">
+                            <div className="relative">
                                 {/* Abstract Background Blobs */}
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl animate-pulse" />
                                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl animate-pulse delay-700" />
 
-                                {/* Main Card */}
-                                <div className="absolute inset-4 md:inset-8 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl shadow-2xl p-6 flex flex-col">
-
-                                    {/* Mock Header with Strategy Selector */}
-                                    <div className="flex items-center justify-between mb-8">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                                                <Wallet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                                            </div>
-                                            <div>
-                                                <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Target Strategy</div>
-                                                <div className="flex items-center gap-1 text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                                                    Custom Growth
-                                                    <ChevronDown className="w-3 h-3 text-zinc-400" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-full flex items-center gap-1">
-                                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                                            Active
-                                        </div>
-                                    </div>
-
-                                    {/* Visualization Content */}
-                                    <div className="flex-1 flex flex-col justify-center gap-6">
-
-                                        {/* Donut Chart Animation */}
-                                        <div className="flex items-center justify-center gap-8">
-                                            <div className="relative w-32 h-32">
-                                                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                                                    {/* Background Circle */}
-                                                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="12" className="text-zinc-100 dark:text-zinc-800" />
-
-                                                    {/* US Stocks Segment (Emerald) */}
-                                                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="12"
-                                                        strokeDasharray="150 251"
-                                                        className="text-emerald-500 transition-all duration-[2000ms] ease-out"
-                                                        style={{ strokeDasharray: '180 251', animation: 'pulseSegment 4s infinite alternate' }} />
-
-                                                    {/* Intl Stocks Segment (Blue) */}
-                                                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="12"
-                                                        strokeDasharray="60 251" strokeDashoffset="-180"
-                                                        className="text-blue-500 transition-all duration-[2000ms] ease-out" />
-                                                </svg>
-                                                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                                    <span className="text-xs text-zinc-500 dark:text-zinc-400">Drift</span>
-                                                    <span className="text-sm font-bold text-red-500">-4.2%</span>
-                                                </div>
-                                            </div>
-
-                                            <ArrowRight className="w-6 h-6 text-zinc-300 dark:text-zinc-600 animate-pulse" />
-
-                                            {/* Trade List */}
-                                            <div className="flex-1 space-y-3">
-                                                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 shadow-sm animate-in slide-in-from-right-4 fade-in duration-700 delay-500">
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">BUY VTI</span>
-                                                        <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded">Taxable</span>
-                                                    </div>
-                                                    <div className="text-xs text-zinc-500 dark:text-zinc-400">Tax-Efficient Location</div>
-                                                </div>
-
-                                                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 shadow-sm animate-in slide-in-from-right-4 fade-in duration-700 delay-700">
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-xs font-bold text-red-500">SELL BND</span>
-                                                        <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">IRA</span>
-                                                    </div>
-                                                    <div className="text-xs text-zinc-500 dark:text-zinc-400">No Tax Impact</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    {/* Floating Badge - Tax Savings */}
-                                    <div className="absolute -right-4 top-20 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-xl border border-zinc-100 dark:border-zinc-700 animate-bounce delay-1000 duration-[3000ms]">
+                                {/* Main App Window */}
+                                <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                                    {/* App Header */}
+                                    <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-900/50">
                                         <div className="flex items-center gap-2">
-                                            <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
-                                                <TrendingUp className="w-4 h-4" />
+                                            <div className="flex gap-1.5">
+                                                <div className="w-3 h-3 rounded-full bg-red-400/80" />
+                                                <div className="w-3 h-3 rounded-full bg-amber-400/80" />
+                                                <div className="w-3 h-3 rounded-full bg-green-400/80" />
                                             </div>
+                                        </div>
+                                        <div className="text-xs font-medium text-zinc-400">Balanced Dashboard</div>
+                                        <MoreHorizontal className="w-4 h-4 text-zinc-400" />
+                                    </div>
+
+                                    {/* App Content */}
+                                    <div className="p-6 space-y-6">
+                                        {/* Total Portfolio Value */}
+                                        <div className="flex items-end justify-between mb-2">
                                             <div>
-                                                <div className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium uppercase tracking-wider">Tax Saved</div>
-                                                <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">+$842</div>
+                                                <div className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Total Portfolio</div>
+                                                <div className="text-3xl font-bold tracking-tight">$142,500.00</div>
                                             </div>
+                                            <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">
+                                                +12.4% YTD
+                                            </div>
+                                        </div>
+
+                                        {/* Asset Allocation List */}
+                                        <div className="space-y-4">
+                                            {[
+                                                { name: "US Stocks", current: 52, target: 45, color: "emerald", drift: "+7%" },
+                                                { name: "Intl Stocks", current: 18, target: 25, color: "blue", drift: "-7%" },
+                                                { name: "Bonds", current: 30, target: 30, color: "purple", drift: "0%" }
+                                            ].map((asset, i) => (
+                                                <div key={i} className="space-y-2">
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="font-medium">{asset.name}</span>
+                                                        <div className="flex gap-3 text-xs">
+                                                            <span className="text-zinc-500">Target: {asset.target}%</span>
+                                                            <span className={asset.current > asset.target ? "text-red-500 font-medium" : asset.current < asset.target ? "text-emerald-500 font-medium" : "text-zinc-400"}>
+                                                                {asset.drift}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex">
+                                                        {/* Target Marker Line (Simulated by width calc) */}
+                                                        <div className={`h-full bg-${asset.color}-500 rounded-full transition-all duration-1000 ease-out`}
+                                                            style={{ width: `${asset.current}%` }} />
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
+                                    {/* Floating "Rebalancing Plan" Card */}
+                                    <div className="absolute bottom-6 right-6 w-64 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 p-4 animate-in slide-in-from-bottom-8 fade-in duration-700 delay-500">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className="text-sm font-bold flex items-center gap-2">
+                                                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                                                Rebalancing Plan
+                                            </div>
+                                            <div className="text-[10px] bg-zinc-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-zinc-500">
+                                                Tax-Smart
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2.5">
+                                            <div className="flex items-center justify-between p-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-100 dark:border-zinc-700/50">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="p-1 bg-red-100 dark:bg-red-900/30 rounded text-red-600 dark:text-red-400">
+                                                        <ArrowDownRight className="w-3 h-3" />
+                                                    </div>
+                                                    <div className="text-xs font-medium">Sell VTI</div>
+                                                </div>
+                                                <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100">$9,800</div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between p-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-100 dark:border-zinc-700/50">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="p-1 bg-emerald-100 dark:bg-emerald-900/30 rounded text-emerald-600 dark:text-emerald-400">
+                                                        <ArrowUpRight className="w-3 h-3" />
+                                                    </div>
+                                                    <div className="text-xs font-medium">Buy VXUS</div>
+                                                </div>
+                                                <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100">$9,800</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-700 flex justify-between items-center">
+                                            <span className="text-[10px] text-zinc-500">Est. Tax Impact</span>
+                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$0.00</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -428,13 +438,6 @@ export default function LandingPage() {
                     </div>
                 </div>
             </footer>
-
-            <style>{`
-                @keyframes pulseSegment {
-                    0% { stroke-width: 12; opacity: 0.8; }
-                    100% { stroke-width: 14; opacity: 1; }
-                }
-            `}</style>
         </div>
     );
 }
