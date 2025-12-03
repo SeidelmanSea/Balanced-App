@@ -429,13 +429,19 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm font-medium text-zinc-500 dark:text-zinc-500">
-                        <a href="/about.html" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
-                            About & Methodology
-                        </a>
+                        <Link to="/about" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                            About
+                        </Link>
+                        <Link to="/faq" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                            FAQ
+                        </Link>
+                        <Link to="/calculators" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                            Calculators
+                        </Link>
                         <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             GitHub
                         </a>
-                        <a href="https://buymeacoffee.com/balanced" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                        <a href="https://buymeacoffee.com/seidelm" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             Support
                         </a>
                     </div>
