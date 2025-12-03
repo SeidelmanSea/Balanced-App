@@ -233,11 +233,6 @@ export default function LandingPage() {
                                                 <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100">$9,800</div>
                                             </div>
                                         </div>
-
-                                        <div className="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-700 flex justify-between items-center">
-                                            <span className="text-[10px] text-zinc-500">Est. Tax Impact</span>
-                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$0.00</span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
