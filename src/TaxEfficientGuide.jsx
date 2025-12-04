@@ -135,16 +135,20 @@ export default function TaxEfficientGuide() {
                     </p>
                 </div>
 
-                <h2>When Asset Location Matters Most</h2>
+                <h2>When Asset Location Benefits Are Largest</h2>
                 <p>
-                    Asset location provides the biggest benefit when:
+                    Asset location's net benefit (tax savings minus complexity/rebalancing friction) varies substantially by situation. Benefits tend to be larger when:
                 </p>
                 <ul>
-                    <li>You have balances across multiple account types (taxable + IRA + Roth)</li>
-                    <li>You hold bonds or other tax-inefficient assets</li>
-                    <li>You're in a high tax bracket (22%+)</li>
-                    <li>Your portfolio is large enough that tax savings are meaningful ($100k+)</li>
+                    <li>You have substantial balances across multiple account types (taxable + traditional IRA + Roth). Small accounts limit optimization options.</li>
+                    <li>You hold significant allocations to tax-inefficient assets (bonds, REITs). All-equity portfolios see minimal benefit.</li>
+                    <li>You're in a high marginal tax bracket (32%+). Tax rate differentials drive the magnitude of savings.</li>
+                    <li>Your portfolio is large enough that percentage gains translate to meaningful absolute dollars. $150k portfolio saving 0.30% = $450/year.</li>
+                    <li>You can rebalance across accounts without triggering unwanted taxes or violating contribution limits.</li>
                 </ul>
+                <p>
+                    <strong>Counterpoint:</strong> Asset location adds portfolio complexity. Some research suggests simplicity (mirrored allocations) may improve behavioral adherence, potentially offsetting tax benefits if complexity leads to suboptimal decisions.
+                </p>
 
                 <h2>Implementing with Balanced</h2>
                 <p>
@@ -159,11 +163,11 @@ export default function TaxEfficientGuide() {
                     Balanced calculates the optimal placement and shows exactly what to hold in each account.
                 </p>
 
-                <h2>Common Misconceptions</h2>
+                <h2>Debated Points</h2>
                 <ul>
-                    <li><strong>"I should mirror my allocation across all accounts":</strong> This is tax-inefficient. think of all accounts as one portfolio and optimize placement.</li>
-                    <li><strong>"Tax-loss harvesting is more important than asset location":</strong> Asset location provides permanent annual tax savings, not just one-time offsets.</li>
-                    <li><strong>"This only matters for the wealthy":</strong> Even a $150k portfolio can save $1,500+/year with proper location.</li>
+                    <li><strong>Mirrored allocations:</strong> Holding the same asset mix in all accounts simplifies management and rebalancing, though it's tax-suboptimal. The theoretical cost is ~0.10-0.30% annually. Whether the simplicity is worth this cost depends on your situation and behavioral tendencies.</li>
+                    <li><strong>Asset location vs. tax-loss harvesting:</strong> These strategies are complementary, not competitive. Asset location provides ongoing annual benefits; TLH provides one-time offsets. However, TLH opportunities may be more accessible (no account type requirements) for smaller portfolios.</li>
+                    <li><strong>Wealth threshold:</strong> Academic models suggest meaningful benefits begin around $100k-250k, but this depends on your tax bracket, bond allocation, and account type distribution. Below $100k, simplification may dominate.</li>
                 </ul>
 
                 <h2>Next Steps</h2>

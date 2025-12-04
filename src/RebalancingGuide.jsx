@@ -156,12 +156,12 @@ export default function RebalancingGuide() {
                     <li>Shows you exactly what to buy and sell in each account</li>
                 </ul>
 
-                <h2>Common Mistakes to Avoid</h2>
+                <h2>Practical Considerations</h2>
                 <ul>
-                    <li><strong>Ignoring tax implications:</strong> Rebalancing in taxable accounts can trigger big tax bills</li>
-                    <li><strong>Rebalancing too frequently:</strong> Creates unnecessary costs without meaningful benefit</li>
-                    <li><strong>Not rebalancing at all:</strong> Lets your portfolio drift far from your risk tolerance</li>
-                    <li><strong>Emotional rebalancing:</strong> Making changes based on market fears rather than your plan</li>
+                    <li><strong>Tax implications:</strong> Rebalancing in taxable accounts crystallizes capital gains. Prioritize tax-advantaged accounts, or consider inflow-only rebalancing to avoid triggering taxes.</li>
+                    <li><strong>Frequency vs. costs:</strong> More frequent rebalancing tightens risk control but increases costs (taxes, commissions, bid-ask spreads). The marginal benefit diminishes beyond certain frequencies.</li>
+                    <li><strong>Drift tolerance:</strong> Allowing some drift may be rational if your risk tolerance has evolved, or if transaction costs exceed the risk-control benefit. "Never rebalance" is one extreme on a spectrum.</li>
+                    <li><strong>Systematic vs. discretionary:</strong> Rebalancing to a predetermined schedule/threshold removes behavioral bias, but may be inferior to intelligent discretion if you can reliably identify market mispricings. Most investors cannot.</li>
                 </ul>
 
                 <h2>Getting Started</h2>
