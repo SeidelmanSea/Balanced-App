@@ -113,15 +113,19 @@ export default function RebalancingGuide() {
                     </p>
                 </div>
 
-                <h2>How Often Should You Rebalance?</h2>
+                <h2>Rebalancing Frequency: Trade-offs</h2>
                 <p>
-                    Research suggests annual rebalancing hits the sweet spot for most investors:
+                    The optimal rebalancing frequency depends on your specific situation and involves trade-offs between risk control, tax efficiency, and transaction costs. Academic research presents conflicting findings:
                 </p>
                 <ul>
-                    <li><strong>Too frequent</strong> (monthly/quarterly): Higher transaction costs and taxes with marginal benefit</li>
-                    <li><strong>Annual</strong>: Good balance of risk control and cost efficiency</li>
-                    <li><strong>Too infrequent</strong> (5+ years): Portfolio can drift significantly from targets</li>
+                    <li><strong>Monthly/Quarterly:</strong> Tighter risk control but higher transaction costs and potential tax drag in taxable accounts. Some studies find minimal performance difference vs. annual.</li>
+                    <li><strong>Annual:</strong> Often proposed as a compromise, though the theoretical justification is weak—calendar dates have no economic significance. May coincide with tax planning.</li>
+                    <li><strong>Threshold-based (5/25 rule):</strong> Economically motivated triggers, but requires monitoring. Can result in never rebalancing during low-volatility periods or excessive trading during volatility spikes.</li>
+                    <li><strong>Ad-hoc (5+ years):</strong> Minimizes costs and taxes but allows substantial drift. Some evidence suggests drift isn't always harmful if your risk tolerance evolves with your portfolio.</li>
                 </ul>
+                <p>
+                    The "best" frequency is contested. Vanguard research suggests annual or semi-annual for most investors, but assumes stable real-world frictions. Historical backtests show minimal performance differences across reasonable frequencies (annual vs. quarterly), though risk exposure varies meaningfully.
+                </p>
 
                 <h2>Tax-Efficient Rebalancing</h2>
                 <p>

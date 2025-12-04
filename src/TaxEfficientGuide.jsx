@@ -76,27 +76,30 @@ export default function TaxEfficientGuide() {
                     </p>
                 </div>
 
-                <h2>The Standard Tax-Efficient Strategy</h2>
+                <h2>Standard Tax-Efficient Placement Framework</h2>
                 <p>
-                    A proven asset location strategy for most investors:
+                    A commonly proposed asset location framework prioritizes minimizing current taxes while considering expected returns:
                 </p>
                 <ol>
-                    <li><strong>Taxable accounts:</strong> Stock index funds (US and international). Qualified dividends are taxed at favorable long-term capital gains rates.</li>
-                    <li><strong>Tax-deferred accounts:</strong> Bonds and REITs. These generate ordinary income, so shelter them from annual taxation.</li>
-                    <li><strong>Roth accounts:</strong> High-growth equities (small-cap, emerging markets). Let your biggest winners grow tax-free forever.</li>
+                    <li><strong>Taxable accounts:</strong> Tax-efficient equities (index funds, ETFs). Qualified dividends face preferential 15-20% rates vs. ordinary income. Long-term capital gains are deferred until sale and also taxed preferentially.</li>
+                    <li><strong>Tax-deferred accounts:</strong> Tax-inefficient assets (bonds, REITs, actively managed funds). These generate ordinary income or unqualified dividends that would otherwise face your marginal tax rate annually.</li>
+                    <li><strong>Roth accounts:</strong> Highest <em>expected-return</em> assets. The theoretical argument: if Roth withdrawals are tax-free, placing higher-expected-return assets there maximizes the tax-free compounding benefit. Commonly suggested: small-cap value, emerging markets, high-volatility segments. <strong>Note:</strong> This assumes these assets will outperform, which is uncertain. They carry higher risk, and historical outperformance doesn't guarantee future results.</li>
                 </ol>
 
-                <h2>Advanced Roth Optimization</h2>
+                <h2>Roth Growth Maximization: Theory vs. Practice</h2>
                 <p>
-                    Some investors prioritize maximizing Roth account growth over annual tax savings. The "Roth Growth Strategy" flips the traditional approach:
+                    An alternative framework prioritizes Roth growth over immediate tax minimization, based on the premise that tax-free compounding value exceeds near-term tax savings:
                 </p>
                 <ul>
-                    <li>Roth accounts: <strong>All stocks</strong> (especially high-growth)</li>
-                    <li>Traditional IRA: <strong>Bonds</strong></li>
-                    <li>Taxable: <strong>Whatever remains</strong></li>
+                    <li>Roth accounts: <strong>100% equities</strong> (tilted toward higher-expected-return factors if desired)</li>
+                    <li>Traditional IRA: <strong>Bonds and tax-inefficient assets</strong></li>
+                    <li>Taxable: <strong>Remainder</strong> (may include bonds if IRA space is insufficient)</li>
                 </ul>
                 <p>
-                    This maximizes tax-free growth potential, though it may increase annual taxes in the short to term. Best for young, high-income investors with decades until withdrawal.
+                    <strong>Theoretical rationale:</strong> Roth accounts have the most valuable tax treatment (no RMDs, tax-free withdrawals). Placing highest-expected-return assets there maximizes this benefit over decades of compounding.
+                </p>
+                <p>
+                    <strong>Practical considerations:</strong> This strategy may increase taxable ordinary income now (if bonds spill into taxable), trading current tax costs for potential future tax-free growth. Whether this trade-off is favorable depends on: (1) your current vs. expected retirement tax bracket, (2) whether higher-expected-return assets actually outperform, (3) time horizon, and (4) your Roth balance relative to total portfolio. More aggressive for younger investors with smaller Roth balances and long time horizons.
                 </p>
 
                 <h2>Real-World Example</h2>
