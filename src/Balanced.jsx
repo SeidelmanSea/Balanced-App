@@ -1468,20 +1468,21 @@ export default function PortfolioApp() {
           </Card>
         </div>
 
-        {/* Account Type Allocation Overview - Simplified */}
+        {/* Account Type Allocation Overview - New Visualization */}
         {taxStrategy !== 'mirrored' && chartData.length > 0 && (
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-4 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-purple-600" />
+              <ArrowLeftRight className="w-5 h-5 text-blue-600" />
               Tax Location Overview - Current vs Target by Account Type
             </h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-              How your assets should be distributed across account types based on the{' '}
-              <span className="font-semibold">{TAX_STRATEGIES[taxStrategy.toUpperCase()].name}</span> strategy.
+              How your assets are distributed across account types. The{' '}
+              <span className="font-semibold">{TAX_STRATEGIES[taxStrategy.toUpperCase()].name}</span> strategy
+              determines the target allocation.
             </p>
-            <div className="h-64 w-full">
+            <div className="h-80 w-full">
               {(() => {
-                // Calculate current and target totals by account type
+                // Calculate current allocation by account type
                 const accountTypeData = {
                   taxable: { current: 0, target: 0 },
                   deferred: { current: 0, target: 0 },
@@ -1502,10 +1503,11 @@ export default function PortfolioApp() {
                   accountTypeData[taxType].current += accTotal;
                 });
 
-                // Calculate target allocation using bucket logic
+                // Get target allocation by account type from rebalancing plan
                 const investableTotal = Object.values(accountTypeData).reduce((sum, d) => sum + d.current, 0);
 
                 if (investableTotal > 0) {
+                  // Calculate target allocation (same logic as rebalancing)
                   const equityPct = (100 - bondAllocation) / 100;
                   const bondPct = bondAllocation / 100;
 
@@ -1518,75 +1520,39 @@ export default function PortfolioApp() {
                     targets['bonds'] = investableTotal * bondPct;
                   }
 
+                  // Simplified bucket allocation for visualization
                   let buckets = {
                     taxable: { capacity: accountTypeData.taxable.current, filled: 0 },
                     deferred: { capacity: accountTypeData.deferred.current, filled: 0 },
                     roth: { capacity: accountTypeData.roth.current, filled: 0 }
                   };
 
-                  const addToBucket = (assetId, bucketType, amount) => {
-                    if (amount <= 0) return;
-                    const bucket = buckets[bucketType];
-                    const available = bucket.capacity - bucket.filled;
-                    const actualAmount = Math.min(available, amount);
-                    bucket.filled += actualAmount;
-                    targets[assetId] = Math.max(0, targets[assetId] - actualAmount);
-                  };
-
-                  // Allocate money market to taxable
-                  addToBucket('money_market', 'taxable', targets['money_market']);
-
-                  // Allocate bonds
-                  if (targets['bonds']) {
-                    const bondPrefs = taxStrategy === 'roth_growth' ? ['deferred', 'taxable', 'roth'] : ['deferred', 'roth', 'taxable'];
-                    for (let pref of bondPrefs) {
-                      if (targets['bonds'] > 0) addToBucket('bonds', pref, targets['bonds']);
-                    }
-                  }
-
-                  // Special handling for Roth Growth strategy - all equities to Roth proportionally
-                  if (taxStrategy === 'roth_growth') {
-                    const equityAssets = Object.keys(targets).filter(id => {
-                      if (id === 'money_market' || id === 'bonds') return false;
-                      if (targets[id] <= 0) return false;
-                      const asset = Object.values(ASSET_CLASSES).find(a => a.id === id);
-                      return asset?.type === 'equity';
-                    });
-
-                    const totalEquityTarget = equityAssets.reduce((sum, id) => sum + targets[id], 0);
-                    const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
-
-                    if (totalEquityTarget > 0 && rothCapacity > 0) {
-                      const rothRatio = Math.min(1, rothCapacity / totalEquityTarget);
-                      equityAssets.forEach(assetId => {
-                        const amountForRoth = targets[assetId] * rothRatio;
-                        addToBucket(assetId, 'roth', amountForRoth);
-                      });
-                    }
-                  }
-
-                  // Allocate remaining assets using taxPref
-                  Object.keys(targets).forEach(assetId => {
-                    if (targets[assetId] <= 0 || assetId === 'money_market' || assetId === 'bonds') return;
-
+                  // Fill buckets based on tax strategy (simplified version)
+                  Object.entries(targets).forEach(([assetId, amount]) => {
                     const assetInfo = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
-                    let prefs = assetInfo?.taxPref || ['taxable', 'roth', 'deferred'];
+                    let prefs = assetInfo?.taxPref || ['taxable'];
 
                     if (taxStrategy === 'roth_growth') {
-                      prefs = assetInfo?.type === 'fixed' ? ['deferred', 'taxable', 'roth'] : ['roth', 'taxable', 'deferred'];
+                      if (assetInfo?.type === 'fixed') {
+                        prefs = ['deferred', 'taxable', 'roth'];
+                      } else {
+                        prefs = ['roth', 'taxable', 'deferred'];
+                      }
                     }
 
-                    for (let pref of prefs) {
-                      if (targets[assetId] > 0) {
-                        addToBucket(assetId, pref, targets[assetId]);
+                    let remaining = amount;
+                    for (let prefType of prefs) {
+                      if (remaining <= 0) break;
+                      const bucket = buckets[prefType];
+                      const available = bucket.capacity - bucket.filled;
+                      if (available > 0) {
+                        const take = Math.min(available, remaining);
+                        bucket.filled += take;
+                        accountTypeData[prefType].target += take;
+                        remaining -= take;
                       }
                     }
                   });
-
-                  // Set target totals
-                  accountTypeData.roth.target = buckets.roth.filled;
-                  accountTypeData.deferred.target = buckets.deferred.filled;
-                  accountTypeData.taxable.target = buckets.taxable.filled;
                 }
 
                 const barChartData = [
@@ -1613,7 +1579,7 @@ export default function PortfolioApp() {
 
                 return (
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={barChartData} layout="vertical" margin={{ left: 120, right: 40, top: 10, bottom: 10 }}>
+                    <BarChart data={barChartData} layout="vertical" margin={{ left: 120, right: 30, top: 10, bottom: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={isDarkMode ? '#27272a' : '#e5e7eb'} />
                       <XAxis type="number" style={{ fontSize: '12px', fill: chartTextColor }} tickFormatter={(val) => formatCurrency(val)} />
                       <YAxis dataKey="name" type="category" width={110} style={{ fontSize: '12px', fill: chartTextColor }} />
@@ -1626,27 +1592,25 @@ export default function PortfolioApp() {
                           if (!active || !payload || !payload.length) return null;
                           const data = payload[0].payload;
                           const diff = data.target - data.current;
-                          const pctCurrent = investableTotal > 0 ? (data.current / investableTotal * 100) : 0;
-                          const pctTarget = investableTotal > 0 ? (data.target / investableTotal * 100) : 0;
                           return (
                             <div style={chartTooltipStyle}>
                               <p style={chartTooltipLabelStyle}>{data.name}</p>
                               <p style={chartTooltipItemStyle}>
-                                <span style={{ color: '#10b981' }}>Current: {formatCurrency(data.current)} ({pctCurrent.toFixed(1)}%)</span>
+                                <span style={{ color: '#10b981' }}>Current: {formatCurrency(data.current)}</span>
                               </p>
                               <p style={chartTooltipItemStyle}>
-                                <span style={{ color: '#3b82f6' }}>Target: {formatCurrency(data.target)} ({pctTarget.toFixed(1)}%)</span>
+                                <span style={{ color: '#3b82f6' }}>Target: {formatCurrency(data.target)}</span>
                               </p>
-                              <p style={{ ...chartTooltipItemStyle, color: diff > 0 ? '#3b82f6' : diff < 0 ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>
-                                {diff > 0 ? '▲ Add: ' : diff < 0 ? '▼ Remove: ' : '✓ Balanced: '}
+                              <p style={{ ...chartTooltipItemStyle, color: diff > 0 ? '#3b82f6' : diff < 0 ? '#ef4444' : '#71717a' }}>
+                                {diff > 0 ? 'Need: ' : diff < 0 ? 'Excess: ' : 'Balanced: '}
                                 {formatCurrency(Math.abs(diff))}
                               </p>
                             </div>
                           );
                         }}
                       />
-                      <Bar dataKey="current" name="Current" fill="#10b981" radius={[0, 4, 4, 0]} barSize={28} />
-                      <Bar dataKey="target" name="Target" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={28} />
+                      <Bar dataKey="current" name="Current" fill="#10b981" radius={[0, 4, 4, 0]} barSize={25} />
+                      <Bar dataKey="target" name="Target" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={25} />
                     </BarChart>
                   </ResponsiveContainer>
                 );
