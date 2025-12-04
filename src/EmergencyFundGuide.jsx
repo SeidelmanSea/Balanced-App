@@ -14,20 +14,23 @@ export default function EmergencyFundGuide() {
             <h1>Building Your Emergency Fund: The Complete Guide</h1>
 
             <p className="lead">
-                An emergency fund is your first line of defense against financial disaster. This guide explains how much to save, where to keep it, and when you finally have enough.
+                Emergency funds—liquid savings earmarked for unexpected expenses—represent a fundamental but theoretically complex financial planning concept. This guide examines sizing frameworks, opportunity costs, and implementation considerations.
             </p>
 
-            <h2>What is an Emergency Fund?</h2>
+            <h2>The Emergency Fund Concept</h2>
             <p>
-                An emergency fund is liquid savings set aside specifically for unexpected expenses: job loss, medical bills, urgent home repairs, or car breakdowns. It prevents you from going into debt or selling investments at a loss when life throws curveballs.
+                An emergency fund is a dedicated pool of liquid, low-risk savings to cover unexpected expenses without resorting to debt or forced asset sales. Common uses: job loss, medical bills, urgent home/auto repairs, or other income disruptions.
             </p>
             <p>
-                Think of it as insurance against financial emergencies—except you're paying yourself instead of an insurance company.
+                <strong>The core trade-off:</strong> Emergency funds provide financial flexibility and peace of mind, but at the cost of foregone investment returns. Cash earning 4-5% in a high-yield savings account significantly underperforms a diversified portfolio's expected long-term return (~7-10%). The "right" size balances this opportunity cost against the probability and severity of emergencies.
+            </p>
+            <p>
+                <strong>Alternative view:</strong> Some financial theorists argue that liquid assets, credit access, or even taxable brokerage accounts can serve the same function with higher expected returns, questioning the need for dedicated cash reserves. The counterargument: forced selling during market downturns or relying on credit during income loss creates additional risk.
             </p>
 
-            <h2>How Much Do You Need?</h2>
+            <h2>Sizing Frameworks: 3-6 Months (and Why It's Arbitrary)</h2>
             <p>
-                The standard recommendation is 3-6 months of essential expenses. But your specific target depends on your situation:
+                The "3-6 months of expenses" guideline is conventional but lacks rigorous theoretical foundation. It's a heuristic that attempts to balance multiple considerations:
             </p>
 
             <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800 not-prose my-8">

@@ -15,15 +15,18 @@ export default function TaxEfficientGuide() {
                 <h1>Tax-Efficient Investing: Asset Location Strategy</h1>
 
                 <p className="lead">
-                    Asset location—placing the right investments in the right account types—can significantly boost your after-tax returns. This guide explains how to optimize your portfolio across taxable, tax-deferred, and Roth accounts.
+                    Asset location—placing specific investments in specific account types—is a tax minimization strategy with demonstrated but variable benefits. This guide examines the theoretical framework, common approaches, and practical constraints.
                 </p>
 
-                <h2>What is Asset Location?</h2>
+                <h2>Asset Location: Theoretical Framework</h2>
                 <p>
-                    Asset location (not to be confused with asset <em>allocation</em>) is the strategy of placing specific investments in specific account types to minimize taxes. The same portfolio can have very different after-tax returns depending on which assets you hold where.
+                    Asset location (distinct from asset <em>allocation</em>) refers to the strategic placement of investments across account types to minimize lifetime tax burden. The core principle: different account types have different tax treatments, and different asset classes have different tax characteristics. Matching them optimally can improve after-tax returns.
                 </p>
                 <p>
-                    For example, holding bonds in a taxable brokerage account means paying ordinary income tax on interest every year. Moving those same bonds to a traditional IRA defers all taxes until retirement, potentially saving thousands of dollars annually.
+                    <strong>Example:</strong> Bonds generate ordinary income taxed annually in taxable accounts. Holding them in a traditional IRA defers taxation until withdrawal, when you may be in a lower bracket. However, the benefit depends on your current vs. retirement tax rate—if rates rise or your retirement income is higher than expected, the advantage diminishes or reverses.
+                </p>
+                <p>
+                    <strong>Magnitude of benefit:</strong> Academic estimates suggest asset location can add 0.10-0.75% annually to after-tax returns for investors with substantial holdings across multiple account types. Benefits are larger for high-income investors in high tax brackets with significant bond allocations.
                 </p>
 
                 <h2>Account Types and Tax Treatment</h2>
@@ -37,10 +40,10 @@ export default function TaxEfficientGuide() {
                         <strong>Tax treatment:</strong> Dividends and interest taxed annually. Capital gains taxed when sold.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
-                        <strong>Best for:</strong> Tax-efficient investments like index funds, municipal bonds, stocks with qualified dividends.
+                        <strong>Commonly placed here:</strong> Tax-efficient equities (index funds, ETFs with low turnover). Qualified dividends taxed at 15-20% vs. ordinary income rates. Long-term capital gains also preferentially taxed and deferred until sale.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                        <strong>Avoid:</strong> Bonds (ordinary income), REITs (non-qualified dividends), actively managed funds (high turnover).
+                        <strong>Tax-inefficient assets:</strong> Taxable bonds, REITs, actively managed funds generate ordinary income or frequent short-term gains taxed at higher rates.
                     </p>
                 </div>
 
@@ -53,10 +56,10 @@ export default function TaxEfficientGuide() {
                         <strong>Tax treatment:</strong> Growth tax-free. Withdrawals taxed as ordinary income in retirement.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
-                        <strong>Best for:</strong> Bonds, REITs, actively managed funds, high-dividend stocks.
+                        <strong>Commonly placed here:</strong> Tax-inefficient assets (bonds, REITs, actively managed funds). These generate ordinary income or frequent trading, so sheltering from annual taxation is valuable.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                        <strong>Why:</strong> Ordinary income is taxed anyway, so shelter it now and withdraw in lower tax bracket later.
+                        <strong>Rationale:</strong> Withdrawals are taxed as ordinary income regardless of what you hold, so prioritize sheltering assets that would be heavily taxed in taxable accounts. Assumes withdrawal in lower tax bracket than accumulation.
                     </p>
                 </div>
 
@@ -69,10 +72,10 @@ export default function TaxEfficientGuide() {
                         <strong>Tax treatment:</strong> Growth and withdrawals completely tax-free.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
-                        <strong>Best for:</strong> High-growth stocks, small-cap value, emerging markets, anything with maximum growth potential.
+                        <strong>Commonly suggested:</strong> Highest-expected-return assets (often cited: small-cap value, emerging markets, high-growth stocks). Theory: maximize the benefit of tax-free compounding.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                        <strong>Why:</strong> Maximize the benefit of tax-free growth by holding your highest-return-potential assets.
+                        <strong>Critical caveat:</strong> This assumes these assets will outperform, which is uncertain. Higher expected returns typically mean higher risk and volatility. The tax-free benefit is only valuable if the assets actually grow.
                     </p>
                 </div>
 

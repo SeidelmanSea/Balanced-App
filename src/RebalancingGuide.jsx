@@ -15,7 +15,7 @@ export default function RebalancingGuide() {
                 <h1>The Complete Guide to Portfolio Rebalancing</h1>
 
                 <p className="lead">
-                    Portfolio rebalancing is one of the most important—yet often overlooked—aspects of long-term investing. This guide explains when, why, and how to rebalance your portfolio to maintain your target allocation and manage risk.
+                    Portfolio rebalancing—the practice of periodically realigning your portfolio to its target allocation—is widely discussed but theoretically ambiguous. This guide examines the rationales, competing strategies, and practical trade-offs.
                 </p>
 
                 <h2>What is Portfolio Rebalancing?</h2>
@@ -26,20 +26,27 @@ export default function RebalancingGuide() {
                     For example, if you have a target allocation of 70% stocks and 30% bonds, a strong stock market might push your actual allocation to 80% stocks and 20% bonds. Rebalancing would involve selling some stocks and buying bonds to return to your 70/30 target.
                 </p>
 
-                <h2>Why Rebalance?</h2>
-                <h3>1. Risk Management</h3>
+                <h2>Theoretical Rationales for Rebalancing</h2>
+
+                <h3>1. Risk Control</h3>
                 <p>
-                    The primary reason to rebalance is to control risk. When stocks outperform, your portfolio becomes more stock-heavy and riskier than you intended. Rebalancing forces you to sell winners and buy laggards, maintaining your desired risk level.
+                    The primary theoretical argument for rebalancing is risk management. As higher-risk assets (typically stocks) outperform, they constitute a larger portfolio share, increasing overall risk exposure beyond your target. Rebalancing mechanically enforces your desired risk level by trimming appreciated assets and adding to depreciated ones.
+                </p>
+                <p>
+                    <strong>Caveat:</strong> This assumes your target allocation accurately reflects your risk tolerance, which may evolve over time. Some research suggests that lifecycle changes (aging, wealth accumulation) might justify allowing drift rather than fighting it.
                 </p>
 
-                <h3>2. Discipline</h3>
+                <h3>2. Contrarian Discipline</h3>
                 <p>
-                    Rebalancing enforces the "buy low, sell high" principle automatically. It removes emotion from the equation, preventing you from chasing returns or panic-selling during downturns.
+                    Rebalancing creates a systematic "sell high, buy low" mechanism, potentially counteracting behavioral biases like trend-chasing or panic-selling. The evidence for behavioral benefits is largely theoretical—it's difficult to isolate rebalancing discipline from other portfolio management practices.
                 </p>
 
-                <h3>3. Long-Term Performance</h3>
+                <h3>3. Risk-Adjusted Returns (Contested)</h3>
                 <p>
-                    Studies show that rebalanced portfolios often outperform "drift" portfolios on a risk-adjusted basis over long periods. While letting winners run might produce higher returns in bull markets, rebalancing provides better downside protection.
+                    Some academic studies suggest rebalanced portfolios achieve superior risk-adjusted returns compared to "buy-and-hold" drift portfolios. However, results vary by time period, market conditions, and asset classes examined. The "rebalancing bonus" may be overstated—much depends on mean reversion assumptions that don't always hold.
+                </p>
+                <p>
+                    Notable finding: Rebalancing tends to reduce returns during sustained bull markets but limits drawdowns during corrections. Whether this trade-off is favorable depends on your risk preferences and time horizon.
                 </p>
 
                 <h2>Rebalancing Strategies</h2>
@@ -58,10 +65,10 @@ export default function RebalancingGuide() {
                         <strong>How it works:</strong> Pick a recurring date (e.g., January 1st or your birthday) and rebalance then.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
-                        <strong>Pros:</strong> Simple, easy to remember, tax-efficient if done annually.
+                        <strong>Trade-offs:</strong> Simplicity and predictability vs. economic irrelevance of calendar dates. May rebalance unnecessarily or miss opportunities.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                        <strong>Best for:</strong> Most investors, especially those with taxable accounts.
+                        <strong>Tax considerations:</strong> Annual timing allows long-term capital gains treatment and can coincide with tax-loss harvesting.
                     </p>
                 </div>
 
@@ -82,10 +89,10 @@ export default function RebalancingGuide() {
                         <strong>Example:</strong> If your 60% stock allocation drifts to 65% or 55%, rebalance. If your 10% REIT allocation drifts to 12.5% or 7.5%, rebalance.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
-                        <strong>Pros:</strong> Only trade when necessary, more tax-efficient, opportunistic timing.
+                        <strong>Trade-offs:</strong> Only trade when economically motivated (drift exceeds threshold) vs. requires active monitoring. Rebalancing frequency varies with market volatility.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                        <strong>Best for:</strong> Larger portfolios ($250k+), investors comfortable with monitoring.
+                        <strong>Considerations:</strong> Threshold selection is somewhat arbitrary. Tighter bands = more trading costs but tighter risk control. May never trigger in low-volatility environments.
                     </p>
                 </div>
 
@@ -106,10 +113,10 @@ export default function RebalancingGuide() {
                         <strong>Pros:</strong> Zero tax impact, no transaction costs, perfect for accumulation phase.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
-                        <strong>Cons:</strong> Allows more drift, only works if you're contributing regularly.
+                        <strong>Trade-offs:</strong> Zero tax impact and no transaction costs vs. allows more drift and requires regular contributions. Effectiveness depends on contribution size relative to portfolio.
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                        <strong>Best for:</strong> Young investors, high earners in accumulation mode.
+                        <strong>Limitations:</strong> Can't correct large imbalances without selling. Portfolio may drift substantially if contributions are small relative to account size.
                     </p>
                 </div>
 
