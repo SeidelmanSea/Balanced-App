@@ -1215,6 +1215,31 @@ export default function PortfolioApp() {
         }
       }
 
+
+      // Special handling for Roth Growth: allocate ALL equities proportionally to Roth first
+      if (taxStrategy === 'roth_growth') {
+        const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
+        if (rothCapacity > 0) {
+          // Get all remaining equity assets
+          const equityAssets = Object.keys(remainingTargets).filter(assetId => {
+            if (remainingTargets[assetId] <= 0) return false;
+            const asset = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
+            return asset?.type === 'equity';
+          });
+
+          const totalEquityTarget = equityAssets.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
+
+          if (totalEquityTarget > 0) {
+            // Fill Roth with all equity types proportionally
+            const rothRatio = Math.min(1, rothCapacity / totalEquityTarget);
+            equityAssets.forEach(assetId => {
+              const amountForRoth = remainingTargets[assetId] * rothRatio;
+              addToBucket(assetId, 'roth', amountForRoth);
+            });
+          }
+        }
+      }
+
       Object.keys(remainingTargets).forEach(assetId => {
         if (remainingTargets[assetId] > 0) {
           allocateAssetStandard(assetId);
