@@ -57,7 +57,7 @@ const ASSET_CLASSES = {
 
   // US Equities - Style
   US_LARGE_GROWTH: { id: 'us_large_growth', name: 'US Large Growth', color: '#3b82f6', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-  US_LARGE_VALUE: { id: 'us_large_value', name: 'US Large Value', color: '#6366f1', type: 'equity', taxPref: ['deferred', 'roth', 'taxable'] },
+  US_LARGE_VALUE: { id: 'us_large_value', name: 'US Large Value', color: '#6366f1', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
   US_SMALL_VAL: { id: 'us_small_val', name: 'US Small Value', color: '#8b5cf6', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
   US_SMALL_GROWTH: { id: 'us_small_growth', name: 'US Small Growth', color: '#d946ef', type: 'equity', taxPref: ['roth', 'taxable', 'deferred'] },
 
@@ -73,10 +73,10 @@ const ASSET_CLASSES = {
   SECTOR_TECH: { id: 'sector_tech', name: 'Technology Sector', color: '#06b6d4', type: 'equity', taxPref: ['taxable', 'roth'] },
   SECTOR_HEALTH: { id: 'sector_health', name: 'Healthcare Sector', color: '#ec4899', type: 'equity', taxPref: ['taxable', 'roth'] },
   SECTOR_ENERGY: { id: 'sector_energy', name: 'Energy Sector', color: '#ef4444', type: 'equity', taxPref: ['taxable', 'roth'] },
-  SECTOR_FINANCE: { id: 'sector_finance', name: 'Financials Sector', color: '#64748b', type: 'equity', taxPref: ['deferred', 'taxable'] },
+  SECTOR_FINANCE: { id: 'sector_finance', name: 'Financials Sector', color: '#64748b', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
 
   // Specialized / Alternatives
-  DIVIDEND: { id: 'dividend', name: 'Dividend Growth', color: '#8b5cf6', type: 'equity', taxPref: ['roth', 'taxable', 'deferred'] },
+  DIVIDEND: { id: 'dividend', name: 'Dividend Growth', color: '#8b5cf6', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
   REIT: { id: 'reit', name: 'Real Estate (REITs)', color: '#be185d', type: 'equity', taxPref: ['deferred', 'roth', 'taxable'] },
   GOLD: { id: 'gold', name: 'Gold / Precious Metals', color: '#eab308', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
   COMMODITIES: { id: 'commodities', name: 'Broad Commodities', color: '#a16207', type: 'equity', taxPref: ['taxable', 'roth'] },
