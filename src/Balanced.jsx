@@ -1468,149 +1468,245 @@ export default function PortfolioApp() {
           </Card>
         </div>
 
-        {/* Account Type Allocation Overview - New Visualization */}
+        {/* Account Type Allocation Overview - Asset Class Breakdown */}
         {taxStrategy !== 'mirrored' && chartData.length > 0 && (
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-4 flex items-center gap-2">
-              <ArrowLeftRight className="w-5 h-5 text-blue-600" />
-              Tax Location Overview - Current vs Target by Account Type
+              <Layers className="w-5 h-5 text-purple-600" />
+              Asset Location by Account Type - Current vs Target
             </h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-              How your assets are distributed across account types. The{' '}
-              <span className="font-semibold">{TAX_STRATEGIES[taxStrategy.toUpperCase()].name}</span> strategy
-              determines the target allocation.
+              Shows which asset classes are currently held in each account type and where they should be according to the{' '}
+              <span className="font-semibold">{TAX_STRATEGIES[taxStrategy.toUpperCase()].name}</span> strategy.
             </p>
-            <div className="h-80 w-full">
+            <div className="h-96 w-full">
               {(() => {
-                // Calculate current allocation by account type
-                const accountTypeData = {
-                  taxable: { current: 0, target: 0 },
-                  deferred: { current: 0, target: 0 },
-                  roth: { current: 0, target: 0 }
+                // Calculate asset class breakdown by account type
+                const breakdown = {
+                  roth: { current: {}, target: {} },
+                  deferred: { current: {}, target: {} },
+                  taxable: { current: {}, target: {} }
                 };
 
-                // Get current holdings by account type
+                // Get CURRENT holdings by asset class and account type
                 const investmentAccounts = Object.values(accounts).filter(a => a.typeId !== 'emergency_fund');
                 investmentAccounts.forEach(acc => {
                   const taxType = acc.taxType;
-                  if (!accountTypeData[taxType]) return;
+                  if (!breakdown[taxType]) return;
 
-                  const accTotal = (acc.funds || [])
-                    .filter(f => !f.isEmergency)
-                    .reduce((sum, f) => sum + parseFloat(f.value || 0), 0) +
-                    (acc.cashIsEmergency ? 0 : parseFloat(acc.cash || 0));
+                  (acc.funds || []).filter(f => !f.isEmergency).forEach(fund => {
+                    const assetId = fund.type;
+                    breakdown[taxType].current[assetId] = (breakdown[taxType].current[assetId] || 0) + parseFloat(fund.value || 0);
+                  });
 
-                  accountTypeData[taxType].current += accTotal;
+                  if (!acc.cashIsEmergency && acc.cash > 0) {
+                    breakdown.taxable.current['money_market'] = (breakdown.taxable.current['money_market'] || 0) + parseFloat(acc.cash);
+                  }
                 });
 
-                // Get target allocation by account type from rebalancing plan
-                const investableTotal = Object.values(accountTypeData).reduce((sum, d) => sum + d.current, 0);
+                // Calculate TARGET allocation using bucket logic
+                const totalByType = {
+                  roth: Object.values(breakdown.roth.current).reduce((a, b) => a + b, 0),
+                  deferred: Object.values(breakdown.deferred.current).reduce((a, b) => a + b, 0),
+                  taxable: Object.values(breakdown.taxable.current).reduce((a, b) => a + b, 0)
+                };
+                const investableTotal = totalByType.roth + totalByType.deferred + totalByType.taxable;
 
                 if (investableTotal > 0) {
-                  // Calculate target allocation (same logic as rebalancing)
                   const equityPct = (100 - bondAllocation) / 100;
-                  const bondPct = bondAllocation / 100;
-
                   let targets = { money_market: 0 };
                   const totalEquityAlloc = Object.values(equityStrategy).reduce((a, b) => a + b, 0) || 100;
                   Object.entries(equityStrategy).forEach(([assetId, weight]) => {
                     targets[assetId] = investableTotal * equityPct * (weight / totalEquityAlloc);
                   });
                   if (bondAllocation > 0) {
-                    targets['bonds'] = investableTotal * bondPct;
+                    targets['bonds'] = investableTotal * (bondAllocation / 100);
                   }
 
-                  // Simplified bucket allocation for visualization
                   let buckets = {
-                    taxable: { capacity: accountTypeData.taxable.current, filled: 0 },
-                    deferred: { capacity: accountTypeData.deferred.current, filled: 0 },
-                    roth: { capacity: accountTypeData.roth.current, filled: 0 }
+                    taxable: { capacity: totalByType.taxable, filled: 0, allocations: {} },
+                    deferred: { capacity: totalByType.deferred, filled: 0, allocations: {} },
+                    roth: { capacity: totalByType.roth, filled: 0, allocations: {} }
                   };
 
-                  // Fill buckets based on tax strategy (simplified version)
-                  Object.entries(targets).forEach(([assetId, amount]) => {
+                  const addToBucket = (assetId, bucketType, amount) => {
+                    if (amount <= 0) return;
+                    const bucket = buckets[bucketType];
+                    const available = bucket.capacity - bucket.filled;
+                    const actualAmount = Math.min(available, amount);
+                    bucket.allocations[assetId] = (bucket.allocations[assetId] || 0) + actualAmount;
+                    bucket.filled += actualAmount;
+                    targets[assetId] = Math.max(0, targets[assetId] - actualAmount);
+                  };
+
+                  // Allocate money market to taxable
+                  addToBucket('money_market', 'taxable', targets['money_market']);
+
+                  // Allocate bonds
+                  if (targets['bonds']) {
+                    const bondPrefs = taxStrategy === 'roth_growth' ? ['deferred', 'taxable', 'roth'] : ['deferred', 'roth', 'taxable'];
+                    for (let pref of bondPrefs) {
+                      if (targets['bonds'] > 0) addToBucket('bonds', pref, targets['bonds']);
+                    }
+                  }
+
+                  // Special handling for Roth Growth - all equities to  Roth proportionally
+                  if (taxStrategy === 'roth_growth') {
+                    const equityAssets = Object.keys(targets).filter(id => {
+                      if (id === 'money_market' || id === 'bonds') return false;
+                      if (targets[id] <= 0) return false;
+                      const asset = Object.values(ASSET_CLASSES).find(a => a.id === id);
+                      return asset?.type === 'equity';
+                    });
+
+                    const totalEquityTarget = equityAssets.reduce((sum, id) => sum + targets[id], 0);
+                    const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
+
+                    if (totalEquityTarget > 0 && rothCapacity > 0) {
+                      const rothRatio = Math.min(1, rothCapacity / totalEquityTarget);
+                      equityAssets.forEach(assetId => {
+                        addToBucket(assetId, 'roth', targets[assetId] * rothRatio);
+                      });
+                    }
+                  }
+
+                  // Allocate remaining assets using taxPref
+                  Object.keys(targets).forEach(assetId => {
+                    if (targets[assetId] <= 0 || assetId === 'money_market' || assetId === 'bonds') return;
+
                     const assetInfo = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
-                    let prefs = assetInfo?.taxPref || ['taxable'];
+                    let prefs = assetInfo?.taxPref || ['taxable', 'roth', 'deferred'];
 
                     if (taxStrategy === 'roth_growth') {
-                      if (assetInfo?.type === 'fixed') {
-                        prefs = ['deferred', 'taxable', 'roth'];
-                      } else {
-                        prefs = ['roth', 'taxable', 'deferred'];
-                      }
+                      prefs = assetInfo?.type === 'fixed' ? ['deferred', 'taxable', 'roth'] : ['roth', 'taxable', 'deferred'];
                     }
 
-                    let remaining = amount;
-                    for (let prefType of prefs) {
-                      if (remaining <= 0) break;
-                      const bucket = buckets[prefType];
-                      const available = bucket.capacity - bucket.filled;
-                      if (available > 0) {
-                        const take = Math.min(available, remaining);
-                        bucket.filled += take;
-                        accountTypeData[prefType].target += take;
-                        remaining -= take;
-                      }
+                    for (let pref of prefs) {
+                      if (targets[assetId] > 0) addToBucket(assetId, pref, targets[assetId]);
                     }
+                  });
+
+                  // Transfer bucket allocations to breakdown
+                  ['roth', 'deferred', 'taxable'].forEach(accType => {
+                    breakdown[accType].target = buckets[accType].allocations;
                   });
                 }
 
-                const barChartData = [
-                  {
-                    name: 'Roth',
-                    current: accountTypeData.roth.current,
-                    target: accountTypeData.roth.target
-                  },
-                  {
-                    name: 'Traditional/401k',
-                    current: accountTypeData.deferred.current,
-                    target: accountTypeData.deferred.target
-                  },
-                  {
-                    name: 'Taxable',
-                    current: accountTypeData.taxable.current,
-                    target: accountTypeData.taxable.target
-                  }
-                ].filter(d => d.current > 0 || d.target > 0);
+                // Prepare data for stacked bar chart
+                const stackedData = [];
+                const allAssetClasses = new Set();
 
-                if (barChartData.length === 0) {
+                ['roth', 'deferred', 'taxable'].forEach(accType => {
+                  if (totalByType[accType] === 0) return;
+
+                  // Add lock icon for tax-advantaged accounts (tax-sheltered)
+                  const lockIcon = accType !== 'taxable' ? '🔒 ' : '';
+
+                  const currentEntry = {
+                    name: accType === 'roth' ? `${lockIcon}Roth (Current)` :
+                      accType === 'deferred' ? `${lockIcon}Traditional (Current)` :
+                        'Taxable (Current)',
+                    isTaxAdvantaged: accType !== 'taxable'
+                  };
+                  const targetEntry = {
+                    name: accType === 'roth' ? `${lockIcon}Roth (Target)` :
+                      accType === 'deferred' ? `${lockIcon}Traditional (Target)` :
+                        'Taxable (Target)',
+                    isTaxAdvantaged: accType !== 'taxable'
+                  };
+
+                  // Add current asset classes
+                  Object.entries(breakdown[accType].current).forEach(([assetId, amount]) => {
+                    if (amount > 0) {
+                      currentEntry[assetId] = amount;
+                      allAssetClasses.add(assetId);
+                    }
+                  });
+
+                  // Add target asset classes
+                  Object.entries(breakdown[accType].target).forEach(([assetId, amount]) => {
+                    if (amount > 0) {
+                      targetEntry[assetId] = amount;
+                      allAssetClasses.add(assetId);
+                    }
+                  });
+
+                  stackedData.push(currentEntry, targetEntry);
+                });
+
+                if (stackedData.length === 0) {
                   return <div className="flex items-center justify-center h-full text-zinc-400 text-sm">No account data available</div>;
                 }
 
                 return (
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={barChartData} layout="vertical" margin={{ left: 120, right: 30, top: 10, bottom: 10 }}>
+                    <BarChart data={stackedData} layout="vertical" margin={{ left: 140, right: 20, top: 10, bottom: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={isDarkMode ? '#27272a' : '#e5e7eb'} />
-                      <XAxis type="number" style={{ fontSize: '12px', fill: chartTextColor }} tickFormatter={(val) => formatCurrency(val)} />
-                      <YAxis dataKey="name" type="category" width={110} style={{ fontSize: '12px', fill: chartTextColor }} />
-                      <RechartsTooltip
-                        formatter={(val) => formatCurrency(val)}
-                        contentStyle={chartTooltipStyle}
-                        labelStyle={chartTooltipLabelStyle}
-                        itemStyle={chartTooltipItemStyle}
-                        content={({ active, payload }) => {
-                          if (!active || !payload || !payload.length) return null;
-                          const data = payload[0].payload;
-                          const diff = data.target - data.current;
+                      <XAxis type="number" style={{ fontSize: '11px', fill: chartTextColor }} tickFormatter={(val) => formatCurrency(val)} />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        width={150}
+                        style={{ fontSize: '11px', fill: chartTextColor }}
+                        tick={(props) => {
+                          const { x, y, payload } = props;
+                          const dataPoint = stackedData[payload.index];
+                          const isTaxAdvantaged = dataPoint?.isTaxAdvantaged;
+
                           return (
-                            <div style={chartTooltipStyle}>
-                              <p style={chartTooltipLabelStyle}>{data.name}</p>
-                              <p style={chartTooltipItemStyle}>
-                                <span style={{ color: '#10b981' }}>Current: {formatCurrency(data.current)}</span>
-                              </p>
-                              <p style={chartTooltipItemStyle}>
-                                <span style={{ color: '#3b82f6' }}>Target: {formatCurrency(data.target)}</span>
-                              </p>
-                              <p style={{ ...chartTooltipItemStyle, color: diff > 0 ? '#3b82f6' : diff < 0 ? '#ef4444' : '#71717a' }}>
-                                {diff > 0 ? 'Need: ' : diff < 0 ? 'Excess: ' : 'Balanced: '}
-                                {formatCurrency(Math.abs(diff))}
-                              </p>
-                            </div>
+                            <g transform={`translate(${x},${y})`}>
+                              {/* Background shading for tax-advantaged */}
+                              {isTaxAdvantaged && (
+                                <rect
+                                  x={-140}
+                                  y={-12}
+                                  width={140}
+                                  height={24}
+                                  fill={isDarkMode ? '#10b98115' : '#10b98108'}
+                                  rx={4}
+                                />
+                              )}
+                              <text
+                                x={-8}
+                                y={0}
+                                dy={4}
+                                textAnchor="end"
+                                fill={chartTextColor}
+                                fontSize={11}
+                              >
+                                {payload.value}
+                              </text>
+                            </g>
                           );
                         }}
                       />
-                      <Bar dataKey="current" name="Current" fill="#10b981" radius={[0, 4, 4, 0]} barSize={25} />
-                      <Bar dataKey="target" name="Target" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={25} />
+                      <RechartsTooltip
+                        formatter={(val, name) => {
+                          const assetName = Object.values(ASSET_CLASSES).find(a => a.id === name)?.name || name;
+                          return [formatCurrency(val), assetName];
+                        }}
+                        contentStyle={chartTooltipStyle}
+                        labelStyle={chartTooltipLabelStyle}
+                        itemStyle={chartTooltipItemStyle}
+                      />
+                      <Legend
+                        formatter={(value) => {
+                          const assetName = Object.values(ASSET_CLASSES).find(a => a.id === value)?.name || value;
+                          return <span style={{ color: chartTextColor, fontSize: '10px' }}>{assetName}</span>;
+                        }}
+                        wrapperStyle={{ fontSize: '10px' }}
+                      />
+                      {Array.from(allAssetClasses).map(assetId => {
+                        const assetClass = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
+                        return (
+                          <Bar
+                            key={assetId}
+                            dataKey={assetId}
+                            stackId="a"
+                            fill={assetClass?.color || '#888888'}
+                          />
+                        );
+                      })}
                     </BarChart>
                   </ResponsiveContainer>
                 );
