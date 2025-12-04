@@ -444,7 +444,7 @@ export default function LandingPage() {
                         <a href="https://github.com/SeidelmanSea/Balanced-App" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             GitHub
                         </a>
-                        <a href="https://buymeacoffee.com/seidelm" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                        <a href="https://buymeacoffee.com/balanced" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
                             Support
                         </a>
                     </div>

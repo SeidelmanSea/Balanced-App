@@ -1499,8 +1499,9 @@ export default function PortfolioApp() {
                     breakdown[taxType].current[assetId] = (breakdown[taxType].current[assetId] || 0) + parseFloat(fund.value || 0);
                   });
 
+                  // Add cash to the ACCOUNT'S tax type, not always taxable
                   if (!acc.cashIsEmergency && acc.cash > 0) {
-                    breakdown.taxable.current['money_market'] = (breakdown.taxable.current['money_market'] || 0) + parseFloat(acc.cash);
+                    breakdown[taxType].current['money_market'] = (breakdown[taxType].current['money_market'] || 0) + parseFloat(acc.cash);
                   }
                 });
 

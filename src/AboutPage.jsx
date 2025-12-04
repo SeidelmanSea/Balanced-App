@@ -70,7 +70,7 @@ export default function AboutPage() {
                             If Balanced helps you manage your portfolio, consider supporting its development. Every contribution helps keep the project free and ad-free for everyone.
                         </p>
                         <a
-                            href="https://buymeacoffee.com/seidelm"
+                            href="https://buymeacoffee.com/balanced"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-zinc-900 font-semibold rounded-lg transition-colors"
