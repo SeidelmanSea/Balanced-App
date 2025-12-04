@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft, Shield, DollarSign, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ArticleWrapper, { articleStyles } from './ArticleLayout';
+import ArticleWrapper from './ArticleLayout';
 
 export default function TaxEfficientGuide() {
     return (
@@ -11,7 +11,7 @@ export default function TaxEfficientGuide() {
                 Back to Resources
             </Link>
 
-            <article className={articleStyles}>
+            <article>
                 <h1>Tax-Efficient Investing: Asset Location Strategy</h1>
 
                 <p className="lead">

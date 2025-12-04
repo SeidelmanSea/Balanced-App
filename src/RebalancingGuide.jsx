@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft, Calendar, Layers, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ArticleWrapper, { articleStyles } from './ArticleLayout';
+import ArticleWrapper from './ArticleLayout';
 
 export default function RebalancingGuide() {
     return (
@@ -11,7 +11,7 @@ export default function RebalancingGuide() {
                 Back to Resources
             </Link>
 
-            <article className={articleStyles}>
+            <article>
                 <h1>The Complete Guide to Portfolio Rebalancing</h1>
 
                 <p className="lead">
