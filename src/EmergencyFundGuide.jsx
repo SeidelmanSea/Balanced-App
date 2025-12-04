@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { ArrowLeft, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ArticleWrapper from './ArticleLayout';
 
