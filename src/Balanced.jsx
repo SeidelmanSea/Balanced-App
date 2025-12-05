@@ -372,6 +372,7 @@ export default function PortfolioApp() {
   const [bondAllocation, setBondAllocation] = useState(10);
   const [emergencyFund, setEmergencyFund] = useState(10000);
   const [userAge, setUserAge] = useState(38);
+  const [retirementYear, setRetirementYear] = useState(() => new Date().getFullYear() + 27);
   const [bondStrategyMode, setBondStrategyMode] = useState('smart');
   const [equityStrategy, setEquityStrategy] = useState(DEFAULT_EQUITY_SPLIT);
   const [isAddingAsset, setIsAddingAsset] = useState(false);
