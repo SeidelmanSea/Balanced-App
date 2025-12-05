@@ -1985,7 +1985,7 @@ export default function PortfolioApp() {
     const totalEquityAllocation = Object.values(equityStrategy).reduce((a, b) => a + b, 0);
     const isEquityValid = Math.abs(totalEquityAllocation - 100) < 0.1;
     const bondStrategies = [
-      { id: 'smart', name: 'Target Date (Smart)', value: getSuggestedBondAllocation(numericAge), desc: 'Non-linear glide path based on retirement age.' },
+      { id: 'smart', name: 'Target Date (Smart)', value: getSuggestedBondAllocation(numericAge), desc: `Glide path targeting retirement in ${retirementYear} (${yearsToRetirement} years away)` },
       { id: 'aggressive', name: 'Aggressive (Age - 20)', value: Math.max(0, numericAge - 20), desc: 'Focuses on maximum growth.' },
       { id: 'moderate', name: 'Moderate (Age - 10)', value: Math.max(0, numericAge - 10), desc: 'Standard rule of thumb.' },
       { id: 'conservative', name: 'Conservative (Age Match)', value: Math.min(100, numericAge), desc: 'Lower risk, preserves capital.' },
