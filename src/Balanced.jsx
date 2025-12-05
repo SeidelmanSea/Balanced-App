@@ -2098,9 +2098,21 @@ export default function PortfolioApp() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-1">
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Current Age</label>
-                  <input type="number" min="18" max="100" value={userAge} onChange={(e) => { const val = parseInt(e.target.value); setUserAge(isNaN(val) ? '' : val); }} className="block w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-md focus:ring-emerald-500 focus:border-emerald-500 outline-none" />
-                  <p className="text-[10px] text-zinc-400 mt-2 leading-relaxed">Your age is used to calculate the heuristic strategies on the right.</p>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Retirement Year</label>
+                  <input
+                    type="number"
+                    min={currentYear}
+                    max={currentYear + 50}
+                    value={retirementYear}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val)) setRetirementYear(val);
+                    }}
+                    className="block w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-md focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  />
+                  <p className="text-[10px] text-zinc-400 mt-2 leading-relaxed">
+                    {yearsToRetirement} years to retirement (assuming age 65). Used for Target Date strategy.
+                  </p>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Allocation Strategies</label>
