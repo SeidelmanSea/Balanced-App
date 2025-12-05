@@ -400,6 +400,11 @@ export default function PortfolioApp() {
   const [tourActive, setTourActive] = useState(false);
   const [tourStep, setTourStep] = useState(0);
 
+  // Calculate effective age from retirement year (safe defaults)
+  const currentYear = new Date().getFullYear();
+  const yearsToRetirement = retirementYear - currentYear;
+  const effectiveAge = 65 - yearsToRetirement;
+
   // Define activeAssets here, as it no longer depends on isSimpleMode
   const activeAssets = ASSET_CLASSES;
 
