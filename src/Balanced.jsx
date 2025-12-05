@@ -117,19 +117,25 @@ const TAX_STRATEGIES = {
     id: 'standard',
     name: 'Standard Tax Efficiency',
     icon: Scale,
-    desc: 'Prioritize annual tax savings. Places Stocks in Taxable (Qualified Dividends) and Bonds in IRA/401k (Ordinary Income).'
+    desc: 'Prioritize annual tax savings. Places Stocks in Taxable (Qualified Dividends, Foreign Tax Credits, Tax Loss Harvesting) and Bonds in IRA/401k (Ordinary Income).'
   },
   ROTH_GROWTH: {
     id: 'roth_growth',
     name: 'Maximize Roth Growth',
     icon: TrendingUp,
-    desc: 'Prioritize long-term tax-free growth. Forces Stocks into Roth accounts first. Pushes Bonds to Traditional IRA or Taxable.'
+    desc: 'Prioritize long-term tax-free growth. Forces all Stocks into Roth first. Note: You lose Foreign Tax Credits (~0.2%/year on international) and cannot Tax Loss Harvest Roth assets. Best for 20+ year horizons.'
+  },
+  BALANCED_ROTH: {
+    id: 'balanced_roth',
+    name: 'Balanced Roth Growth',
+    icon: Target,
+    desc: 'Balance tax-free growth with tax optimization. Domestic Stocks to Roth, International to Taxable (keeps Foreign Tax Credits), Bonds to Traditional. Best of both worlds for portfolios with significant international allocation.'
   },
   MIRRORED: {
     id: 'mirrored',
     name: 'Mirrored Allocation',
     icon: ArrowLeftRight,
-    desc: 'Prioritize simplicity. Replicates your target asset allocation (e.g. 60/40) equally inside every single account.'
+    desc: 'Prioritize simplicity over tax optimization. Replicates target allocation equally in every account. Note: Tax-inefficient, sacrifices Foreign Tax Credits and Tax Loss Harvesting. Only recommended for very small accounts.'
   }
 };
 
@@ -1237,6 +1243,44 @@ export default function PortfolioApp() {
               addToBucket(assetId, 'roth', amountForRoth);
             });
           }
+        }
+      }
+
+      // Special handling for Balanced Roth Growth: domestic to Roth, international to Taxable
+      if (taxStrategy === 'balanced_roth') {
+        const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
+        if (rothCapacity > 0) {
+          // Get domestic equity assets (exclude international)
+          const domesticEquities = Object.keys(remainingTargets).filter(assetId => {
+            if (remainingTargets[assetId] <= 0) return false;
+            if (assetId === 'intl_developed' || assetId === 'emerging_markets') return false;
+            const asset = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
+            return asset?.type === 'equity';
+          });
+
+          const totalDomesticTarget = domesticEquities.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
+
+          if (totalDomesticTarget > 0) {
+            // Fill Roth with domestic equities proportionally
+            const rothRatio = Math.min(1, rothCapacity / totalDomesticTarget);
+            domesticEquities.forEach(assetId => {
+              const amountForRoth = remainingTargets[assetId] * rothRatio;
+              addToBucket(assetId, 'roth', amountForRoth);
+            });
+          }
+        }
+
+        // Prioritize international in taxable for Foreign Tax Credits
+        const taxableCapacity = buckets.taxable.capacity - buckets.taxable.filled;
+        if (taxableCapacity > 0) {
+          ['intl_developed', 'emerging_markets'].forEach(assetId => {
+            if (remainingTargets[assetId] > 0) {
+              const intlAmount = Math.min(taxableCapacity, remainingTargets[assetId]);
+              if (intlAmount > 0) {
+                addToBucket(assetId, 'taxable', intlAmount);
+              }
+            }
+          });
         }
       }
 
