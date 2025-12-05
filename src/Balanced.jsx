@@ -1354,7 +1354,7 @@ export default function PortfolioApp() {
       });
     }
 
-    return { efAction, accountActions };
+    return { efAction, accountActions, buckets: taxStrategy !== 'mirrored' ? buckets : null };
   }, [portfolioMetrics, accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, equityStrategy]);
 
   // ... (Helper functions remain same)
@@ -1568,91 +1568,13 @@ export default function PortfolioApp() {
                   }
                 });
 
-                // Calculate TARGET allocation using bucket logic
-                const totalByType = {
-                  roth: Object.values(breakdown.roth.current).reduce((a, b) => a + b, 0),
-                  deferred: Object.values(breakdown.deferred.current).reduce((a, b) => a + b, 0),
-                  taxable: Object.values(breakdown.taxable.current).reduce((a, b) => a + b, 0)
-                };
-                const investableTotal = totalByType.roth + totalByType.deferred + totalByType.taxable;
-
-                if (investableTotal > 0) {
-                  const equityPct = (100 - bondAllocation) / 100;
-                  let targets = { money_market: 0 };
-                  const totalEquityAlloc = Object.values(equityStrategy).reduce((a, b) => a + b, 0) || 100;
-                  Object.entries(equityStrategy).forEach(([assetId, weight]) => {
-                    targets[assetId] = investableTotal * equityPct * (weight / totalEquityAlloc);
-                  });
-                  if (bondAllocation > 0) {
-                    targets['bonds'] = investableTotal * (bondAllocation / 100);
-                  }
-
-                  let buckets = {
-                    taxable: { capacity: totalByType.taxable, filled: 0, allocations: {} },
-                    deferred: { capacity: totalByType.deferred, filled: 0, allocations: {} },
-                    roth: { capacity: totalByType.roth, filled: 0, allocations: {} }
-                  };
-
-                  const addToBucket = (assetId, bucketType, amount) => {
-                    if (amount <= 0) return;
-                    const bucket = buckets[bucketType];
-                    const available = bucket.capacity - bucket.filled;
-                    const actualAmount = Math.min(available, amount);
-                    bucket.allocations[assetId] = (bucket.allocations[assetId] || 0) + actualAmount;
-                    bucket.filled += actualAmount;
-                    targets[assetId] = Math.max(0, targets[assetId] - actualAmount);
-                  };
-
-                  // Allocate money market to taxable
-                  addToBucket('money_market', 'taxable', targets['money_market']);
-
-                  // Allocate bonds
-                  if (targets['bonds']) {
-                    const bondPrefs = taxStrategy === 'roth_growth' ? ['deferred', 'taxable', 'roth'] : ['deferred', 'roth', 'taxable'];
-                    for (let pref of bondPrefs) {
-                      if (targets['bonds'] > 0) addToBucket('bonds', pref, targets['bonds']);
-                    }
-                  }
-
-                  // Special handling for Roth Growth - all equities to  Roth proportionally
-                  if (taxStrategy === 'roth_growth') {
-                    const equityAssets = Object.keys(targets).filter(id => {
-                      if (id === 'money_market' || id === 'bonds') return false;
-                      if (targets[id] <= 0) return false;
-                      const asset = Object.values(ASSET_CLASSES).find(a => a.id === id);
-                      return asset?.type === 'equity';
-                    });
-
-                    const totalEquityTarget = equityAssets.reduce((sum, id) => sum + targets[id], 0);
-                    const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
-
-                    if (totalEquityTarget > 0 && rothCapacity > 0) {
-                      const rothRatio = Math.min(1, rothCapacity / totalEquityTarget);
-                      equityAssets.forEach(assetId => {
-                        addToBucket(assetId, 'roth', targets[assetId] * rothRatio);
-                      });
-                    }
-                  }
-
-                  // Allocate remaining assets using taxPref
-                  Object.keys(targets).forEach(assetId => {
-                    if (targets[assetId] <= 0 || assetId === 'money_market' || assetId === 'bonds') return;
-
-                    const assetInfo = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
-                    let prefs = assetInfo?.taxPref || ['taxable', 'roth', 'deferred'];
-
-                    if (taxStrategy === 'roth_growth') {
-                      prefs = assetInfo?.type === 'fixed' ? ['deferred', 'taxable', 'roth'] : ['roth', 'taxable', 'deferred'];
-                    }
-
-                    for (let pref of prefs) {
-                      if (targets[assetId] > 0) addToBucket(assetId, pref, targets[assetId]);
-                    }
-                  });
-
-                  // Transfer bucket allocations to breakdown
+                // Use TARGET allocation from rebalancingPlan.buckets (source of truth!)
+                if (rebalancingPlan.buckets) {
                   ['roth', 'deferred', 'taxable'].forEach(accType => {
-                    breakdown[accType].target = buckets[accType].allocations;
+                    const bucket = rebalancingPlan.buckets[accType];
+                    if (bucket && bucket.allocations) {
+                      breakdown[accType].target = { ...bucket.allocations };
+                    }
                   });
                 }
 
