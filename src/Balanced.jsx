@@ -117,25 +117,25 @@ const TAX_STRATEGIES = {
     id: 'standard',
     name: 'Standard Tax Efficiency',
     icon: Scale,
-    desc: 'Prioritize annual tax savings. Places Stocks in Taxable (Qualified Dividends, Foreign Tax Credits, Tax Loss Harvesting) and Bonds in IRA/401k (Ordinary Income).'
+    desc: 'Optimizes for annual tax savings. Prioritizes Stocks in Taxable for Qualified Dividends, Foreign Tax Credits, and Tax Loss Harvesting. Places Bonds in IRA/401k to defer Ordinary Income.'
   },
   ROTH_GROWTH: {
     id: 'roth_growth',
     name: 'Maximize Roth Growth',
     icon: TrendingUp,
-    desc: 'Prioritize long-term tax-free growth. Forces all Stocks into Roth first. Note: You lose Foreign Tax Credits (~0.2%/year on international) and cannot Tax Loss Harvest Roth assets. Best for 20+ year horizons.'
+    desc: 'Maximizes long-term tax-free growth. Prioritizes all Stocks in Roth first. Trade-off: International stocks in Roth cannot claim Foreign Tax Credits, and Roth assets cannot be tax-loss harvested.'
   },
   BALANCED_ROTH: {
     id: 'balanced_roth',
     name: 'Balanced Roth Growth',
     icon: Target,
-    desc: 'Balance tax-free growth with tax optimization. Domestic Stocks to Roth, International to Taxable (keeps Foreign Tax Credits), Bonds to Traditional. Best of both worlds for portfolios with significant international allocation.'
+    desc: 'Balances tax-free growth with tax optimization. Prioritizes Domestic Stocks in Roth, International in Taxable (to preserve FTCs), and Bonds in Traditional. Well-suited for portfolios with significant international allocation.'
   },
   MIRRORED: {
     id: 'mirrored',
     name: 'Mirrored Allocation',
     icon: ArrowLeftRight,
-    desc: 'Prioritize simplicity over tax optimization. Replicates target allocation equally in every account. Note: Tax-inefficient, sacrifices Foreign Tax Credits and Tax Loss Harvesting. Only recommended for very small accounts.'
+    desc: 'Prioritizes simplicity and ease of rebalancing. Replicates target allocation in each account. Trade-off: Does not optimize asset location for tax efficiency, potentially leaving tax benefits on the table.'
   }
 };
 
