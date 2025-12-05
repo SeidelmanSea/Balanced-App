@@ -539,6 +539,7 @@ export default function PortfolioApp() {
       bondAllocation,
       emergencyFund,
       userAge,
+      retirementYear,
       bondStrategyMode,
       equityStrategy,
       taxStrategy,
@@ -575,7 +576,19 @@ export default function PortfolioApp() {
               setAccounts(importedData.accounts || {});
               setBondAllocation(importedData.bondAllocation || 10);
               setEmergencyFund(importedData.emergencyFund || 10000);
-              setUserAge(importedData.userAge || 38);
+
+              // Migration: handle retirementYear
+              if (importedData.retirementYear) {
+                setRetirementYear(importedData.retirementYear);
+                setUserAge(65 - (importedData.retirementYear - currentYear));
+              } else if (importedData.userAge) {
+                setUserAge(importedData.userAge);
+                setRetirementYear(currentYear + (65 - importedData.userAge));
+              } else {
+                setUserAge(38);
+                setRetirementYear(currentYear + 27);
+              }
+
               setBondStrategyMode(importedData.bondStrategyMode || 'smart');
               setEquityStrategy(importedData.equityStrategy || DEFAULT_EQUITY_SPLIT);
               setTaxStrategy(importedData.taxStrategy || 'standard');
