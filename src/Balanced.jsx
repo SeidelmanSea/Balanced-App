@@ -1354,7 +1354,7 @@ export default function PortfolioApp() {
       });
     }
 
-    return { efAction, accountActions };
+    return { efAction, accountActions, buckets: taxStrategy !== 'mirrored' ? buckets : null };
   }, [portfolioMetrics, accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, equityStrategy]);
 
   // ... (Helper functions remain same)
@@ -1530,6 +1530,7 @@ export default function PortfolioApp() {
             </div>
           </Card>
         </div>
+
 
 
       </div>
