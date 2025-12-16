@@ -1160,7 +1160,20 @@ export default function PortfolioApp() {
       investmentAccounts.forEach(acc => {
         const bucket = buckets[acc.taxType];
         if (bucket) {
-          bucket.capacity += (accountTotals[acc.id] || 0);
+          // Calculate capacity excluding emergency funds (since targets exclude them)
+          const accTotal = accountTotals[acc.id] || 0;
+          let emergencyAmount = 0;
+
+          if (acc.cashIsEmergency) {
+            emergencyAmount += (parseFloat(acc.cash) || 0);
+          }
+          if (Array.isArray(acc.funds)) {
+            acc.funds.forEach(f => {
+              if (f.isEmergency) emergencyAmount += (parseFloat(f.value) || 0);
+            });
+          }
+
+          bucket.capacity += (accTotal - emergencyAmount);
           bucket.accounts.push(acc.id);
         }
       });
@@ -1316,33 +1329,8 @@ export default function PortfolioApp() {
         const bucketTotal = bucket.capacity;
         const share = bucketTotal > 0 ? accTotal / bucketTotal : 0;
         const targetHoldings = {};
+        // Standard allocation based on share
         Object.entries(bucket.allocations).forEach(([assetId, amount]) => targetHoldings[assetId] = amount * share);
-
-        // If this account has cash (or cash equivalents) that exceeds its bucket allocation share, 
-        // scale up targets to use all available liquid assets
-        let liquidAssets = (accData.cash && !accData.cashIsEmergency) ? (parseFloat(accData.cash) || 0) : 0;
-
-        // Also include Money Market funds as liquid assets
-        if (Array.isArray(accData.funds)) {
-          accData.funds.forEach(f => {
-            if (!f.isEmergency && f.type === 'money_market') {
-              liquidAssets += (parseFloat(f.value) || 0);
-            }
-          });
-        }
-
-        if (liquidAssets > 0) {
-          const totalTargetedFromBucket = Object.values(targetHoldings).reduce((sum, val) => sum + val, 0);
-          const cashExcess = liquidAssets - totalTargetedFromBucket;
-
-          if (cashExcess > 100) { // If there's significant excess cash (>$100)
-            // Scale up the targets proportionally to use all the liquid assets
-            const scaleFactor = liquidAssets / Math.max(totalTargetedFromBucket, 1);
-            Object.keys(targetHoldings).forEach(assetId => {
-              targetHoldings[assetId] *= scaleFactor;
-            });
-          }
-        }
 
         let rawActions = [];
         const currentHoldings = {};
