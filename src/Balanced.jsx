@@ -97,7 +97,7 @@ const TICKER_MAPPING = {
   'VB': 'us_small', 'IJR': 'us_small',
   'VUG': 'us_large_growth', 'QQQ': 'us_large_growth',
   'VTV': 'us_large_value',
-  'VXUS': 'intl', 'IXUS': 'intl',
+  'VXUS': 'intl', 'IXUS': 'intl', 'VEU': 'intl',
   'VEA': 'intl_dev', 'IEFA': 'intl_dev',
   'VWO': 'intl_emerg', 'IEMG': 'intl_emerg',
   'BND': 'bonds', 'AGG': 'bonds', 'BNDX': 'bonds',
@@ -1111,7 +1111,18 @@ export default function PortfolioApp() {
           accountActions[accData.id] = { targetHoldings: {}, currentTotal: 0, actions: [] };
           return;
         }
-        const ratio = accTotal / investableTotal;
+
+        // Calculate Investable Total for this account (Exclude Shielded)
+        let accShielded = 0;
+        if (accData.cashIsEmergency) accShielded += (parseFloat(accData.cash) || 0);
+        if (Array.isArray(accData.funds)) {
+          accData.funds.forEach(f => {
+            if (f.isEmergency) accShielded += (parseFloat(f.value) || 0);
+          });
+        }
+        const accInvestable = Math.max(0, accTotal - accShielded);
+
+        const ratio = accInvestable / investableTotal;
         const targetHoldings = {};
         Object.entries(targets).forEach(([assetId, globalAmount]) => {
           targetHoldings[assetId] = globalAmount * ratio;
@@ -1327,7 +1338,18 @@ export default function PortfolioApp() {
         const bucket = buckets[accData.taxType];
         const accTotal = accountTotals[accId] || 0;
         const bucketTotal = bucket.capacity;
-        const share = bucketTotal > 0 ? accTotal / bucketTotal : 0;
+
+        // Calculate Investable Total for this account (Exclude Shielded)
+        let accShielded = 0;
+        if (accData.cashIsEmergency) accShielded += (parseFloat(accData.cash) || 0);
+        if (Array.isArray(accData.funds)) {
+          accData.funds.forEach(f => {
+            if (f.isEmergency) accShielded += (parseFloat(f.value) || 0);
+          });
+        }
+        const accInvestable = Math.max(0, accTotal - accShielded);
+
+        const share = bucketTotal > 0 ? accInvestable / bucketTotal : 0;
         const targetHoldings = {};
         // Standard allocation based on share
         Object.entries(bucket.allocations).forEach(([assetId, amount]) => targetHoldings[assetId] = amount * share);
