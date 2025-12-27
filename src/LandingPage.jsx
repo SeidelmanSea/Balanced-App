@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import SEO from './components/SEO';
 import {
-    PieChart,
     Shield,
     TrendingUp,
     Lock,
@@ -31,6 +30,7 @@ export default function LandingPage() {
         "name": "Balanced",
         "applicationCategory": "FinanceApplication",
         "operatingSystem": "Web Browser",
+        "image": "https://www.balanced-portfolio.com/pwa-icon.svg",
         "offers": {
             "@type": "Offer",
             "price": "0",
@@ -65,9 +65,7 @@ export default function LandingPage() {
             <nav className="border-b border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-                        <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                            <PieChart className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                        </div>
+                        <img src="/pwa-icon.svg" alt="Balanced Logo" className="w-8 h-8 shadow-sm hover:scale-105 transition-transform" />
                         <span>Balanced</span>
                     </div>
                     <div className="flex items-center gap-4">
@@ -430,7 +428,7 @@ export default function LandingPage() {
             <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-zinc-200 dark:border-zinc-800">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-2 font-bold text-xl tracking-tight opacity-50 grayscale hover:grayscale-0 transition-all">
-                        <PieChart className="w-6 h-6 text-emerald-500" />
+                        <img src="/pwa-icon.svg" alt="Balanced Logo" className="w-6 h-6" />
                         <span>Balanced</span>
                     </div>
 

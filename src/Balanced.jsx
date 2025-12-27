@@ -1,7 +1,6 @@
 
 import React from 'react';
 import {
-  PieChart as PieChartIcon,
   Sun,
   Moon,
   LayoutDashboard,
@@ -63,7 +62,7 @@ export default function PortfolioApp() {
       <header className="bg-white dark:bg-zinc-900 shadow-sm border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-10 transition-colors duration-200">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="bg-emerald-600 p-2 rounded-lg text-white shadow-lg shadow-emerald-500/30"><PieChartIcon className="w-5 h-5" /></div>
+            <img src="/pwa-icon.svg" alt="Balanced" className="w-9 h-9 shadow-lg shadow-emerald-500/20 rounded-2xl hover:scale-105 transition-transform" />
             <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">Balanced</h1>
           </div>
           <div className="flex items-center gap-4">
