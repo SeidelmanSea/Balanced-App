@@ -41,6 +41,7 @@ import {
   Coffee,
   Heart
 } from 'lucide-react';
+import SEO from './components/SEO';
 import tickerDatabase from './tickerDatabase.json';
 
 // --- Constants & Configuration ---
@@ -2665,7 +2666,14 @@ export default function PortfolioApp() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 pb-20 transition-colors duration-200 font-sans">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 pb-20 md:pb-0 font-sans">
+      <SEO
+        title="Dashboard"
+        description="Manage your portfolio, track asset allocation, and calculate rebalancing trades."
+        canonical="/app"
+      />
+
+      {/* Mobile Header */}
       <header className="bg-white dark:bg-zinc-900 shadow-sm border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-10 transition-colors duration-200">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">

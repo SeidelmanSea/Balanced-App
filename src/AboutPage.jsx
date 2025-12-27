@@ -1,10 +1,16 @@
 import React from 'react';
 import { Coffee, Heart, Github, ArrowLeft } from 'lucide-react';
+import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
 
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+            <SEO
+                title="About Us"
+                description="Learn more about Balanced, the free and privacy-focused portfolio rebalancing tool."
+                canonical="/about"
+            />
             <div className="max-w-4xl mx-auto px-4 py-12">
                 <Link to="/" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-8">
                     <ArrowLeft className="w-4 h-4" />

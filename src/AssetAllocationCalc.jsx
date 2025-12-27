@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
+import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
 
 export default function AssetAllocationCalc() {
@@ -61,6 +62,11 @@ export default function AssetAllocationCalc() {
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+            <SEO
+                title="Asset Allocation Calculator"
+                description="Determine your optimal stock/bond mix based on your age, risk tolerance, and retirement timeline."
+                canonical="/calculators/asset-allocation"
+            />
             <div className="max-w-4xl mx-auto px-4 py-12">
                 <Link to="/calculators" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-8">
                     <ArrowLeft className="w-4 h-4" />

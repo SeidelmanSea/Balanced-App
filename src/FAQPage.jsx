@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowLeft, HelpCircle } from 'lucide-react';
+import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
 
 export default function FAQPage() {
@@ -56,6 +57,11 @@ export default function FAQPage() {
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+            <SEO
+                title="FAQ"
+                description="Frequently asked questions about Balanced, portfolio rebalancing, and asset location."
+                canonical="/faq"
+            />
             <div className="max-w-4xl mx-auto px-4 py-12">
                 <Link to="/" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-8">
                     <ArrowLeft className="w-4 h-4" />

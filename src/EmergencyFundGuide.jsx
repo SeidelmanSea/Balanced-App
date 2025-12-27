@@ -1,11 +1,17 @@
 import React from 'react';
 import { ArrowLeft, Shield } from 'lucide-react';
+import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
 import ArticleWrapper from './ArticleLayout';
 
 export default function EmergencyFundGuide() {
     return (
         <ArticleWrapper>
+            <SEO
+                title="Emergency Fund Guide"
+                description="Everything you need to know about building, sizing, and managing your emergency fund."
+                canonical="/resources/emergency-fund-guide"
+            />
             <Link to="/resources" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-8">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Resources

@@ -1,11 +1,17 @@
 import React from 'react';
 import { ArrowLeft, Shield, DollarSign, TrendingUp } from 'lucide-react';
+import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
 import ArticleWrapper from './ArticleLayout';
 
 export default function TaxEfficientGuide() {
     return (
         <ArticleWrapper>
+            <SEO
+                title="Tax-Efficient Investing Guide"
+                description="Maximize after-tax returns with asset location strategies. Learn where to hold stocks vs bonds."
+                canonical="/resources/tax-efficient-investing"
+            />
             <Link to="/resources" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-8">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Resources

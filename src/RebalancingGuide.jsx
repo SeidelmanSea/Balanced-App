@@ -1,11 +1,17 @@
 import React from 'react';
 import { ArrowLeft, Calendar, Layers, TrendingUp } from 'lucide-react';
+import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
 import ArticleWrapper from './ArticleLayout';
 
 export default function RebalancingGuide() {
     return (
         <ArticleWrapper>
+            <SEO
+                title="Portfolio Rebalancing Guide"
+                description="The complete guide to portfolio rebalancing: strategies, frequency, and tax considerations."
+                canonical="/resources/portfolio-rebalancing-guide"
+            />
             <Link to="/resources" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-8">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Resources

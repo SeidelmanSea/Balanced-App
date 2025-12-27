@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SEO from './components/SEO';
 import {
     PieChart,
     Shield,
@@ -48,6 +49,11 @@ export default function LandingPage() {
 
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-emerald-500/30">
+            <SEO
+                title="Balanced - Free Portfolio Rebalancing Tool"
+                description="Free portfolio rebalancing tool with tax-efficient asset location, drift bands, and Roth growth optimization. Institutional-grade strategies for everyday investors."
+                canonical="/"
+            />
             <script type="application/ld+json">
                 {JSON.stringify(structuredData)}
             </script>
