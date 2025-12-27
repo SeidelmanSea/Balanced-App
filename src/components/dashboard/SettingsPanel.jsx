@@ -3,6 +3,8 @@ import React, { useRef } from 'react';
 import { Settings, Save, Download, Upload, MousePointerClick, Activity, Heart, AlertCircle, Trash2, Coffee } from 'lucide-react';
 import Card from '../ui/Card';
 
+import { usePWAInstall } from '../../hooks/usePWAInstall';
+
 const SettingsPanel = ({
     handleExportData,
     handleImportData,
@@ -11,6 +13,7 @@ const SettingsPanel = ({
     resetAllData
 }) => {
     const fileInputRef = useRef(null);
+    const { isSupported, isInstalled, triggerInstall, isIOS } = usePWAInstall();
 
     return (
         <div className="max-w-3xl mx-auto animate-in fade-in duration-500 space-y-6">
@@ -56,6 +59,30 @@ const SettingsPanel = ({
                 </div>
             </Card>
 
+            {/* APP INSTALLATION */}
+            {
+                isSupported && !isInstalled && (
+                    <Card className="p-6">
+                        <div className="flex items-center gap-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+                            <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"><Download className="w-5 h-5" /></div>
+                            <div><h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Install App</h3><p className="text-xs text-zinc-500 dark:text-zinc-400">Install Balanced for offline access and better performance.</p></div>
+                        </div>
+                        {isIOS ? (
+                            <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-sm text-zinc-600 dark:text-zinc-400">
+                                To install on iOS: Tap the <strong>Share</strong> button <span className="inline-block px-1.5 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded text-xs">⎋</span> and select <strong>"Add to Home Screen"</strong> <span className="inline-block px-1.5 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded text-xs">⊕</span>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={triggerInstall}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-all shadow-sm"
+                            >
+                                <Download className="w-4 h-4" /> Install Application
+                            </button>
+                        )}
+                    </Card>
+                )
+            }
+
             {/* TOUR LAUNCHER */}
             <Card className="p-6">
                 <div className="flex items-center gap-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
@@ -100,7 +127,7 @@ const SettingsPanel = ({
                     <Trash2 className="w-4 h-4" /> Reset All Data
                 </button>
             </Card>
-        </div>
+        </div >
     );
 };
 
