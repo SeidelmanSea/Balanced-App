@@ -183,14 +183,22 @@ export const parsePasteData = (text) => {
         const trimmed = line.trim();
         if (!trimmed) return;
 
-        // Try to split by tab or comma
-        const parts = trimmed.split(/[\t,]+/);
-        if (parts.length < 2) return;
+        // Try to split by tab, comma, or multiple spaces
+        const parts = trimmed.split(/[\t,]+|\s{2,}/); // Tabs, commas, or 2+ spaces to avoid splitting "Total Stock"
 
-        // Simple heuristic: First part is ticker/name, Last part is value
-        // This handles "VTI  $10,000" or "VTI 10000"
-        const name = parts[0].trim();
-        let valueStr = parts[parts.length - 1].trim();
+        // If that failed, and there are just simple spaces (e.g. VTI 100)
+        let name, valueStr;
+
+        if (parts.length >= 2) {
+            name = parts[0].trim();
+            valueStr = parts[parts.length - 1].trim();
+        } else {
+            // Fallback for single spaces: "VTI 100"
+            const spaceParts = trimmed.split(/\s+/);
+            if (spaceParts.length < 2) return;
+            name = spaceParts[0];
+            valueStr = spaceParts[spaceParts.length - 1];
+        }
 
         // Remove currency symbols and commas
         valueStr = valueStr.replace(/[$,]/g, '');
