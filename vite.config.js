@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import Sitemap from 'vite-plugin-sitemap'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -32,6 +33,22 @@ export default defineConfig({
                     }
                 ]
             }
+        }),
+        Sitemap({
+            hostname: 'https://www.balanced-portfolio.com',
+            dynamicRoutes: [
+                '/app',
+                '/about',
+                '/faq',
+                '/calculators',
+                '/calculators/emergency-fund',
+                '/calculators/asset-allocation',
+                '/calculators/rebalance-frequency',
+                '/resources',
+                '/resources/portfolio-rebalancing-guide',
+                '/resources/tax-efficient-investing',
+                '/resources/emergency-fund-guide'
+            ]
         })
     ],
     test: {
