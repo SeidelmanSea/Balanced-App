@@ -806,13 +806,21 @@ export function usePortfolio() {
     };
 
     const removeFund = (accId, fundId) => {
-        setAccounts(prev => ({
-            ...prev,
-            [accId]: {
-                ...prev[accId],
-                funds: prev[accId].funds.filter(f => f.id !== fundId)
+        setConfirmModal({
+            isOpen: true,
+            title: 'Remove Fund',
+            message: 'Are you sure you want to remove this fund?',
+            onConfirm: () => {
+                setAccounts(prev => ({
+                    ...prev,
+                    [accId]: {
+                        ...prev[accId],
+                        funds: prev[accId].funds.filter(f => f.id !== fundId)
+                    }
+                }));
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
             }
-        }));
+        });
     };
 
     const toggleTheme = () => setIsDarkMode(!isDarkMode);
@@ -836,14 +844,30 @@ export function usePortfolio() {
     const resetEquityStrategy = () => setEquityStrategy(DEFAULT_EQUITY_SPLIT);
 
     const importFunds = (accId, newFunds) => {
-        setAccounts(prev => ({
-            ...prev,
-            [accId]: {
-                ...prev[accId],
-                funds: [...prev[accId].funds, ...newFunds.map(f => ({ ...f, id: Date.now() + Math.random() }))]
-            }
-        }));
-        setNotification({ message: 'Funds imported successfully', type: 'success' });
+        if (!accId || !newFunds || !newFunds.length) return;
+
+        setAccounts(prev => {
+            const account = prev[accId];
+            if (!account) return prev;
+
+            // Map imported funds to internal structure with new IDs
+            const fundsToAdd = newFunds.map(f => ({
+                id: Date.now() + Math.random(), // Ensure unique ID
+                name: f.name,
+                value: f.value,
+                type: f.type || 'us_broad',
+                isEmergency: false
+            }));
+
+            return {
+                ...prev,
+                [accId]: {
+                    ...prev[accId],
+                    funds: [...(prev[accId].funds || []), ...fundsToAdd]
+                }
+            };
+        });
+        setNotification({ message: `Successfully imported ${newFunds.length} funds`, type: 'success' });
     };
 
 

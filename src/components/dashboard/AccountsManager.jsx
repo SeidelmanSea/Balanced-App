@@ -18,6 +18,7 @@ const AccountsManager = ({
     removeFund,
     createAccount,
     deleteAccount,
+    importFunds,
     isDarkMode
 }) => {
     const [showAccountModal, setShowAccountModal] = useState(false);
@@ -29,28 +30,6 @@ const AccountsManager = ({
         createAccount(newAccountName, newAccountType);
         setNewAccountName('');
         setShowAccountModal(false);
-    };
-
-    const handleImport = (accountId, parsedData) => {
-        // This logic was inside Balanced.jsx handleSave in renderPasteModal
-        // We need to pass this up or handle it here?
-        // Actually, usePortfolio didn't export a "importFunds" function, it only had generic update methods.
-        // Wait, I missed checking if usePortfolio has a bulk import for funds.
-        // It does NOT. It has updateAccount, addFund, updateFund.
-        // I should probably add a logic for this in the component or add a helper in the hook.
-        // Since I can't easily change the hook now without another file write, I will Implement the logic here utilizing the passed props
-        // BUT, the PasteModal in Balanced.jsx had access to setAccounts directly.
-        // Here I only have update functions.
-        // I should probably have added a `importFunds(accountId, funds)` to the hook.
-        // Let's check usePortfolio again. It has setAccounts in the return?
-        // Yes, `setAccounts` is returned in `actions`.
-        // So I can pass `setAccounts` to this component and implement the logic here, OR add a helper to usePortfolio.
-        // Adding a helper to usePortfolio is cleaner but requires editing the file again.
-        // Using setAccounts here is faster.
-        // I'll assume I can pass `setAccounts` or a wrapper.
-        // Actually, I'll update AccountsManager to take `importFunds` prop, and I'll add `importFunds` to usePortfolio later or implemented in Balanced.jsx wrapper.
-        // Wait, I am rewriting Balanced.jsx anyway.
-        // I will interpret `importFunds` as a prop.
     };
 
     return (
@@ -255,10 +234,7 @@ const AccountsManager = ({
                 accountId={pasteModal.accountId}
                 onClose={() => setPasteModal({ isOpen: false, accountId: null })}
                 onImport={(accId, funds) => {
-                    // We need a way to import funds.
-                    // Since we don't have a direct helper, we will use setAccounts if passed, or we must pass a specific handler 'importFunds' from the parent.
-                    // For now, I will assume a prop `importFunds` is passed.
-                    if (props.importFunds) props.importFunds(accId, funds);
+                    if (importFunds) importFunds(accId, funds);
                 }}
             />
         </div>

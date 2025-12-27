@@ -133,4 +133,34 @@ describe('usePortfolio Hook', () => {
 
         expect(result.current.metrics.investableTotal).toBe(10000);
     });
+
+    it('should import funds into an account', () => {
+        const { result } = renderHook(() => usePortfolio());
+
+        act(() => {
+            result.current.actions.setNewAccountName('Brokerage');
+            result.current.actions.setNewAccountType('taxable');
+        });
+
+        act(() => {
+            result.current.actions.createAccount();
+        });
+
+        const accId = Object.keys(result.current.state.accounts)[0];
+
+        const parsedFunds = [
+            { name: 'VTI', value: 10000, type: 'us_broad' },
+            { name: 'VXUS', value: 5000, type: 'intl_developed' }
+        ];
+
+        act(() => {
+            result.current.actions.importFunds(accId, parsedFunds);
+        });
+
+        const account = result.current.state.accounts[accId];
+        expect(account.funds).toHaveLength(2);
+        expect(account.funds[0].name).toBe('VTI');
+        expect(account.funds[0].value).toBe(10000);
+        expect(account.funds[1].name).toBe('VXUS');
+    });
 });
