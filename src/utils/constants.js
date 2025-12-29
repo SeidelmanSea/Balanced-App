@@ -17,7 +17,7 @@ import {
 
 export const ASSET_CLASSES = {
     // Cash & Equivalents - STRONGLY prefer taxable (already tax-efficient)
-    CASH: { id: 'cash', name: 'Cash', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable'] },
+    CASH: { id: 'cash', name: 'Cash & Equivalents', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable'] },
     MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable'] },
 
 

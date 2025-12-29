@@ -363,8 +363,8 @@ export function usePortfolio() {
                 autoEmergencyFund += effectiveCash;
             } else {
                 investableTotal += effectiveCash;
-                const cashKey = 'cash';
-                currentAllocation[cashKey] = (currentAllocation[cashKey] || 0) + effectiveCash;
+                // Unified Cash: All cash goes to 'cash' key
+                currentAllocation['cash'] = (currentAllocation['cash'] || 0) + effectiveCash;
             }
 
             if (Array.isArray(accData.funds)) {
@@ -375,8 +375,11 @@ export function usePortfolio() {
                         autoEmergencyFund += val;
                     } else {
                         investableTotal += val;
+                        // Unified Cash: Money market funds are added to 'cash' key
                         let type = fund.type || 'us_broad';
-                        if (currentAllocation[type] !== undefined) {
+                        if (type === 'money_market') {
+                            currentAllocation['cash'] += val;
+                        } else if (currentAllocation[type] !== undefined) {
                             currentAllocation[type] += val;
                         }
                     }
@@ -392,7 +395,6 @@ export function usePortfolio() {
 
         const targets = {};
         const cashKey = 'cash';
-        const moneyMarketKey = 'money_market';
         const bondKey = 'bonds';
 
         // Three-part macro allocation: Bonds + Cash & Equivalents + Equity = 100%
@@ -400,27 +402,8 @@ export function usePortfolio() {
         const bondPct = bondAllocation || 0;
         const equityPct = 100 - bondPct - cashEquivPct;
 
-        // Calculate total cash & equivalents target
-        const totalCashEquivTarget = effectiveInvestableTotal * (cashEquivPct / 100);
-
-        // Distribute proportionally based on current holdings
-        // (Users can hold either cash OR money market - they're equivalent)
-        const currentCash = currentAllocation[cashKey] || 0;
-        const currentMoneyMarket = currentAllocation[moneyMarketKey] || 0;
-        const totalCurrentCashEquiv = currentCash + currentMoneyMarket;
-
-        if (totalCurrentCashEquiv > 0) {
-            // Distribute target proportionally to maintain current mix
-            const cashRatio = currentCash / totalCurrentCashEquiv;
-            const mmRatio = currentMoneyMarket / totalCurrentCashEquiv;
-            targets[cashKey] = totalCashEquivTarget * cashRatio;
-            targets[moneyMarketKey] = totalCashEquivTarget * mmRatio;
-        } else {
-            // No current holdings - default to all in cash
-            targets[cashKey] = totalCashEquivTarget;
-            targets[moneyMarketKey] = 0;
-        }
-
+        // Unified Cash Target: Single target for 'cash' representing all equivalents
+        targets[cashKey] = effectiveInvestableTotal * (cashEquivPct / 100);
         targets[bondKey] = effectiveInvestableTotal * (bondPct / 100);
 
         const equityTotalValue = effectiveInvestableTotal * (equityPct / 100);
