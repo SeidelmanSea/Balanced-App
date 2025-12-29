@@ -78,6 +78,7 @@ export function usePortfolio() {
                 if (parsed.userAge !== undefined) setUserAge(parsed.userAge);
                 if (parsed.isDarkMode !== undefined) setIsDarkMode(parsed.isDarkMode);
                 if (parsed.equityStrategy !== undefined) setEquityStrategy(parsed.equityStrategy);
+                if (parsed.cashAllocation !== undefined) setCashAllocation(parsed.cashAllocation);
                 if (parsed.taxStrategy) setTaxStrategy(parsed.taxStrategy);
 
                 // Load split rebalance modes, fallback to old global mode if present
@@ -106,12 +107,12 @@ export function usePortfolio() {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             localStorage.setItem('balanced_data_v7', JSON.stringify({
-                accounts, bondAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered
+                accounts, bondAllocation, cashAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered
             }));
         }, 1000);
 
         return () => clearTimeout(timeoutId);
-    }, [accounts, bondAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
+    }, [accounts, bondAllocation, cashAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
 
 
     const createAccount = () => {
