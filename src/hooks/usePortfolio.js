@@ -400,10 +400,27 @@ export function usePortfolio() {
         const bondPct = bondAllocation || 0;
         const equityPct = 100 - bondPct - cashEquivPct;
 
-        // Calculate targets
-        const cashTarget = effectiveInvestableTotal * (cashEquivPct / 100);
-        targets[cashKey] = cashTarget;
-        targets[moneyMarketKey] = 0; // Money market is part of cash & equivalents, no separate target
+        // Calculate total cash & equivalents target
+        const totalCashEquivTarget = effectiveInvestableTotal * (cashEquivPct / 100);
+
+        // Distribute proportionally based on current holdings
+        // (Users can hold either cash OR money market - they're equivalent)
+        const currentCash = currentAllocation[cashKey] || 0;
+        const currentMoneyMarket = currentAllocation[moneyMarketKey] || 0;
+        const totalCurrentCashEquiv = currentCash + currentMoneyMarket;
+
+        if (totalCurrentCashEquiv > 0) {
+            // Distribute target proportionally to maintain current mix
+            const cashRatio = currentCash / totalCurrentCashEquiv;
+            const mmRatio = currentMoneyMarket / totalCurrentCashEquiv;
+            targets[cashKey] = totalCashEquivTarget * cashRatio;
+            targets[moneyMarketKey] = totalCashEquivTarget * mmRatio;
+        } else {
+            // No current holdings - default to all in cash
+            targets[cashKey] = totalCashEquivTarget;
+            targets[moneyMarketKey] = 0;
+        }
+
         targets[bondKey] = effectiveInvestableTotal * (bondPct / 100);
 
         const equityTotalValue = effectiveInvestableTotal * (equityPct / 100);
