@@ -16,9 +16,9 @@ import {
 } from 'lucide-react';
 
 export const ASSET_CLASSES = {
-    // Cash & Equivalents
-    CASH: { id: 'cash', name: 'Cash', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
-    MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+    // Cash & Equivalents - STRONGLY prefer taxable (already tax-efficient)
+    CASH: { id: 'cash', name: 'Cash', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable'] },
+    MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable'] },
 
 
     // US Equities - Core
