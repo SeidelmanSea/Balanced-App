@@ -31,16 +31,31 @@ const StrategyConfig = ({
 }) => {
     const currentYear = new Date().getFullYear();
     const numericAge = parseInt(userAge) || 0;
+
+    // Calculate synthetic age based on retirement year (Target age 65)
+    // If retiring in 20 years, synthetic age is 45.
+    const syntheticAge = Math.max(18, Math.min(100, 65 - (retirementYear - currentYear)));
+
     const totalEquityAllocation = Object.values(equityStrategy).reduce((a, b) => a + b, 0);
     const isEquityValid = Math.abs(totalEquityAllocation - 100) < 0.1;
     const isCustomMode = bondStrategyMode === 'custom';
 
-    const bondStrategies = [
-        { id: 'smart', name: 'Target Date (Smart)', value: getSuggestedBondAllocation(numericAge), desc: `Glide path targeting retirement in ${retirementYear} (${yearsToRetirement} years away)` },
+    const bondStrategies = React.useMemo(() => [
+        { id: 'smart', name: 'Target Date (Smart)', value: getSuggestedBondAllocation(syntheticAge), desc: `Non-linear glide path based on your 20${retirementYear.toString().slice(-2)} retirement goal.` },
         { id: 'aggressive', name: 'Aggressive (Age - 20)', value: Math.max(0, numericAge - 20), desc: 'Focuses on maximum growth.' },
         { id: 'moderate', name: 'Moderate (Age - 10)', value: Math.max(0, numericAge - 10), desc: 'Standard rule of thumb.' },
         { id: 'conservative', name: 'Conservative (Age Match)', value: Math.min(100, numericAge), desc: 'Lower risk, preserves capital.' },
-    ];
+    ], [numericAge, syntheticAge, retirementYear]);
+
+    // Sync bond allocation when inputs or strategy changes
+    React.useEffect(() => {
+        if (bondStrategyMode !== 'custom') {
+            const activeStrategy = bondStrategies.find(s => s.id === bondStrategyMode);
+            if (activeStrategy && activeStrategy.value !== bondAllocation) {
+                setBondAllocation(activeStrategy.value);
+            }
+        }
+    }, [bondStrategyMode, bondStrategies, setBondAllocation, bondAllocation]);
 
     const availableAssets = Object.values(ASSET_CLASSES).filter(a => a.id !== 'cash' && a.id !== 'money_market' && a.id !== 'bonds' && equityStrategy[a.id] === undefined);
 
