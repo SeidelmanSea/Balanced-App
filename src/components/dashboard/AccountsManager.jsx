@@ -159,19 +159,49 @@ const AccountsManager = ({
                                                 </div>
                                             </div>
 
-                                            {/* Money Market Funds Items */}
+                                            {/* Money Market Funds Items - Now Editable */}
                                             {(accountData.funds || [])
                                                 .filter(f => f.type === 'money_market')
                                                 .map(fund => (
-                                                    <div key={fund.id} className="flex items-center justify-between text-xs py-2 px-2 border-t border-emerald-50/50 dark:border-emerald-900/10">
-                                                        <div className="flex flex-col">
+                                                    <div key={fund.id} className="flex items-center justify-between text-xs py-2 px-2 border-t border-emerald-50/50 dark:border-emerald-900/10 hover:bg-white/30 dark:hover:bg-white/5 transition-colors group">
+                                                        <div className="flex flex-col flex-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="font-semibold text-zinc-700 dark:text-zinc-300">{fund.name}</span>
-                                                                {fund.isEmergency && <Shield className="w-3 h-3 text-amber-500" />}
+                                                                <input
+                                                                    type="text"
+                                                                    value={fund.name}
+                                                                    onChange={(e) => updateFund(accountData.id, fund.id, 'name', e.target.value)}
+                                                                    className="bg-transparent border-none p-0 font-semibold text-zinc-700 dark:text-zinc-300 focus:ring-0 outline-none w-32"
+                                                                    placeholder="Fund Name/Ticker"
+                                                                />
+                                                                <button
+                                                                    onClick={() => updateFund(accountData.id, fund.id, 'isEmergency', !fund.isEmergency)}
+                                                                    className={`p-1 rounded transition-colors ${fund.isEmergency ? 'text-amber-500 bg-amber-100/50 dark:bg-amber-900/20' : 'text-zinc-300 opacity-0 group-hover:opacity-100 hover:text-zinc-400'}`}
+                                                                    title={fund.isEmergency ? "Counts as Emergency Fund" : "Counts as Investment"}
+                                                                >
+                                                                    <Shield className="w-3 h-3" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => removeFund(accountData.id, fund.id)}
+                                                                    className="p-1 text-zinc-300 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                                                                >
+                                                                    <Trash2 className="w-3 h-3" />
+                                                                </button>
                                                             </div>
-                                                            <span className="text-[10px] text-zinc-500 uppercase">{fund.ticker || 'No Ticker'}</span>
+                                                            {fund.ticker && fund.ticker !== fund.name && (
+                                                                <span className="text-[10px] text-zinc-500 uppercase">{fund.ticker}</span>
+                                                            )}
                                                         </div>
-                                                        <div className="font-mono text-zinc-800 dark:text-zinc-200">{formatCurrency(parseFloat(fund.value) || 0)}</div>
+                                                        <div className="relative">
+                                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-400">$</span>
+                                                            <input
+                                                                type="number"
+                                                                value={fund.value}
+                                                                onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
+                                                                onWheel={(e) => e.target.blur()}
+                                                                onChange={(e) => updateFund(accountData.id, fund.id, 'value', e.target.value)}
+                                                                className="w-24 pl-5 pr-2 py-1 text-xs font-mono font-bold border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 focus:border-emerald-500 rounded bg-transparent focus:bg-white dark:focus:bg-zinc-900 text-zinc-800 dark:text-zinc-200 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-right"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 ))
                                             }
