@@ -133,45 +133,100 @@ const AccountsManager = ({
                                     </div>
                                 </div>
 
-                                <div className="p-4 space-y-3">
-                                    {accountData.funds.length === 0 ? (
-                                        <div className="text-center py-8 border-2 border-dashed border-zinc-100 dark:border-zinc-800 rounded-lg">
-                                            <p className="text-sm text-zinc-400 mb-3">No funds added to this account yet.</p>
-                                            <button
-                                                onClick={() => addFund(accountData.id)}
-                                                className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 px-4 py-2 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                            >
-                                                <Plus className="w-4 h-4" /> Add First Fund
-                                            </button>
+                                <div className="p-4 space-y-4">
+                                    {/* Consolidated Cash & Equivalents Section */}
+                                    <div className="bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-800/50 rounded-lg p-4">
+                                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-emerald-100 dark:border-emerald-800/50">
+                                            <div className="flex items-center gap-2">
+                                                <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                                <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-200 uppercase tracking-tight">Cash & Equivalents</h4>
+                                            </div>
+                                            <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                                {formatCurrency(
+                                                    (parseFloat(accountData.cash) || 0) +
+                                                    (accountData.funds || [])
+                                                        .filter(f => f.type === 'money_market')
+                                                        .reduce((sum, f) => sum + (parseFloat(f.value) || 0), 0)
+                                                )}
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <>
-                                            <div className="hidden md:grid grid-cols-12 gap-4 px-2 pb-2 text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                                                <div className="col-span-4">Fund Name</div>
-                                                <div className="col-span-4">Asset Class</div>
-                                                <div className="col-span-3">Value ($)</div>
-                                                <div className="col-span-1"></div>
+
+                                        <div className="space-y-2">
+                                            {/* Settlement Cash Item */}
+                                            <div className="flex items-center justify-between text-xs py-1">
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold text-zinc-700 dark:text-zinc-300">Settlement Cash</span>
+                                                    <span className="text-[10px] text-zinc-500 italic">Held as cash in account sweep</span>
+                                                </div>
+                                                <div className="font-mono text-zinc-800 dark:text-zinc-200">{formatCurrency(parseFloat(accountData.cash) || 0)}</div>
                                             </div>
 
-                                            {/* Render Fund Rows */}
-                                            {accountData.funds.map((fund) => (
-                                                <FundRow
-                                                    key={fund.id}
-                                                    fund={fund}
-                                                    accountId={accountData.id}
-                                                    updateFund={updateFund}
-                                                    removeFund={removeFund}
-                                                />
-                                            ))}
+                                            {/* Money Market Funds Items */}
+                                            {(accountData.funds || [])
+                                                .filter(f => f.type === 'money_market')
+                                                .map(fund => (
+                                                    <div key={fund.id} className="flex items-center justify-between text-xs py-1 border-t border-emerald-50 dark:border-emerald-900/30">
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-semibold text-zinc-700 dark:text-zinc-300">{fund.name}</span>
+                                                                {fund.isEmergency && <Shield className="w-3 h-3 text-amber-500" />}
+                                                            </div>
+                                                            <span className="text-[10px] text-zinc-500 uppercase">{fund.ticker || 'No Ticker'}</span>
+                                                        </div>
+                                                        <div className="font-mono text-zinc-800 dark:text-zinc-200">{formatCurrency(parseFloat(fund.value) || 0)}</div>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
 
-                                            <button
-                                                onClick={() => addFund(accountData.id)}
-                                                className="w-full py-3 flex items-center justify-center gap-2 text-sm text-zinc-500 hover:text-emerald-600 hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg transition-all mt-4"
-                                            >
-                                                <Plus className="w-4 h-4" /> Add Another Fund
-                                            </button>
-                                        </>
-                                    )}
+                                    {/* Main Funds List (Excludes Money Markets) */}
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Layers className="w-4 h-4 text-zinc-400" />
+                                            <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Investments</h4>
+                                        </div>
+
+                                        {(accountData.funds || []).filter(f => f.type !== 'money_market').length === 0 ? (
+                                            <div className="text-center py-6 border-2 border-dashed border-zinc-100 dark:border-zinc-800 rounded-lg">
+                                                <p className="text-xs text-zinc-400 mb-2">No investment funds added yet.</p>
+                                                <button
+                                                    onClick={() => addFund(accountData.id)}
+                                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                                >
+                                                    <Plus className="w-3 h-3" /> Add Fund
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                <div className="hidden md:grid grid-cols-12 gap-4 px-2 pb-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                                                    <div className="col-span-4">Fund Name</div>
+                                                    <div className="col-span-4">Asset Class</div>
+                                                    <div className="col-span-3">Value ($)</div>
+                                                    <div className="col-span-1"></div>
+                                                </div>
+
+                                                {(accountData.funds || [])
+                                                    .filter(f => f.type !== 'money_market')
+                                                    .map((fund) => (
+                                                        <FundRow
+                                                            key={fund.id}
+                                                            fund={fund}
+                                                            accountId={accountData.id}
+                                                            updateFund={updateFund}
+                                                            removeFund={removeFund}
+                                                        />
+                                                    ))}
+
+                                                <button
+                                                    onClick={() => addFund(accountData.id)}
+                                                    className="w-full py-2.5 flex items-center justify-center gap-2 text-xs font-medium text-zinc-500 hover:text-emerald-600 hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg transition-all mt-2"
+                                                >
+                                                    <Plus className="w-3.5 h-3.5" /> Add Investment Fund
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </Card>
                         );

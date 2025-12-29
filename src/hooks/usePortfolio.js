@@ -752,14 +752,13 @@ export function usePortfolio() {
                 if (accData && Array.isArray(accData.funds)) {
                     accData.funds.forEach(f => {
                         if (f.isEmergency) return;
-                        let type = f.type;
+                        let type = f.type === 'money_market' ? 'cash' : f.type;
                         currentHoldings[type] = (currentHoldings[type] || 0) + parseFloat(f.value);
                     });
                 }
                 const actualCashInAccount = accData ? (parseFloat(accData.cash) || 0) : 0;
-                const cashKey = 'money_market';
                 if (!accData.cashIsEmergency) {
-                    currentHoldings[cashKey] = (currentHoldings[cashKey] || 0) + actualCashInAccount;
+                    currentHoldings['cash'] = (currentHoldings['cash'] || 0) + actualCashInAccount;
                 }
 
                 Object.values(ASSET_CLASSES).forEach(assetClass => {
