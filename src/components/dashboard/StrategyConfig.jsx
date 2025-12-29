@@ -103,14 +103,47 @@ const StrategyConfig = ({
                 </div>
             </Card>
 
-            {/* BOND ALLOCATION */}
+            {/* MACRO ALLOCATION */}
             <Card className="p-6">
                 <div className="flex items-center gap-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
                     <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"><Calendar className="w-5 h-5" /></div>
-                    <div><h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Macro Allocation</h3><p className="text-xs text-zinc-500 dark:text-zinc-400">Set your bonds, cash, and equity allocation.</p></div>
+                    <div><h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Macro Allocation</h3><p className="text-xs text-zinc-500 dark:text-zinc-400">Your portfolio's high-level mix across bonds, cash, and equities.</p></div>
                 </div>
 
-                {/* Cash & Equivalents - Always visible */}
+                {/* Visual Allocation Summary */}
+                <div className="mb-8">
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                        {/* Bonds Card */}
+                        <div className="relative p-5 rounded-xl border-2 border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10">
+                            <div className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide mb-2">Bonds</div>
+                            <div className="text-4xl font-bold text-red-600 dark:text-red-400">{bondAllocation}%</div>
+                            <div className="text-[10px] text-red-600/70 dark:text-red-400/70 mt-1">Fixed Income</div>
+                        </div>
+
+                        {/* Cash & Equivalents Card */}
+                        <div className="relative p-5 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
+                            <div className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-2">Cash & Equiv.</div>
+                            <div className="text-4xl font-bold text-zinc-600 dark:text-zinc-400">{cashAllocation}%</div>
+                            <div className="text-[10px] text-zinc-500 dark:text-zinc-500 mt-1">Liquidity Buffer</div>
+                        </div>
+
+                        {/* Equity Card */}
+                        <div className="relative p-5 rounded-xl border-2 border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/10">
+                            <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide mb-2">Equity</div>
+                            <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">{Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}%</div>
+                            <div className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 mt-1">Stocks & Growth</div>
+                        </div>
+                    </div>
+
+                    {/* Validation */}
+                    {((bondAllocation || 0) + (cashAllocation || 0)) > 100 && (
+                        <div className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded border border-red-100 dark:border-red-900/30 text-center">
+                            ⚠️ Bonds + Cash cannot exceed 100%
+                        </div>
+                    )}
+                </div>
+
+                {/* Cash Input */}
                 <div className="mb-6 bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800">
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">Cash & Equivalents Target</label>
                     <div className="flex items-center gap-4">
@@ -140,6 +173,9 @@ const StrategyConfig = ({
                     </div>
                 </div>
 
+                {/* Bond Strategy Selection */}
+                <div className="mb-6">
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">Bond Allocation Strategy</label>                </div>
                 <div className="grid grid-cols-2 gap-4 mb-8">
                     <button
                         onClick={() => {
