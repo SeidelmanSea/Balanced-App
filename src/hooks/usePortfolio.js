@@ -752,7 +752,7 @@ export function usePortfolio() {
                 if (accData && Array.isArray(accData.funds)) {
                     accData.funds.forEach(f => {
                         if (f.isEmergency) return;
-                        let type = f.type === 'money_market' ? 'cash' : f.type;
+                        let type = (f.type === 'money_market' || f.type === 'cash') ? 'cash' : f.type;
                         currentHoldings[type] = (currentHoldings[type] || 0) + parseFloat(f.value);
                     });
                 }
@@ -796,12 +796,12 @@ export function usePortfolio() {
         }));
     };
 
-    const addFund = (accId) => {
+    const addFund = (accId, defaultType = 'us_broad') => {
         setAccounts(prev => ({
             ...prev,
             [accId]: {
                 ...prev[accId],
-                funds: [...prev[accId].funds, { id: Date.now(), name: '', type: 'us_broad', value: 0 }]
+                funds: [...prev[accId].funds, { id: Date.now(), name: '', type: defaultType, value: 0 }]
             }
         }));
     };

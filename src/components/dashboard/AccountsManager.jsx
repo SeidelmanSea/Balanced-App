@@ -130,81 +130,59 @@ const AccountsManager = ({
                                             </div>
                                         </div>
 
-                                        <div className="space-y-2">
-                                            {/* Settlement Cash Item - Now Editable */}
-                                            <div className="flex items-center justify-between text-xs py-2 bg-white/50 dark:bg-white/5 rounded px-2">
-                                                <div className="flex flex-col">
+                                        <div className="space-y-4">
+                                            {/* Cash Row - Aligned with FundRow grid */}
+                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-3 md:p-0 bg-white/50 dark:bg-white/5 md:bg-transparent rounded-lg md:rounded-none border border-zinc-100 dark:border-zinc-800 md:border-0 shadow-sm md:shadow-none">
+                                                <div className="md:col-span-8 flex flex-col">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="font-bold text-zinc-700 dark:text-zinc-300">Settlement Cash</span>
-                                                        <button
-                                                            onClick={() => updateAccount(accountData.id, 'cashIsEmergency', !accountData.cashIsEmergency)}
-                                                            className={`p-1 rounded transition-colors ${accountData.cashIsEmergency ? 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30' : 'text-zinc-300 hover:text-zinc-400'}`}
-                                                            title={accountData.cashIsEmergency ? "Cash counts as Emergency Fund" : "Cash counts as Investment"}
-                                                        >
-                                                            <Shield className="w-3.5 h-3.5" />
-                                                        </button>
+                                                        <span className="font-bold text-zinc-700 dark:text-zinc-300">Cash</span>
+                                                        <span className="text-[10px] text-zinc-500 italic hidden md:inline">• Settlement/Sweep</span>
                                                     </div>
-                                                    <span className="text-[10px] text-zinc-500 italic">Held as cash in account sweep</span>
+                                                    <span className="text-[10px] text-zinc-500 italic md:hidden">Held as cash in account sweep</span>
                                                 </div>
-                                                <div className="relative">
-                                                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-400">$</span>
+                                                <div className="md:col-span-3 relative">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">$</span>
                                                     <input
                                                         type="number"
                                                         value={accountData.cash}
                                                         onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
                                                         onWheel={(e) => e.target.blur()}
                                                         onChange={(e) => updateAccountCash(accountData.id, e.target.value)}
-                                                        className="w-24 pl-5 pr-2 py-1 text-xs font-mono font-bold border border-zinc-200 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                                                        className="w-full pl-6 pr-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md focus:ring-1 focus:ring-emerald-500 outline-none"
+                                                        placeholder="0"
                                                     />
+                                                </div>
+                                                <div className="md:col-span-1 flex justify-end">
+                                                    <button
+                                                        onClick={() => updateAccount(accountData.id, 'cashIsEmergency', !accountData.cashIsEmergency)}
+                                                        className={`p-2 rounded-md transition-colors ${accountData.cashIsEmergency ? 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30' : 'text-zinc-300 hover:text-zinc-400'}`}
+                                                        title={accountData.cashIsEmergency ? "Counts as Emergency Fund" : "Counts as Investment"}
+                                                    >
+                                                        <Shield className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </div>
 
-                                            {/* Money Market Funds Items - Now Editable */}
+                                            {/* Cash-like Funds - Using FundRow for consistency */}
                                             {(accountData.funds || [])
-                                                .filter(f => f.type === 'money_market')
+                                                .filter(f => f.type === 'money_market' || f.type === 'cash')
                                                 .map(fund => (
-                                                    <div key={fund.id} className="flex items-center justify-between text-xs py-2 px-2 border-t border-emerald-50/50 dark:border-emerald-900/10 hover:bg-white/30 dark:hover:bg-white/5 transition-colors group">
-                                                        <div className="flex flex-col flex-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <input
-                                                                    type="text"
-                                                                    value={fund.name}
-                                                                    onChange={(e) => updateFund(accountData.id, fund.id, 'name', e.target.value)}
-                                                                    className="bg-transparent border-none p-0 font-semibold text-zinc-700 dark:text-zinc-300 focus:ring-0 outline-none w-32"
-                                                                    placeholder="Fund Name/Ticker"
-                                                                />
-                                                                <button
-                                                                    onClick={() => updateFund(accountData.id, fund.id, 'isEmergency', !fund.isEmergency)}
-                                                                    className={`p-1 rounded transition-colors ${fund.isEmergency ? 'text-amber-500 bg-amber-100/50 dark:bg-amber-900/20' : 'text-zinc-300 opacity-0 group-hover:opacity-100 hover:text-zinc-400'}`}
-                                                                    title={fund.isEmergency ? "Counts as Emergency Fund" : "Counts as Investment"}
-                                                                >
-                                                                    <Shield className="w-3 h-3" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => removeFund(accountData.id, fund.id)}
-                                                                    className="p-1 text-zinc-300 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
-                                                                >
-                                                                    <Trash2 className="w-3 h-3" />
-                                                                </button>
-                                                            </div>
-                                                            {fund.ticker && fund.ticker !== fund.name && (
-                                                                <span className="text-[10px] text-zinc-500 uppercase">{fund.ticker}</span>
-                                                            )}
-                                                        </div>
-                                                        <div className="relative">
-                                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-400">$</span>
-                                                            <input
-                                                                type="number"
-                                                                value={fund.value}
-                                                                onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
-                                                                onWheel={(e) => e.target.blur()}
-                                                                onChange={(e) => updateFund(accountData.id, fund.id, 'value', e.target.value)}
-                                                                className="w-24 pl-5 pr-2 py-1 text-xs font-mono font-bold border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 focus:border-emerald-500 rounded bg-transparent focus:bg-white dark:focus:bg-zinc-900 text-zinc-800 dark:text-zinc-200 focus:ring-1 focus:ring-emerald-500 outline-none transition-all text-right"
-                                                            />
-                                                        </div>
-                                                    </div>
+                                                    <FundRow
+                                                        key={fund.id}
+                                                        fund={fund}
+                                                        accountId={accountData.id}
+                                                        updateFund={updateFund}
+                                                        removeFund={removeFund}
+                                                    />
                                                 ))
                                             }
+
+                                            <button
+                                                onClick={() => addFund(accountData.id, 'money_market')}
+                                                className="w-full py-2 flex items-center justify-center gap-2 text-xs font-semibold text-emerald-600 hover:text-emerald-700 bg-white dark:bg-zinc-900/50 border border-emerald-100 dark:border-emerald-800/50 rounded-lg transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                                            >
+                                                <Plus className="w-3.5 h-3.5" /> Add Cash Equivalent
+                                            </button>
                                         </div>
                                     </div>
 
@@ -215,7 +193,7 @@ const AccountsManager = ({
                                             <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Investments</h4>
                                         </div>
 
-                                        {(accountData.funds || []).filter(f => f.type !== 'money_market').length === 0 ? (
+                                        {(accountData.funds || []).filter(f => f.type !== 'money_market' && f.type !== 'cash').length === 0 ? (
                                             <div className="text-center py-6 border-2 border-dashed border-zinc-100 dark:border-zinc-800 rounded-lg">
                                                 <p className="text-xs text-zinc-400 mb-2">No investment funds added yet.</p>
                                                 <button
@@ -235,7 +213,7 @@ const AccountsManager = ({
                                                 </div>
 
                                                 {(accountData.funds || [])
-                                                    .filter(f => f.type !== 'money_market')
+                                                    .filter(f => f.type !== 'money_market' && f.type !== 'cash')
                                                     .map((fund) => (
                                                         <FundRow
                                                             key={fund.id}
