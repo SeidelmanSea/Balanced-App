@@ -41,16 +41,16 @@ const StrategyConfig = ({
     const isCustomMode = bondStrategyMode === 'custom';
 
     const bondStrategies = React.useMemo(() => [
-        { id: 'smart', name: 'Target Date (Smart)', value: getSuggestedBondAllocation(syntheticAge), desc: `Non-linear glide path based on your 20${retirementYear.toString().slice(-2)} retirement goal.` },
-        { id: 'aggressive', name: 'Aggressive (Age - 20)', value: Math.max(0, numericAge - 20), desc: 'Focuses on maximum growth.' },
-        { id: 'moderate', name: 'Moderate (Age - 10)', value: Math.max(0, numericAge - 10), desc: 'Standard rule of thumb.' },
-        { id: 'conservative', name: 'Conservative (Age Match)', value: Math.min(100, numericAge), desc: 'Lower risk, preserves capital.' },
+        { id: 'smart', name: 'Target Date', value: getSuggestedBondAllocation(syntheticAge), desc: `Non-linear glide path based on your 20${retirementYear.toString().slice(-2)} retirement goal.` },
+        { id: 'aggressive', name: 'Aggressive', value: Math.max(0, numericAge - 20), desc: 'Set target to Age - 20' },
+        { id: 'moderate', name: 'Moderate', value: Math.max(0, numericAge - 10), desc: 'Set target to Age - 10' },
+        { id: 'conservative', name: 'Conservative', value: Math.min(100, numericAge), desc: 'Set target to Age' },
     ], [numericAge, syntheticAge, retirementYear]);
 
-    // Sync bond allocation when inputs or strategy changes
+    // Sync bond allocation ONLY for Dynamic (smart) mode
     React.useEffect(() => {
-        if (bondStrategyMode !== 'custom') {
-            const activeStrategy = bondStrategies.find(s => s.id === bondStrategyMode);
+        if (bondStrategyMode === 'smart') {
+            const activeStrategy = bondStrategies.find(s => s.id === 'smart');
             if (activeStrategy && activeStrategy.value !== bondAllocation) {
                 setBondAllocation(activeStrategy.value);
             }
@@ -179,40 +179,54 @@ const StrategyConfig = ({
                                     </h5>
                                     <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
                                         <button
-                                            onClick={() => { setBondStrategyMode('smart'); setBondAllocation(getSuggestedBondAllocation(numericAge)); }}
-                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode !== 'custom' ? 'bg-white dark:bg-zinc-700 text-zinc-900 shadow-sm' : 'text-zinc-500'}`}
-                                        >AGILE</button>
+                                            onClick={() => { setBondStrategyMode('smart'); setBondAllocation(getSuggestedBondAllocation(syntheticAge)); }}
+                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode === 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 shadow-sm' : 'text-zinc-500'}`}
+                                        >DYNAMIC</button>
                                         <button
                                             onClick={() => setBondStrategyMode('custom')}
-                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode === 'custom' ? 'bg-white dark:bg-zinc-700 text-zinc-900 shadow-sm' : 'text-zinc-500'}`}
+                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode !== 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 shadow-sm' : 'text-zinc-500'}`}
                                         >FIXED</button>
                                     </div>
                                 </div>
 
-                                {bondStrategyMode !== 'custom' ? (
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {bondStrategies.map(s => (
-                                            <button
-                                                key={s.id}
-                                                onClick={() => { setBondStrategyMode(s.id); setBondAllocation(s.value); }}
-                                                className={`p-2 rounded-lg border text-left transition-all ${bondStrategyMode === s.id ? 'border-red-500 bg-red-50/50 dark:bg-red-950/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-red-200'}`}
-                                            >
-                                                <div className="flex justify-between items-center mb-0.5">
-                                                    <span className={`text-[10px] font-bold ${bondStrategyMode === s.id ? 'text-red-700 dark:text-red-400' : 'text-zinc-500'}`}>{s.name.split(' ')[0]}</span>
-                                                    <span className="text-[10px] font-mono font-bold text-zinc-400">{s.value}%</span>
-                                                </div>
-                                            </button>
-                                        ))}
+                                {bondStrategyMode === 'smart' ? (
+                                    <div className="bg-red-50/50 dark:bg-red-900/10 p-4 rounded-xl border border-red-100 dark:border-red-900/20 animate-in zoom-in-95 duration-200">
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mt-0.5">
+                                                <Activity className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <h6 className="text-xs font-bold text-red-800 dark:text-red-200 mb-1">Target Date Glide Path</h6>
+                                                <p className="text-[10px] text-red-700/70 dark:text-red-400/70 leading-relaxed">
+                                                    Automatically adjusts your risk lower as 20{retirementYear.toString().slice(-2)} approaches. Currently targeting <strong>{getSuggestedBondAllocation(syntheticAge)}%</strong> bonds.
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <div className="relative">
-                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">%</span>
-                                        <input
-                                            type="number"
-                                            value={bondAllocation}
-                                            onChange={(e) => setBondAllocation(parseInt(e.target.value) || 0)}
-                                            className="w-full pl-4 pr-10 py-2.5 bg-red-50/30 dark:bg-red-950/10 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 font-bold rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all"
-                                        />
+                                    <div className="space-y-3 animate-in fade-in duration-300">
+                                        <div className="relative">
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">%</span>
+                                            <input
+                                                type="number"
+                                                value={bondAllocation}
+                                                onChange={(e) => { setBondAllocation(parseInt(e.target.value) || 0); setBondStrategyMode('custom'); }}
+                                                className="w-full pl-4 pr-10 py-2.5 bg-red-50/30 dark:bg-red-950/10 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 font-bold rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all placeholder:text-red-200"
+                                                placeholder="Set fixed %"
+                                            />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {bondStrategies.filter(s => s.id !== 'smart').map(s => (
+                                                <button
+                                                    key={s.id}
+                                                    onClick={() => { setBondAllocation(s.value); setBondStrategyMode('custom'); }}
+                                                    className="px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-100 dark:border-zinc-800 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 transition-all active:scale-95"
+                                                    title={s.desc}
+                                                >
+                                                    {s.name} <span className="text-zinc-400 font-mono ml-1">{s.value}%</span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
