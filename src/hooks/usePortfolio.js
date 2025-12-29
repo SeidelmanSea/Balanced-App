@@ -608,10 +608,12 @@ export function usePortfolio() {
                 const assetInfo = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
                 let prefs = ['taxable'];
 
-                if (assetId === 'money_market') {
-                    prefs = ['taxable', 'deferred', 'roth'];
-                } else if (taxStrategy === 'roth_growth') {
-                    if (assetInfo?.type === 'fixed') {
+                // Use taxPref from constants - no hardcoded overrides for cash/money_market
+                if (taxStrategy === 'roth_growth') {
+                    // Cash & money_market always stay in taxable (already tax-efficient)
+                    if (assetId === 'cash' || assetId === 'money_market') {
+                        prefs = ['taxable'];
+                    } else if (assetInfo?.type === 'fixed') {
                         prefs = ['deferred', 'taxable', 'roth'];
                     } else {
                         prefs = ['roth', 'taxable', 'deferred'];
@@ -631,7 +633,9 @@ export function usePortfolio() {
                 }
             }
 
-            allocateAssetStandard('money_market');
+            // Allocate cash & equivalents first (always prefer taxable)
+            if (targets['cash']) allocateAssetStandard('cash');
+            if (targets['money_market']) allocateAssetStandard('money_market');
             if (targets['bonds']) allocateAssetStandard('bonds');
 
             if (taxStrategy !== 'mirrored') {
