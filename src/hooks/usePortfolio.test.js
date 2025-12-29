@@ -1,4 +1,3 @@
-
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { usePortfolio } from './usePortfolio';
@@ -39,8 +38,6 @@ describe('usePortfolio Hook', () => {
         act(() => {
             result.current.actions.setNewAccountName('My Vanguard');
         });
-        // Split act to allow state update to settle if needed, though act should handle it. 
-        // The issue might be that setNewAccountType defaults are used if not updated.
 
         act(() => {
             result.current.actions.setNewAccountType('taxable');
@@ -60,10 +57,9 @@ describe('usePortfolio Hook', () => {
     it('should calculate net worth correctly', () => {
         const { result } = renderHook(() => usePortfolio());
 
-        // Create Account
         act(() => {
             result.current.actions.setNewAccountName('Checking');
-            result.current.actions.setNewAccountType('taxable'); // id: taxable
+            result.current.actions.setNewAccountType('taxable');
         });
 
         act(() => {
@@ -72,7 +68,6 @@ describe('usePortfolio Hook', () => {
 
         const accId = Object.keys(result.current.state.accounts)[0];
 
-        // Add Cash
         act(() => {
             result.current.actions.updateAccountCash(accId, 50000);
         });
@@ -87,7 +82,7 @@ describe('usePortfolio Hook', () => {
 
         act(() => {
             result.current.actions.setNewAccountName('HYSA');
-            result.current.actions.setNewAccountType('emergency_fund'); // id: emergency_fund
+            result.current.actions.setNewAccountType('emergency_fund');
         });
 
         act(() => {
@@ -96,41 +91,13 @@ describe('usePortfolio Hook', () => {
 
         const accId = Object.keys(result.current.state.accounts)[0];
 
-        // Check if it really detected as emergency fund
-        // emergency_fund type has taxType 'taxable' but is checked via acc.typeId usually? 
-        // Wait, let's check usePortfolio logic.
-        // Logic: if (accData.cashIsEmergency) ...
-        // When creating 'emergency_fund' type, does it set cashIsEmergency?
-
-        // Let's force it for the test if the auto-detection isn't in createAccount (which it probably isn't, relying on typeId for icons/UI, but logic uses flags).
-        // Actually, let's seeing "cashIsEmergency" in usePortfolio.js:
-        // It's a property on the account object.
-
-        // Let's verify if `createAccount` sets it. 
-        // Inspecting usePortfolio code (memory): It sets id, name, typeId, taxType, iconId. 
-        // It does NOT set cashIsEmergency by default in createAccount.
-        // Users toggle it? Or is it implied by type?
-
-        // If I look at `AccountsManager` (which I created), maybe it sets it?
-        // Start simple: Test what `metrics` does.
-
         act(() => {
             result.current.actions.updateAccountCash(accId, 20000);
-            // Manually set cashIsEmergency for now as the hook might expects UI to toggle it
             result.current.actions.updateAccount(accId, 'cashIsEmergency', true);
         });
 
-        // Default emergency fund target is 10000
-        // Actual 20000. Surplus 10000.
-
         expect(result.current.metrics.emergencyActual).toBe(20000);
         expect(result.current.metrics.emergencyTarget).toBe(10000);
-        // Surplus is added to investable?
-        // effectiveInvestableTotal = investableTotal + emergencySurplus;
-        // investableTotal (from non-emergency accounts) = 0.
-        // surplus = 10000.
-        // effective = 10000.
-
         expect(result.current.metrics.investableTotal).toBe(10000);
     });
 
@@ -162,5 +129,47 @@ describe('usePortfolio Hook', () => {
         expect(account.funds[0].name).toBe('VTI');
         expect(account.funds[0].value).toBe(10000);
         expect(account.funds[1].name).toBe('VXUS');
+    });
+
+    it('should import cash to cash field and funds to funds array', () => {
+        const { result } = renderHook(() => usePortfolio());
+
+        act(() => {
+            result.current.actions.setNewAccountName('Brokerage');
+            result.current.actions.setNewAccountType('taxable');
+        });
+
+        act(() => {
+            result.current.actions.createAccount();
+        });
+
+        const accId = Object.keys(result.current.state.accounts)[0];
+
+        // Set initial cash to 1000
+        act(() => {
+            result.current.actions.updateAccountCash(accId, 1000);
+        });
+
+        const parsedData = [
+            { name: 'Cash', value: 5000, type: 'cash' },
+            { name: 'VTSAX', value: 10000, type: 'us_broad' },
+            { name: 'VMFXX', value: 2000, type: 'money_market' }
+        ];
+
+        act(() => {
+            result.current.actions.importFunds(accId, parsedData);
+        });
+
+        const account = result.current.state.accounts[accId];
+
+        // Cash should be added to cash field (1000 + 5000 = 6000)
+        expect(account.cash).toBe(6000);
+
+        // Only non-cash entries should be in funds (2 items: VTSAX and VMFXX)
+        expect(account.funds).toHaveLength(2);
+        expect(account.funds[0].name).toBe('VTSAX');
+        expect(account.funds[0].value).toBe(10000);
+        expect(account.funds[1].name).toBe('VMFXX');
+        expect(account.funds[1].type).toBe('money_market');
     });
 });

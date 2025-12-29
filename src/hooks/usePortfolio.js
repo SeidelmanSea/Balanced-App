@@ -850,8 +850,15 @@ export function usePortfolio() {
             const account = prev[accId];
             if (!account) return prev;
 
-            // Map imported funds to internal structure with new IDs
-            const fundsToAdd = newFunds.map(f => ({
+            // Separate cash from other funds
+            const cashEntries = newFunds.filter(f => f.type === 'cash');
+            const fundEntries = newFunds.filter(f => f.type !== 'cash');
+
+            // Sum up all cash entries
+            const totalCash = cashEntries.reduce((sum, f) => sum + (parseFloat(f.value) || 0), 0);
+
+            // Map fund entries to internal structure with new IDs
+            const fundsToAdd = fundEntries.map(f => ({
                 id: Date.now() + Math.random(), // Ensure unique ID
                 name: f.name,
                 value: f.value,
@@ -859,15 +866,31 @@ export function usePortfolio() {
                 isEmergency: false
             }));
 
+            // Update account with new cash and funds
             return {
                 ...prev,
                 [accId]: {
                     ...prev[accId],
+                    cash: (parseFloat(prev[accId].cash) || 0) + totalCash,
                     funds: [...(prev[accId].funds || []), ...fundsToAdd]
                 }
             };
         });
-        setNotification({ message: `Successfully imported ${newFunds.length} funds`, type: 'success' });
+
+        const fundCount = newFunds.filter(f => f.type !== 'cash').length;
+        const cashCount = newFunds.filter(f => f.type === 'cash').length;
+        const cashTotal = newFunds.filter(f => f.type === 'cash').reduce((sum, f) => sum + f.value, 0);
+
+        let message = '';
+        if (fundCount > 0 && cashCount > 0) {
+            message = `Imported ${fundCount} fund${fundCount > 1 ? 's' : ''} and $${cashTotal.toLocaleString()} cash`;
+        } else if (fundCount > 0) {
+            message = `Successfully imported ${fundCount} fund${fundCount > 1 ? 's' : ''}`;
+        } else if (cashCount > 0) {
+            message = `Successfully imported $${cashTotal.toLocaleString()} cash`;
+        }
+
+        setNotification({ message, type: 'success' });
     };
 
 

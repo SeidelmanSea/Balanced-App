@@ -93,17 +93,17 @@ const AccountsManager = ({
                                             <div className="flex items-center gap-2">
                                                 <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">{accountData.name}</h3>
                                                 <span className="text-[10px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-0.5 rounded uppercase tracking-wide">{accountData.taxType}</span>
-                                                <div className="flex items-center gap-1 ml-2">
-                                                    <span className="text-xs text-zinc-500">Cash:</span>
+                                                <div className="flex items-center gap-2 ml-3 px-3 py-1.5 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50">
+                                                    <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Cash:</span>
                                                     <div className="relative">
-                                                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400">$</span>
+                                                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm font-medium text-emerald-600 dark:text-emerald-400">$</span>
                                                         <input
                                                             type="number"
                                                             value={accountData.cash}
                                                             onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
                                                             onWheel={(e) => e.target.blur()}
                                                             onChange={(e) => updateAccountCash(accountData.id, e.target.value)}
-                                                            className="w-24 pl-5 pr-2 py-1 text-sm border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 focus:ring-1 focus:ring-emerald-500 outline-none"
+                                                            className="w-28 pl-6 pr-2 py-1 text-sm font-semibold border-2 border-emerald-300 dark:border-emerald-700 rounded-md bg-white dark:bg-zinc-900 text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 outline-none"
                                                         />
                                                     </div>
                                                     <button

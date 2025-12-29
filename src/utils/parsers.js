@@ -155,6 +155,9 @@ export const parseCSV = (text) => {
         else if (combined.includes('CRYPTO') || combined.includes('BITCOIN')) {
             type = 'crypto';
         }
+        else if (combined.includes('CASH') && !combined.includes('MARKET') && !combined.includes('FUND')) {
+            type = 'cash';
+        }
         else if (combined.includes('CASH') || combined.includes('MONEY MARKET')) {
             type = 'money_market';
         }
