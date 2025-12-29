@@ -362,7 +362,7 @@ export function usePortfolio() {
                 autoEmergencyFund += effectiveCash;
             } else {
                 investableTotal += effectiveCash;
-                const cashKey = 'money_market';
+                const cashKey = 'cash';
                 currentAllocation[cashKey] = (currentAllocation[cashKey] || 0) + effectiveCash;
             }
 
@@ -390,7 +390,7 @@ export function usePortfolio() {
         const effectiveInvestableTotal = investableTotal + emergencySurplus;
 
         const targets = {};
-        const cashKey = 'money_market';
+        const cashKey = 'cash';
         const bondKey = 'bonds';
 
         targets[cashKey] = 0;

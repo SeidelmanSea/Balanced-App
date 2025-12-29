@@ -17,7 +17,9 @@ import {
 
 export const ASSET_CLASSES = {
     // Cash & Equivalents
-    CASH: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+    CASH: { id: 'cash', name: 'Cash', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+    MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+
 
     // US Equities - Core
     US_BROAD: { id: 'us_broad', name: 'US Broad Market', color: '#10b981', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
