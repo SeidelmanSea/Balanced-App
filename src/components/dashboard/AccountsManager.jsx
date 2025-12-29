@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, Shield, Wallet, Upload, Trash2, X } from 'lucide-react';
+import { Plus, Shield, Wallet, Upload, Trash2, X, Layers } from 'lucide-react';
 import Card from '../ui/Card';
 import FundRow from './FundRow';
 import PasteModal from './PasteModal';
@@ -93,27 +93,6 @@ const AccountsManager = ({
                                             <div className="flex items-center gap-2">
                                                 <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">{accountData.name}</h3>
                                                 <span className="text-[10px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-0.5 rounded uppercase tracking-wide">{accountData.taxType}</span>
-                                                <div className="flex items-center gap-2 ml-3 px-3 py-1.5 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50">
-                                                    <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Cash:</span>
-                                                    <div className="relative">
-                                                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm font-medium text-emerald-600 dark:text-emerald-400">$</span>
-                                                        <input
-                                                            type="number"
-                                                            value={accountData.cash}
-                                                            onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
-                                                            onWheel={(e) => e.target.blur()}
-                                                            onChange={(e) => updateAccountCash(accountData.id, e.target.value)}
-                                                            className="w-28 pl-6 pr-2 py-1 text-sm font-semibold border-2 border-emerald-300 dark:border-emerald-700 rounded-md bg-white dark:bg-zinc-900 text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 outline-none"
-                                                        />
-                                                    </div>
-                                                    <button
-                                                        onClick={() => updateAccount(accountData.id, 'cashIsEmergency', !accountData.cashIsEmergency)}
-                                                        className={`p-1 rounded transition-colors ${accountData.cashIsEmergency ? 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30' : 'text-zinc-300 hover:text-zinc-400'}`}
-                                                        title={accountData.cashIsEmergency ? "Cash counts as Emergency Fund" : "Cash counts as Investment"}
-                                                    >
-                                                        <Shield className="w-4 h-4" />
-                                                    </button>
-                                                </div>
                                             </div>
                                             <p className="text-xs text-zinc-500">{typeOption ? typeOption.name : 'Custom Account'} • {formatCurrency(totalAccountValue)}</p>
                                         </div>
@@ -152,20 +131,39 @@ const AccountsManager = ({
                                         </div>
 
                                         <div className="space-y-2">
-                                            {/* Settlement Cash Item */}
-                                            <div className="flex items-center justify-between text-xs py-1">
+                                            {/* Settlement Cash Item - Now Editable */}
+                                            <div className="flex items-center justify-between text-xs py-2 bg-white/50 dark:bg-white/5 rounded px-2">
                                                 <div className="flex flex-col">
-                                                    <span className="font-semibold text-zinc-700 dark:text-zinc-300">Settlement Cash</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-bold text-zinc-700 dark:text-zinc-300">Settlement Cash</span>
+                                                        <button
+                                                            onClick={() => updateAccount(accountData.id, 'cashIsEmergency', !accountData.cashIsEmergency)}
+                                                            className={`p-1 rounded transition-colors ${accountData.cashIsEmergency ? 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30' : 'text-zinc-300 hover:text-zinc-400'}`}
+                                                            title={accountData.cashIsEmergency ? "Cash counts as Emergency Fund" : "Cash counts as Investment"}
+                                                        >
+                                                            <Shield className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
                                                     <span className="text-[10px] text-zinc-500 italic">Held as cash in account sweep</span>
                                                 </div>
-                                                <div className="font-mono text-zinc-800 dark:text-zinc-200">{formatCurrency(parseFloat(accountData.cash) || 0)}</div>
+                                                <div className="relative">
+                                                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-400">$</span>
+                                                    <input
+                                                        type="number"
+                                                        value={accountData.cash}
+                                                        onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
+                                                        onWheel={(e) => e.target.blur()}
+                                                        onChange={(e) => updateAccountCash(accountData.id, e.target.value)}
+                                                        className="w-24 pl-5 pr-2 py-1 text-xs font-mono font-bold border border-zinc-200 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                                                    />
+                                                </div>
                                             </div>
 
                                             {/* Money Market Funds Items */}
                                             {(accountData.funds || [])
                                                 .filter(f => f.type === 'money_market')
                                                 .map(fund => (
-                                                    <div key={fund.id} className="flex items-center justify-between text-xs py-1 border-t border-emerald-50 dark:border-emerald-900/30">
+                                                    <div key={fund.id} className="flex items-center justify-between text-xs py-2 px-2 border-t border-emerald-50/50 dark:border-emerald-900/10">
                                                         <div className="flex flex-col">
                                                             <div className="flex items-center gap-2">
                                                                 <span className="font-semibold text-zinc-700 dark:text-zinc-300">{fund.name}</span>
