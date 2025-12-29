@@ -16,6 +16,8 @@ const StrategyConfig = ({
     setTaxStrategy,
     bondAllocation,
     setBondAllocation,
+    cashAllocation,
+    setCashAllocation,
     bondStrategyMode,
     setBondStrategyMode,
     equityStrategy,
@@ -40,7 +42,7 @@ const StrategyConfig = ({
         { id: 'conservative', name: 'Conservative (Age Match)', value: Math.min(100, numericAge), desc: 'Lower risk, preserves capital.' },
     ];
 
-    const availableAssets = Object.values(ASSET_CLASSES).filter(a => a.id !== 'cash' && a.id !== 'bonds' && equityStrategy[a.id] === undefined);
+    const availableAssets = Object.values(ASSET_CLASSES).filter(a => a.id !== 'cash' && a.id !== 'money_market' && a.id !== 'bonds' && equityStrategy[a.id] === undefined);
 
     return (
         <div className="max-w-3xl mx-auto animate-in fade-in duration-500 space-y-6">
@@ -183,31 +185,81 @@ const StrategyConfig = ({
                     <div className="animate-in fade-in">
                         <div className="flex flex-col items-center justify-center gap-6 bg-zinc-50 dark:bg-zinc-900/50 p-10 rounded-xl border border-zinc-200 dark:border-zinc-700 text-center">
                             <div>
-                                <h4 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-2">Fixed Allocation</h4>
-                                <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">Enter a fixed percentage for your bond allocation. This number will remain static regardless of your age.</p>
+                                <h4 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-2">Fixed Three-Part Allocation</h4>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">Set your target allocation across bonds, cash equivalents, and stocks. Must total 100%.</p>
                             </div>
-                            <div className="relative w-48">
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={bondAllocation}
-                                    onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (val === '') {
-                                            setBondAllocation('');
-                                            return;
-                                        }
-                                        let intVal = parseInt(val);
-                                        if (isNaN(intVal)) intVal = 0;
-                                        if (intVal > 100) intVal = 100;
-                                        setBondAllocation(intVal);
-                                    }}
-                                    className="block w-full pl-4 pr-12 py-4 text-3xl font-bold text-center border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                                />
-                                <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none"><span className="text-zinc-400 text-xl font-medium">%</span></div>
+                            <div className="grid grid-cols-3 gap-4 w-full max-w-lg">
+                                {/* Bonds */}
+                                <div className="flex flex-col items-center">
+                                    <label className="text-xs font-medium text-zinc-500 mb-2">Bonds</label>
+                                    <div className="relative w-full">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            value={bondAllocation}
+                                            onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === '') {
+                                                    setBondAllocation('');
+                                                    return;
+                                                }
+                                                let intVal = parseInt(val);
+                                                if (isNaN(intVal)) intVal = 0;
+                                                if (intVal > 100) intVal = 100;
+                                                setBondAllocation(intVal);
+                                            }}
+                                            className="block w-full px-3 pr-8 py-3 text-xl font-bold text-center border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-red-600 dark:text-red-400 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
+                                        />
+                                        <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none"><span className="text-zinc-400 text-sm font-medium">%</span></div>
+                                    </div>
+                                </div>
+
+                                {/* Cash & Equivalents */}
+                                <div className="flex flex-col items-center">
+                                    <label className="text-xs font-medium text-zinc-500 mb-2">Cash & Equiv.</label>
+                                    <div className="relative w-full">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            value={cashAllocation}
+                                            onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === '') {
+                                                    setCashAllocation('');
+                                                    return;
+                                                }
+                                                let intVal = parseInt(val);
+                                                if (isNaN(intVal)) intVal = 0;
+                                                if (intVal > 100) intVal = 100;
+                                                setCashAllocation(intVal);
+                                            }}
+                                            className="block w-full px-3 pr-8 py-3 text-xl font-bold text-center border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 rounded-lg focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 outline-none transition-all"
+                                        />
+                                        <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none"><span className="text-zinc-400 text-sm font-medium">%</span></div>
+                                    </div>
+                                </div>
+
+                                {/* Equity (Auto-calculated) */}
+                                <div className="flex flex-col items-center">
+                                    <label className="text-xs font-medium text-zinc-500 mb-2">Equity</label>
+                                    <div className="relative w-full">
+                                        <div className="block w-full px-3 pr-8 py-3 text-xl font-bold text-center border-2 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg">
+                                            {Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}
+                                        </div>
+                                        <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none"><span className="text-emerald-400 text-sm font-medium">%</span></div>
+                                    </div>
+                                    <p className="text-[10px] text-zinc-400 mt-1">Auto-calculated</p>
+                                </div>
                             </div>
+                            {((bondAllocation || 0) + (cashAllocation || 0)) > 100 && (
+                                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-100 dark:border-red-900/30">
+                                    Bonds + Cash cannot exceed 100%
+                                </p>
+                            )}
                         </div>
                     </div>
                 )}

@@ -6,6 +6,7 @@ import { parseCSV, parsePasteData } from '../utils/parsers';
 export function usePortfolio() {
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [bondAllocation, setBondAllocation] = useState(10);
+    const [cashAllocation, setCashAllocation] = useState(0);
     const [emergencyFund, setEmergencyFund] = useState(10000);
     const [userAge, setUserAge] = useState(38);
     const [retirementYear, setRetirementYear] = useState(() => new Date().getFullYear() + 27);
@@ -391,12 +392,19 @@ export function usePortfolio() {
 
         const targets = {};
         const cashKey = 'cash';
+        const moneyMarketKey = 'money_market';
         const bondKey = 'bonds';
 
-        targets[cashKey] = 0;
+        // Three-part macro allocation: Bonds + Cash & Equivalents + Equity = 100%
+        const cashEquivPct = cashAllocation || 0;
+        const bondPct = bondAllocation || 0;
+        const equityPct = 100 - bondPct - cashEquivPct;
 
-        const equityPct = 100 - bondAllocation;
-        targets[bondKey] = effectiveInvestableTotal * (bondAllocation / 100);
+        // Calculate targets
+        const cashTarget = effectiveInvestableTotal * (cashEquivPct / 100);
+        targets[cashKey] = cashTarget;
+        targets[moneyMarketKey] = 0; // Money market is part of cash & equivalents, no separate target
+        targets[bondKey] = effectiveInvestableTotal * (bondPct / 100);
 
         const equityTotalValue = effectiveInvestableTotal * (equityPct / 100);
 
@@ -407,7 +415,7 @@ export function usePortfolio() {
         });
 
         return { totalNetWorth, investableTotal: effectiveInvestableTotal, emergencyTarget, emergencyActual, currentAllocation, accountTotals, targets };
-    }, [accounts, bondAllocation, emergencyFund, equityStrategy]);
+    }, [accounts, bondAllocation, cashAllocation, emergencyFund, equityStrategy]);
 
     const rebalancingPlan = useMemo(() => {
         const { investableTotal, targets, accountTotals, emergencyActual, emergencyTarget } = portfolioMetrics;
@@ -896,7 +904,7 @@ export function usePortfolio() {
 
     return {
         state: {
-            isDarkMode, bondAllocation, emergencyFund, userAge, retirementYear,
+            isDarkMode, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear,
             bondStrategyMode, equityStrategy, isAddingAsset, taxStrategy,
             rebalanceModeTaxable, rebalanceModeSheltered, accounts,
             showAccountModal, newAccountName, newAccountType, fileInputRef,
@@ -907,7 +915,7 @@ export function usePortfolio() {
         metrics: portfolioMetrics,
         rebalancingPlan,
         actions: {
-            setIsDarkMode, setBondAllocation, setEmergencyFund, setUserAge, setRetirementYear,
+            setIsDarkMode, setBondAllocation, setCashAllocation, setEmergencyFund, setUserAge, setRetirementYear,
             setBondStrategyMode, setEquityStrategy, setIsAddingAsset, setTaxStrategy,
             setRebalanceModeTaxable, setRebalanceModeSheltered, setAccounts,
             setShowAccountModal, setNewAccountName, setNewAccountType, setActiveTab,

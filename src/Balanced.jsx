@@ -42,6 +42,7 @@ export default function PortfolioApp() {
     retirementYear,
     emergencyFund,
     bondAllocation,
+    cashAllocation,
     bondStrategyMode,
     equityStrategy,
     isAddingAsset,
@@ -136,6 +137,8 @@ export default function PortfolioApp() {
                 setTaxStrategy={actions.setTaxStrategy}
                 bondAllocation={bondAllocation}
                 setBondAllocation={actions.setBondAllocation}
+                cashAllocation={cashAllocation}
+                setCashAllocation={actions.setCashAllocation}
                 bondStrategyMode={bondStrategyMode}
                 setBondStrategyMode={actions.setBondStrategyMode}
                 equityStrategy={equityStrategy}
