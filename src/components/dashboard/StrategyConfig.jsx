@@ -76,7 +76,7 @@ const StrategyConfig = ({
             <section className="space-y-4">
                 <div className="flex items-center gap-2 px-1">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">1</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Foundations</h3>
+                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Planning Parameters</h3>
                 </div>
 
                 <Card className="p-0 overflow-hidden border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900">
@@ -130,7 +130,7 @@ const StrategyConfig = ({
             <section className="space-y-4">
                 <div className="flex items-center gap-2 px-1">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">2</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Core Allocation</h3>
+                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Asset Allocation</h3>
                 </div>
 
                 <Card className="p-8 border-none shadow-2xl shadow-emerald-900/5 dark:shadow-none bg-white dark:bg-zinc-900">
@@ -161,7 +161,7 @@ const StrategyConfig = ({
                                         <input
                                             type="number"
                                             value={cashAllocation}
-                                            onChange={(e) => setCashAllocation(parseInt(e.target.value) || 0)}
+                                            onChange={(e) => setCashAllocation(Math.max(0, parseInt(e.target.value) || 0))}
                                             className="w-full pl-3 pr-7 py-1.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                                         />
                                         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">%</span>
@@ -245,7 +245,7 @@ const StrategyConfig = ({
             <section className="space-y-4">
                 <div className="flex items-center gap-2 px-1">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">3</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Growth Engine</h3>
+                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Equity Strategy</h3>
                 </div>
 
                 <Card className="p-8 border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900">
@@ -365,7 +365,7 @@ const StrategyConfig = ({
             <section className="space-y-4">
                 <div className="flex items-center gap-2 px-1">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">4</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Optimization</h3>
+                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Asset Location</h3>
                 </div>
 
                 <Card className="p-8 border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900">
