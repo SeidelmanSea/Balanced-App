@@ -10,6 +10,12 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-icon.svg'],
+            workbox: {
+                globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+                cleanupOutdatedCaches: true,
+                clientsClaim: true,
+                skipWaiting: true
+            },
             manifest: {
                 name: 'Balanced Portfolio',
                 short_name: 'Balanced',

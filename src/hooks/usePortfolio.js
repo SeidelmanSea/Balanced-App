@@ -115,14 +115,17 @@ export function usePortfolio() {
     }, [accounts, bondAllocation, cashAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
 
 
-    const createAccount = () => {
-        if (!newAccountName.trim()) return;
+    const createAccount = (nameArg, typeArg) => {
+        const nameToUse = nameArg !== undefined ? nameArg : newAccountName;
+        const typeToUse = typeArg !== undefined ? typeArg : newAccountType;
 
-        const accountTypeInfo = ACCOUNT_CREATION_OPTIONS.find(o => o.id === newAccountType);
+        if (!nameToUse.trim()) return;
+
+        const accountTypeInfo = ACCOUNT_CREATION_OPTIONS.find(o => o.id === typeToUse);
 
         if (!accountTypeInfo) {
-            console.error(`Invalid account type selected: ${newAccountType}`);
-            setNotification({ message: `Error: Invalid account type selected: "${newAccountType}"`, type: 'error' });
+            console.error(`Invalid account type selected: ${typeToUse}`);
+            setNotification({ message: `Error: Invalid account type selected: "${typeToUse}"`, type: 'error' });
             return;
         }
 
@@ -132,10 +135,10 @@ export function usePortfolio() {
             ...prev,
             [newId]: {
                 id: newId,
-                name: newAccountName,
-                typeId: newAccountType,
+                name: nameToUse,
+                typeId: typeToUse,
                 taxType: accountTypeInfo.taxType,
-                iconId: newAccountType,
+                iconId: typeToUse,
                 cash: 0,
                 funds: []
             }
