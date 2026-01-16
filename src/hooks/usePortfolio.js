@@ -560,7 +560,7 @@ export function usePortfolio() {
                 });
 
                 const mode = accData.taxType === 'taxable' ? rebalanceModeTaxable : rebalanceModeSheltered;
-                const processedActions = processActions(rawActions, accTotal, mode, actualCashInAccount, accTotal);
+                const processedActions = processActions(rawActions, accTotal, mode, actualCashInAccount, investableTotal);
                 accountActions[accData.id] = { targetHoldings, currentTotal: accTotal, actions: processedActions.sort((a, b) => a.diff - b.diff) };
             });
         } else {
