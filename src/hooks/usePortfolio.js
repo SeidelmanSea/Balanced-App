@@ -412,9 +412,9 @@ export function usePortfolio() {
 
         const equityTotalValue = effectiveInvestableTotal * (equityPct / 100);
 
-        const totalStrat = Object.values(equityStrategy).reduce((a, b) => a + b, 0) || 100;
+        const totalStrat = Object.values(equityStrategy).reduce((a, b) => a + b, 0);
+        const safeTotal = totalStrat > 0 ? totalStrat : 100;
         Object.entries(equityStrategy).forEach(([assetId, weight]) => {
-            const safeTotal = totalStrat === 0 ? 1 : totalStrat;
             targets[assetId] = equityTotalValue * (weight / safeTotal);
         });
 
@@ -527,7 +527,7 @@ export function usePortfolio() {
                 }
                 const accInvestable = Math.max(0, accTotal - accShielded);
 
-                const ratio = accInvestable / investableTotal;
+                const ratio = investableTotal > 0 ? accInvestable / investableTotal : 0;
                 const targetHoldings = {};
                 Object.entries(targets).forEach(([assetId, globalAmount]) => {
                     targetHoldings[assetId] = globalAmount * ratio;

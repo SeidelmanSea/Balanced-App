@@ -40,11 +40,12 @@ const StrategyConfig = ({
     const isEquityValid = Math.abs(totalEquityAllocation - 100) < 0.1;
     const isCustomMode = bondStrategyMode === 'custom';
 
+    const safeAge = Math.max(18, Math.min(100, numericAge || 35));
     const bondStrategies = React.useMemo(() => [
         { id: 'smart', name: 'Target Date', value: getSuggestedBondAllocation(syntheticAge), desc: `Non-linear glide path based on your 20${retirementYear.toString().slice(-2)} retirement goal.` },
-        { id: 'aggressive', name: 'Aggressive', value: Math.max(0, numericAge - 20), desc: 'Set target to Age - 20' },
-        { id: 'moderate', name: 'Moderate', value: Math.max(0, numericAge - 10), desc: 'Set target to Age - 10' },
-        { id: 'conservative', name: 'Conservative', value: Math.min(100, numericAge), desc: 'Set target to Age' },
+        { id: 'aggressive', name: 'Aggressive', value: Math.max(0, safeAge - 20), desc: 'Set target to Age - 20' },
+        { id: 'moderate', name: 'Moderate', value: Math.max(0, safeAge - 10), desc: 'Set target to Age - 10' },
+        { id: 'conservative', name: 'Conservative', value: Math.min(100, safeAge), desc: 'Set target to Age' },
     ], [numericAge, syntheticAge, retirementYear]);
 
     // Sync bond allocation ONLY for Dynamic (smart) mode
@@ -97,7 +98,10 @@ const StrategyConfig = ({
                                 <input
                                     type="number"
                                     value={emergencyFund}
-                                    onChange={(e) => setEmergencyFund(e.target.value === '' ? '' : parseInt(e.target.value))}
+                                    onChange={(e) => {
+                                        const val = e.target.value === '' ? '' : parseFloat(e.target.value);
+                                        setEmergencyFund(typeof val === 'number' ? Math.max(0, val) : val);
+                                    }}
                                     className="w-full pl-10 pr-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl font-bold text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                                     placeholder="0"
                                 />
@@ -118,7 +122,10 @@ const StrategyConfig = ({
                             <input
                                 type="number"
                                 value={retirementYear}
-                                onChange={(e) => setRetirementYear(parseInt(e.target.value) || currentYear)}
+                                onChange={(e) => {
+                                    const val = parseInt(e.target.value) || currentYear;
+                                    setRetirementYear(Math.max(currentYear, Math.min(currentYear + 80, val)));
+                                }}
                                 className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl font-bold text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                             />
                         </div>
@@ -161,7 +168,10 @@ const StrategyConfig = ({
                                         <input
                                             type="number"
                                             value={cashAllocation}
-                                            onChange={(e) => setCashAllocation(Math.max(0, parseInt(e.target.value) || 0))}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value) || 0;
+                                                setCashAllocation(Math.max(0, Math.min(100, val)));
+                                            }}
                                             className="w-full pl-3 pr-7 py-1.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                                         />
                                         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">%</span>
@@ -210,7 +220,11 @@ const StrategyConfig = ({
                                             <input
                                                 type="number"
                                                 value={bondAllocation}
-                                                onChange={(e) => { setBondAllocation(parseInt(e.target.value) || 0); setBondStrategyMode('custom'); }}
+                                                onChange={(e) => {
+                                                    const val = parseInt(e.target.value) || 0;
+                                                    setBondAllocation(Math.max(0, Math.min(100, val)));
+                                                    setBondStrategyMode('custom');
+                                                }}
                                                 className="w-full pl-4 pr-10 py-2.5 bg-red-50/30 dark:bg-red-950/10 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 font-bold rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all placeholder:text-red-200"
                                                 placeholder="Set fixed %"
                                             />
