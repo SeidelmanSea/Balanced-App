@@ -13,9 +13,11 @@ const RebalanceView = ({
     rebalanceModeSheltered,
     setRebalanceModeSheltered,
     rebalancingPlan,
-    setActiveTab
+    setActiveTab,
+    equityStrategy
 }) => {
     const hasAccounts = Object.keys(accounts).length > 0;
+    const isEquityValid = equityStrategy && Math.abs(Object.values(equityStrategy).reduce((a, b) => a + b, 0) - 100) < 0.1;
 
     if (!hasAccounts) {
         return (
@@ -35,6 +37,21 @@ const RebalanceView = ({
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
+            {!isEquityValid && (
+                <Card className="p-4 bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <h4 className="text-sm font-bold text-red-900 dark:text-red-100">Invalid Strategy Allocation</h4>
+                            <p className="text-xs text-red-700 dark:text-red-300 mt-1">
+                                Your equity asset allocation does not sum to exactly 100%. The rebalancing calculations below may be incorrect until you fix this.
+                            </p>
+                            <button onClick={() => setActiveTab('configure')} className="mt-3 px-4 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-lg hover:bg-red-700 transition-colors">Go to Strategy</button>
+                        </div>
+                    </div>
+                </Card>
+            )}
+
             {/* Rebalance Configuration */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 {/* Taxable Strategy */}

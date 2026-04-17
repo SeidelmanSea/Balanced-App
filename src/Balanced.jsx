@@ -77,22 +77,29 @@ export default function PortfolioApp() {
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex space-x-1 bg-white dark:bg-zinc-900 p-1 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 mb-8 w-full sm:w-auto inline-flex overflow-x-auto">
-          {[
-            { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-            { id: 'accounts', icon: Wallet, label: 'My Accounts' },
-            { id: 'configure', icon: SlidersHorizontal, label: 'Configure' },
-            { id: 'rebalance', icon: Scale, label: 'Balance' },
-            { id: 'settings', icon: Settings, label: 'Settings' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => actions.setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
-            >
-              <tab.icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
+          {(() => {
+            const totalEquity = Object.values(equityStrategy).reduce((a, b) => a + b, 0);
+            const isEquityValid = Math.abs(totalEquity - 100) < 0.1;
+            return [
+              { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: false },
+              { id: 'accounts', icon: Wallet, label: 'Accounts', badge: false },
+              { id: 'configure', icon: SlidersHorizontal, label: 'Strategy', badge: !isEquityValid },
+              { id: 'rebalance', icon: Scale, label: 'Balance', badge: false },
+              { id: 'settings', icon: Settings, label: 'Settings', badge: false },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => actions.setActiveTab(tab.id)}
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+              >
+                <tab.icon className="w-4 h-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+                {tab.badge && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                )}
+              </button>
+            ));
+          })()}
         </div>
 
         <div className="flex-1">
@@ -130,7 +137,7 @@ export default function PortfolioApp() {
             <div data-tour="strategy" className="overflow-visible">
               <StrategyConfig
                 userAge={userAge}
-                yearsToRetirement={metrics.yearsToRetirement || (retirementYear - new Date().getFullYear())} // pass calculated/state
+                yearsToRetirement={metrics.yearsToRetirement || (retirementYear - new Date().getFullYear())}
                 retirementYear={retirementYear}
                 setRetirementYear={actions.setRetirementYear}
                 emergencyFund={emergencyFund}
@@ -151,6 +158,7 @@ export default function PortfolioApp() {
                 addEquityAsset={actions.addEquityAsset}
                 removeEquityAsset={actions.removeEquityAsset}
                 resetEquityStrategy={actions.resetEquityStrategy}
+                normalizeEquityStrategy={actions.normalizeEquityStrategy}
               />
             </div>
           )}
@@ -165,6 +173,7 @@ export default function PortfolioApp() {
                 setRebalanceModeSheltered={actions.setRebalanceModeSheltered}
                 rebalancingPlan={rebalancingPlan}
                 setActiveTab={actions.setActiveTab}
+                equityStrategy={equityStrategy}
               />
             </div>
           )}

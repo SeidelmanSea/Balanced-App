@@ -27,7 +27,8 @@ const StrategyConfig = ({
     updateEquityStrategy,
     addEquityAsset,
     removeEquityAsset,
-    resetEquityStrategy
+    resetEquityStrategy,
+    normalizeEquityStrategy
 }) => {
     const currentYear = new Date().getFullYear();
     const numericAge = parseInt(userAge) || 0;
@@ -271,9 +272,20 @@ const StrategyConfig = ({
                                     <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Asset Selection</h4>
                                     <p className="text-xs text-zinc-500">How your stock portfolio is sliced</p>
                                 </div>
+                            <div className="flex items-center gap-2">
                                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${isEquityValid ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20' : 'bg-red-50 text-red-500 dark:bg-red-950/20'}`}>
                                     {totalEquityAllocation}% / 100%
                                 </div>
+                                {!isEquityValid && totalEquityAllocation > 0 && (
+                                    <button
+                                        onClick={normalizeEquityStrategy}
+                                        className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-all active:scale-95"
+                                        title="Rescale all assets proportionally so they sum to exactly 100%"
+                                    >
+                                        Auto-normalize
+                                    </button>
+                                )}
+                            </div>
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

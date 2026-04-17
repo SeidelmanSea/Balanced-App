@@ -2,6 +2,7 @@ import React from 'react';
 import { Trash2, Shield, ChevronDown } from 'lucide-react';
 import { ASSET_CLASSES } from '../../utils/constants';
 import tickerDatabase from '../../tickerDatabase.json';
+import CurrencyInput from '../ui/CurrencyInput';
 
 const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
     return (
@@ -47,13 +48,10 @@ const FundRow = React.memo(({ fund, accountId, updateFund, removeFund }) => {
                 <label className="block md:hidden text-xs font-medium text-zinc-500 mb-1">Value ($)</label>
                 <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">$</span>
-                    <input
-                        type="number"
+                    <CurrencyInput
                         className="w-full pl-6 pr-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md focus:ring-1 focus:ring-emerald-500 outline-none"
                         value={fund.value}
-                        onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
-                        onWheel={(e) => e.target.blur()}
-                        onChange={(e) => updateFund(accountId, fund.id, 'value', e.target.value)}
+                        onChange={(val) => updateFund(accountId, fund.id, 'value', val)}
                     />
                 </div>
             </div>

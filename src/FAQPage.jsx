@@ -1,9 +1,11 @@
-import React from 'react';
-import { ArrowLeft, HelpCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
 
 export default function FAQPage() {
+    const [openIndex, setOpenIndex] = useState(0);
+
     const faqs = [
         {
             question: "What is portfolio rebalancing and why should I do it?",
@@ -74,24 +76,39 @@ export default function FAQPage() {
                 </div>
 
                 <div className="space-y-6">
-                    {faqs.map((faq, index) => (
-                        <div
-                            key={index}
-                            className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800"
-                            itemScope
-                            itemProp="mainEntity"
-                            itemType="https://schema.org/Question"
-                        >
-                            <h2 className="text-xl font-semibold mb-3 text-zinc-900 dark:text-zinc-100" itemProp="name">
-                                {faq.question}
-                            </h2>
-                            <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                                <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed" itemProp="text">
-                                    {faq.answer}
-                                </p>
+                    {faqs.map((faq, index) => {
+                        const isOpen = openIndex === index;
+                        return (
+                            <div
+                                key={index}
+                                className={`bg-white dark:bg-zinc-900 rounded-lg border transition-all ${isOpen ? 'border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-500/20' : 'border-zinc-200 dark:border-zinc-800'}`}
+                                itemScope
+                                itemProp="mainEntity"
+                                itemType="https://schema.org/Question"
+                            >
+                                <button
+                                    className="w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none"
+                                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                                >
+                                    <h2 className={`text-lg font-semibold pr-4 transition-colors ${isOpen ? 'text-emerald-700 dark:text-emerald-400' : 'text-zinc-800 dark:text-zinc-100 hover:text-emerald-600 dark:hover:text-emerald-400'}`} itemProp="name">
+                                        {faq.question}
+                                    </h2>
+                                    {isOpen ? (
+                                        <ChevronUp className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                                    ) : (
+                                        <ChevronDown className="w-5 h-5 text-zinc-400 flex-shrink-0" />
+                                    )}
+                                </button>
+                                {isOpen && (
+                                    <div className="px-6 pb-5 pt-1 animate-in fade-in slide-in-from-top-2 duration-200" itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                                        <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-sm" itemProp="text">
+                                            {faq.answer}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 <div className="mt-12 p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">

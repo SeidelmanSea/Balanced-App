@@ -4,6 +4,7 @@ import { Plus, Shield, Wallet, Upload, Trash2, X, Layers } from 'lucide-react';
 import Card from '../ui/Card';
 import FundRow from './FundRow';
 import PasteModal from './PasteModal';
+import CurrencyInput from '../ui/CurrencyInput';
 import { ACCOUNT_CREATION_OPTIONS } from '../../utils/constants';
 
 const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
@@ -94,7 +95,14 @@ const AccountsManager = ({
                                                 <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">{accountData.name}</h3>
                                                 <span className="text-[10px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-0.5 rounded uppercase tracking-wide">{accountData.taxType}</span>
                                             </div>
-                                            <p className="text-xs text-zinc-500">{typeOption ? typeOption.name : 'Custom Account'} • {formatCurrency(totalAccountValue)}</p>
+                                            <p className="text-xs text-zinc-500">
+                                                {typeOption ? typeOption.name : 'Custom Account'} • {formatCurrency(totalAccountValue)}
+                                                {accountData.lastUpdated && (
+                                                    <span className="ml-2 text-[10px] text-zinc-400">
+                                                        Updated {new Date(accountData.lastUpdated).toLocaleDateString()}
+                                                    </span>
+                                                )}
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -142,12 +150,9 @@ const AccountsManager = ({
                                                 </div>
                                                 <div className="md:col-span-3 relative">
                                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">$</span>
-                                                    <input
-                                                        type="number"
+                                                    <CurrencyInput
                                                         value={accountData.cash}
-                                                        onFocus={(e) => { if (!e.target.value || e.target.value === '0') e.target.select(); }}
-                                                        onWheel={(e) => e.target.blur()}
-                                                        onChange={(e) => updateAccountCash(accountData.id, e.target.value)}
+                                                        onChange={(val) => updateAccountCash(accountData.id, val)}
                                                         className="w-full pl-6 pr-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md focus:ring-1 focus:ring-emerald-500 outline-none"
                                                         placeholder="0"
                                                     />
