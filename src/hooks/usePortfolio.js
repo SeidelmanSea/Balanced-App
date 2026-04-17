@@ -772,7 +772,7 @@ export function usePortfolio() {
             });
         }
 
-        return { efAction, accountActions };
+        return { efAction, accountActions, globalBandsTriggered };
     }, [portfolioMetrics, accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, equityStrategy]);
 
 

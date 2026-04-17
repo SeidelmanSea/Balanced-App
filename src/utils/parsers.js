@@ -83,16 +83,19 @@ export const parseCSV = (text) => {
         const combined = (upperSymbol + ' ' + upperName).toUpperCase();
 
         let type = 'us_broad'; // Default
+        let recognized = 'default'; // 'ticker' | 'keyword' | 'default'
 
         // Check ticker mapping first
         if (tickerDatabase[upperSymbol]) {
             type = tickerDatabase[upperSymbol];
+            recognized = 'ticker';
         }
         // Check fund name for keywords
         else if (combined.includes('BOND') || combined.includes('FIXED') || combined.includes('TREASURY')) {
-            type = 'bonds';
+            type = 'bonds'; recognized = 'keyword';
         }
         else if (combined.includes('INTERNATIONAL') || combined.includes('FOREIGN') || combined.includes('GLOBAL') || combined.includes('WORLD') || combined.includes('EMERGING')) {
+            recognized = 'keyword';
             if (combined.includes('EMERGING') || combined.includes('EMERG')) {
                 type = 'intl_emerg';
             } else if (combined.includes('DEVELOPED') || combined.includes('EUROPE') || combined.includes('PACIFIC')) {
@@ -102,9 +105,10 @@ export const parseCSV = (text) => {
             }
         }
         else if (combined.includes('REIT') || combined.includes('REAL ESTATE')) {
-            type = 'reit';
+            type = 'reit'; recognized = 'keyword';
         }
         else if (combined.includes('SMALL CAP') || combined.includes('SMALL-CAP')) {
+            recognized = 'keyword';
             if (combined.includes('VALUE')) {
                 type = 'us_small_val';
             } else if (combined.includes('GROWTH')) {
@@ -114,9 +118,10 @@ export const parseCSV = (text) => {
             }
         }
         else if (combined.includes('MID CAP') || combined.includes('MID-CAP')) {
-            type = 'us_mid';
+            type = 'us_mid'; recognized = 'keyword';
         }
         else if (combined.includes('LARGE CAP') || combined.includes('LARGE-CAP')) {
+            recognized = 'keyword';
             if (combined.includes('VALUE')) {
                 type = 'us_large_value';
             } else if (combined.includes('GROWTH')) {
@@ -126,43 +131,43 @@ export const parseCSV = (text) => {
             }
         }
         else if (combined.includes('VALUE')) {
-            type = 'us_large_value';
+            type = 'us_large_value'; recognized = 'keyword';
         }
         else if (combined.includes('GROWTH')) {
-            type = 'us_large_growth';
+            type = 'us_large_growth'; recognized = 'keyword';
         }
         else if (combined.includes('DIVIDEND')) {
-            type = 'dividend';
+            type = 'dividend'; recognized = 'keyword';
         }
         else if (combined.includes('TECH') || combined.includes('TECHNOLOGY')) {
-            type = 'sector_tech';
+            type = 'sector_tech'; recognized = 'keyword';
         }
         else if (combined.includes('HEALTH') || combined.includes('MEDICAL')) {
-            type = 'sector_health';
+            type = 'sector_health'; recognized = 'keyword';
         }
         else if (combined.includes('ENERGY')) {
-            type = 'sector_energy';
+            type = 'sector_energy'; recognized = 'keyword';
         }
         else if (combined.includes('FINANCE') || combined.includes('FINANCIAL')) {
-            type = 'sector_finance';
+            type = 'sector_finance'; recognized = 'keyword';
         }
         else if (combined.includes('GOLD') || combined.includes('PRECIOUS')) {
-            type = 'gold';
+            type = 'gold'; recognized = 'keyword';
         }
         else if (combined.includes('COMMODITY') || combined.includes('COMMODITIES')) {
-            type = 'commodities';
+            type = 'commodities'; recognized = 'keyword';
         }
         else if (combined.includes('CRYPTO') || combined.includes('BITCOIN')) {
-            type = 'crypto';
+            type = 'crypto'; recognized = 'keyword';
         }
         else if (combined.includes('CASH') && !combined.includes('MARKET') && !combined.includes('FUND')) {
-            type = 'cash';
+            type = 'cash'; recognized = 'keyword';
         }
         else if (combined.includes('CASH') || combined.includes('MONEY MARKET')) {
-            type = 'money_market';
+            type = 'money_market'; recognized = 'keyword';
         }
 
-        parsed.push({ id: Date.now() + Math.random(), name: displayName, value, type });
+        parsed.push({ id: Date.now() + Math.random(), name: displayName, value, type, recognized });
     }
 
     return parsed;
@@ -210,16 +215,18 @@ export const parsePasteData = (text) => {
         if (!isNaN(value)) {
             // Guess type using tickerDatabase
             const upperName = name.toUpperCase();
-            let type = 'us_broad'; // Default
+            let type = 'us_broad';
+            let recognized = 'default';
             if (tickerDatabase[upperName]) {
                 type = tickerDatabase[upperName];
+                recognized = 'ticker';
             } else if (upperName.includes('BOND') || upperName.includes('AGG')) {
-                type = 'bonds';
+                type = 'bonds'; recognized = 'keyword';
             } else if (upperName.includes('INTL') || upperName.includes('EMERG')) {
-                type = 'intl';
+                type = 'intl'; recognized = 'keyword';
             }
 
-            parsed.push({ id: Date.now() + Math.random(), name, value, type });
+            parsed.push({ id: Date.now() + Math.random(), name, value, type, recognized });
         }
     });
     return parsed;

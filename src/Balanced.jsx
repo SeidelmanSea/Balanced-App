@@ -103,6 +103,8 @@ export default function PortfolioApp() {
               setActiveTab={actions.setActiveTab}
               setShowAccountModal={actions.setShowAccountModal}
               isDarkMode={isDarkMode}
+              loadDemoData={actions.loadDemoData}
+              equityStrategy={equityStrategy}
             />
           )}
 

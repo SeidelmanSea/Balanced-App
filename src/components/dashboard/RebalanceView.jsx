@@ -103,6 +103,75 @@ const RebalanceView = ({
                 </Card>
             )}
 
+            {/* Portfolio Rebalance Summary */}
+            {(() => {
+                const { globalBandsTriggered } = rebalancingPlan;
+                const allActions = Object.values(accountActions).flatMap(p => p.actions);
+                const totalBuys = allActions.filter(a => a.diff > 0).reduce((s, a) => s + a.diff, 0);
+                const totalSells = allActions.filter(a => a.diff < 0).reduce((s, a) => s + Math.abs(a.diff), 0);
+                const tradeCount = allActions.length;
+                const activeAccountCount = Object.values(accountActions).filter(p => p.actions.length > 0).length;
+
+                // Determine if either mode uses bands
+                const eitherIsBands = rebalanceModeTaxable === 'bands' || rebalanceModeSheltered === 'bands';
+                // Inflow-only: both modes are 'inflow'
+                const isInflowOnly = rebalanceModeTaxable === 'inflow' && rebalanceModeSheltered === 'inflow';
+
+                // The "volume" number: in inflow mode, just buys; otherwise the rebalancing turnover
+                // (buys ≈ sells in a true rebalance, so we pick the larger side to avoid showing zero)
+                const volume = isInflowOnly ? totalBuys : Math.max(totalBuys, totalSells);
+                const volumeLabel = isInflowOnly ? 'Total to Invest' : 'Rebalancing Volume';
+
+                // Show the card if: there are trades, OR if bands mode is active (to show "within bands" status)
+                if (!eitherIsBands && tradeCount === 0) return null;
+
+                return (
+                    <Card className="p-5 border-l-4 border-l-emerald-500 bg-emerald-50/30 dark:bg-emerald-900/5">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                                <Scale className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                Portfolio Summary
+                            </h3>
+                            <span className="text-xs text-zinc-400 font-medium">
+                                {tradeCount > 0
+                                    ? `${tradeCount} trade${tradeCount !== 1 ? 's' : ''} across ${activeAccountCount} account${activeAccountCount !== 1 ? 's' : ''}`
+                                    : 'No trades required'}
+                            </span>
+                        </div>
+
+                        {/* Bands status badge — only shown when at least one mode is 'bands' */}
+                        {eitherIsBands && (
+                            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-3 text-sm font-semibold
+                                ${globalBandsTriggered
+                                    ? 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300'
+                                    : 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                                }`}
+                            >
+                                {globalBandsTriggered ? (
+                                    <>
+                                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                        Drift bands exceeded — rebalancing recommended
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                                        Portfolio within drift bands — no action needed
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Volume — only show if there are trades */}
+                        {tradeCount > 0 && (
+                            <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 border border-emerald-100 dark:border-emerald-900/30">
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{volumeLabel}</div>
+                                <div className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">{formatCurrency(volume)}</div>
+                            </div>
+                        )}
+                    </Card>
+                );
+            })()}
+
             {/* EMERGENCY FUND STATUS SECTION */}
             {efAction && (
                 <Card className={`p-6 border-l-4 ${efAction.status === 'surplus' ? 'border-l-emerald-500' : (efAction.status === 'deficit' ? 'border-l-red-500' : 'border-l-zinc-400')}`}>
