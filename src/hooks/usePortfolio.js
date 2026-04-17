@@ -422,7 +422,7 @@ export function usePortfolio() {
     }, [accounts, bondAllocation, cashAllocation, emergencyFund, equityStrategy]);
 
     const rebalancingPlan = useMemo(() => {
-        const { investableTotal, targets, accountTotals, emergencyActual, emergencyTarget } = portfolioMetrics;
+        const { investableTotal, targets, accountTotals, emergencyActual, emergencyTarget, currentAllocation } = portfolioMetrics;
 
         const efDiff = emergencyActual - emergencyTarget;
         const efAction = {
@@ -437,6 +437,19 @@ export function usePortfolio() {
         const accountActions = {};
         const investmentAccounts = Object.values(accounts).filter(a => !a.isEmergencyFund);
 
+        // --- Fix 2: Compute bandsTriggered ONCE at the portfolio level ---
+        // We use portfolio-wide currentAllocation vs targets so that tax-location
+        // decisions (bonds in one account, equities in another) don't falsely
+        // trigger rebalancing on a per-account basis.
+        const globalBandsTriggered = Object.keys(targets).some(assetId => {
+            const target = targets[assetId] || 0;
+            const current = currentAllocation[assetId] || 0;
+            const targetPct = investableTotal > 0 ? (target / investableTotal) * 100 : 0;
+            const currentPct = investableTotal > 0 ? (current / investableTotal) * 100 : 0;
+            const threshold = targetPct >= 20 ? 5 : targetPct * 0.25;
+            return Math.abs(currentPct - targetPct) > threshold;
+        });
+
         const processActions = (rawActions, accTotal, mode, availableCash, portfolioTotal) => {
             let inflowRatio = 1;
             if (mode === 'inflow') {
@@ -446,31 +459,8 @@ export function usePortfolio() {
                 }
             }
 
-            let bandsTriggered = false;
-            if (mode === 'bands') {
-                bandsTriggered = rawActions.some(action => {
-                    let { current, target } = action;
-                    const denominator = portfolioTotal > 0 ? portfolioTotal : accTotal;
-                    const targetPct = denominator > 0 ? (target / denominator) * 100 : 0;
-                    const currentPct = denominator > 0 ? (current / denominator) * 100 : 0;
-
-                    let threshold = 0;
-                    if (targetPct >= 20) {
-                        threshold = 5;
-                    } else {
-                        threshold = targetPct * 0.25;
-                    }
-
-                    return Math.abs(currentPct - targetPct) > threshold;
-                });
-            }
-
             return rawActions.map(action => {
                 let { diff, current, target, assetId } = action;
-
-                const denominator = portfolioTotal > 0 ? portfolioTotal : accTotal;
-                const targetPct = denominator > 0 ? (target / denominator) * 100 : 0;
-                const currentPct = denominator > 0 ? (current / denominator) * 100 : 0;
 
                 let actionLabel = diff > 0 ? 'BUY' : 'SELL';
                 if (assetId === 'cash') actionLabel = diff > 0 ? 'RAISE CASH' : 'INVEST CASH';
@@ -482,7 +472,7 @@ export function usePortfolio() {
                 }
 
                 if (mode === 'bands') {
-                    if (!bandsTriggered) {
+                    if (!globalBandsTriggered) {
                         finalAction = 'HOLD';
                         explanation = 'Portfolio within bands';
                     } else {
@@ -861,6 +851,9 @@ export function usePortfolio() {
     const importFunds = (accId, newFunds) => {
         if (!accId || !newFunds || !newFunds.length) return;
 
+        let updatedCount = 0;
+        let addedCount = 0;
+
         setAccounts(prev => {
             const account = prev[accId];
             if (!account) return prev;
@@ -869,41 +862,64 @@ export function usePortfolio() {
             const cashEntries = newFunds.filter(f => f.type === 'cash');
             const fundEntries = newFunds.filter(f => f.type !== 'cash');
 
-            // Sum up all cash entries
+            // Replace cash with the imported snapshot total (not additive)
             const totalCash = cashEntries.reduce((sum, f) => sum + (parseFloat(f.value) || 0), 0);
+            const newCash = cashEntries.length > 0 ? totalCash : (parseFloat(account.cash) || 0);
 
-            // Map fund entries to internal structure with new IDs
-            const fundsToAdd = fundEntries.map(f => ({
-                id: Date.now() + Math.random(), // Ensure unique ID
-                name: f.name,
-                value: f.value,
-                type: f.type || 'us_broad',
-                isEmergency: false
-            }));
+            // Merge fund entries: update existing funds matched by name (case-insensitive),
+            // append genuinely new ones.
+            const existingFunds = [...(account.funds || [])];
+            const updatedFunds = existingFunds.map(f => ({ ...f })); // shallow-copy each fund
 
-            // Update account with new cash and funds
+            fundEntries.forEach(imported => {
+                const normalizedImportName = (imported.name || '').trim().toLowerCase();
+                const matchIdx = updatedFunds.findIndex(
+                    f => (f.name || '').trim().toLowerCase() === normalizedImportName
+                );
+
+                if (matchIdx !== -1) {
+                    // Update existing fund's value (and type if the import has a better guess)
+                    updatedFunds[matchIdx] = {
+                        ...updatedFunds[matchIdx],
+                        value: imported.value,
+                        type: imported.type || updatedFunds[matchIdx].type,
+                    };
+                    updatedCount++;
+                } else {
+                    // Append as a new fund
+                    updatedFunds.push({
+                        id: Date.now() + Math.random(),
+                        name: imported.name,
+                        value: imported.value,
+                        type: imported.type || 'us_broad',
+                        isEmergency: false,
+                    });
+                    addedCount++;
+                }
+            });
+
             return {
                 ...prev,
                 [accId]: {
                     ...prev[accId],
-                    cash: (parseFloat(prev[accId].cash) || 0) + totalCash,
-                    funds: [...(prev[accId].funds || []), ...fundsToAdd]
+                    cash: newCash,
+                    funds: updatedFunds,
                 }
             };
         });
 
-        const fundCount = newFunds.filter(f => f.type !== 'cash').length;
-        const cashCount = newFunds.filter(f => f.type === 'cash').length;
-        const cashTotal = newFunds.filter(f => f.type === 'cash').reduce((sum, f) => sum + f.value, 0);
+        const cashEntries = newFunds.filter(f => f.type === 'cash');
+        const cashTotal = cashEntries.reduce((sum, f) => sum + (parseFloat(f.value) || 0), 0);
+        const hasCash = cashEntries.length > 0;
 
-        let message = '';
-        if (fundCount > 0 && cashCount > 0) {
-            message = `Imported ${fundCount} fund${fundCount > 1 ? 's' : ''} and $${cashTotal.toLocaleString()} cash`;
-        } else if (fundCount > 0) {
-            message = `Successfully imported ${fundCount} fund${fundCount > 1 ? 's' : ''}`;
-        } else if (cashCount > 0) {
-            message = `Successfully imported $${cashTotal.toLocaleString()} cash`;
-        }
+        const parts = [];
+        if (updatedCount > 0) parts.push(`updated ${updatedCount} fund${updatedCount > 1 ? 's' : ''}`);
+        if (addedCount > 0) parts.push(`added ${addedCount} new fund${addedCount > 1 ? 's' : ''}`);
+        if (hasCash) parts.push(`set cash to $${cashTotal.toLocaleString()}`);
+
+        const message = parts.length > 0
+            ? `Import complete: ${parts.join(', ')}.`
+            : 'No changes made.';
 
         setNotification({ message, type: 'success' });
     };
