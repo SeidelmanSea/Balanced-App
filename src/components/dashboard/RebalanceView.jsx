@@ -134,10 +134,10 @@ const RebalanceView = ({
                 // Inflow-only: both modes are 'inflow'
                 const isInflowOnly = rebalanceModeTaxable === 'inflow' && rebalanceModeSheltered === 'inflow';
 
-                // The "volume" number: in inflow mode, just buys; otherwise the rebalancing turnover
-                // (buys ≈ sells in a true rebalance, so we pick the larger side to avoid showing zero)
-                const volume = isInflowOnly ? totalBuys : Math.max(totalBuys, totalSells);
-                const volumeLabel = isInflowOnly ? 'Total to Invest' : 'Rebalancing Volume';
+                // The "volume" number: in inflow mode or when deploying cash without band breach, show total to invest;
+                // otherwise the rebalancing turnover (buys ≈ sells in a true rebalance, so we pick the larger side)
+                const volume = (isInflowOnly || (!globalBandsTriggered && tradeCount > 0)) ? totalBuys : Math.max(totalBuys, totalSells);
+                const volumeLabel = (isInflowOnly || (!globalBandsTriggered && tradeCount > 0)) ? 'Total to Invest' : 'Rebalancing Volume';
 
                 // Show the card if: there are trades, OR if bands mode is active (to show "within bands" status)
                 if (!eitherIsBands && tradeCount === 0) return null;
@@ -168,6 +168,11 @@ const RebalanceView = ({
                                     <>
                                         <AlertCircle className="w-4 h-4 flex-shrink-0" />
                                         Drift bands exceeded — rebalancing recommended
+                                    </>
+                                ) : tradeCount > 0 ? (
+                                    <>
+                                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                                        Portfolio within drift bands — deploying uninvested cash
                                     </>
                                 ) : (
                                     <>

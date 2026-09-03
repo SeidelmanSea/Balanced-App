@@ -81,43 +81,33 @@ describe('usePortfolio Hook', () => {
         const { result } = renderHook(() => usePortfolio());
 
         act(() => {
-            result.current.actions.setNewAccountName('HYSA');
-            result.current.actions.setNewAccountType('emergency_fund');
-        });
-
-        act(() => {
-            result.current.actions.createAccount();
+            result.current.actions.createAccount('HYSA', 'emergency_fund');
         });
 
         const accId = Object.keys(result.current.state.accounts)[0];
 
         act(() => {
             result.current.actions.updateAccountCash(accId, 20000);
-            result.current.actions.updateAccount(accId, 'cashIsEmergency', true);
         });
 
         expect(result.current.metrics.emergencyActual).toBe(20000);
         expect(result.current.metrics.emergencyTarget).toBe(10000);
-        expect(result.current.metrics.investableTotal).toBe(10000);
+        // Emergency funds are excluded from investable portfolio
+        expect(result.current.metrics.investableTotal).toBe(0);
     });
 
     it('should import funds into an account', () => {
         const { result } = renderHook(() => usePortfolio());
 
         act(() => {
-            result.current.actions.setNewAccountName('Brokerage');
-            result.current.actions.setNewAccountType('taxable');
-        });
-
-        act(() => {
-            result.current.actions.createAccount();
+            result.current.actions.createAccount('Brokerage', 'taxable');
         });
 
         const accId = Object.keys(result.current.state.accounts)[0];
 
         const parsedFunds = [
             { name: 'VTI', value: 10000, type: 'us_broad' },
-            { name: 'VXUS', value: 5000, type: 'intl_developed' }
+            { name: 'VXUS', value: 5000, type: 'intl_dev' }
         ];
 
         act(() => {
@@ -135,12 +125,7 @@ describe('usePortfolio Hook', () => {
         const { result } = renderHook(() => usePortfolio());
 
         act(() => {
-            result.current.actions.setNewAccountName('Brokerage');
-            result.current.actions.setNewAccountType('taxable');
-        });
-
-        act(() => {
-            result.current.actions.createAccount();
+            result.current.actions.createAccount('Brokerage', 'taxable');
         });
 
         const accId = Object.keys(result.current.state.accounts)[0];
@@ -162,8 +147,8 @@ describe('usePortfolio Hook', () => {
 
         const account = result.current.state.accounts[accId];
 
-        // Cash should be added to cash field (1000 + 5000 = 6000)
-        expect(account.cash).toBe(6000);
+        // Cash is replaced with imported snapshot total ($5000)
+        expect(account.cash).toBe(5000);
 
         // Only non-cash entries should be in funds (2 items: VTSAX and VMFXX)
         expect(account.funds).toHaveLength(2);
@@ -182,11 +167,8 @@ describe('usePortfolio Hook', () => {
             act(() => {
                 result.current.actions.setBondAllocation(40);
                 result.current.actions.setRebalanceModeTaxable('bands');
-                result.current.actions.setEquityStrategy({ us_broad: 100 }); // Set equity strategy
-
-                result.current.actions.setNewAccountName('Brokerage');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.setEquityStrategy({ us_broad: 100 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
             });
 
             const accId = Object.keys(result.current.state.accounts)[0];
@@ -212,10 +194,7 @@ describe('usePortfolio Hook', () => {
                 result.current.actions.setBondAllocation(10);
                 result.current.actions.setRebalanceModeTaxable('bands');
                 result.current.actions.setEquityStrategy({ us_broad: 80, reit: 20 });
-
-                result.current.actions.setNewAccountName('Brokerage');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('Brokerage', 'taxable');
             });
 
             const accId = Object.keys(result.current.state.accounts)[0];
@@ -243,10 +222,7 @@ describe('usePortfolio Hook', () => {
                 result.current.actions.setBondAllocation(40);
                 result.current.actions.setRebalanceModeTaxable('bands');
                 result.current.actions.setEquityStrategy({ us_broad: 100 });
-
-                result.current.actions.setNewAccountName('Brokerage');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('Brokerage', 'taxable');
             });
 
             const accId = Object.keys(result.current.state.accounts)[0];
@@ -265,34 +241,61 @@ describe('usePortfolio Hook', () => {
             // Should have no actions (all filtered as HOLD)
             expect(actions.length).toBe(0);
         });
+
+        it('should deploy uninvested cash without selling equities when within bands', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setBondAllocation(0);
+                result.current.actions.setRebalanceModeTaxable('bands');
+                result.current.actions.setEquityStrategy({ us_broad: 60, intl: 40 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+            });
+
+            const accId = Object.keys(result.current.state.accounts)[0];
+
+            act(() => {
+                result.current.actions.updateAccountCash(accId, 10000);
+                result.current.actions.importFunds(accId, [
+                    { name: 'VTI', value: 60000, type: 'us_broad' },
+                    { name: 'VXUS', value: 40000, type: 'intl' }
+                ]);
+            });
+
+            const plan = result.current.rebalancingPlan;
+            const actions = plan.accountActions[accId]?.actions || [];
+
+            // Should deploy the $10,000 cash with BUYs, with no SELL actions for equities
+            const buys = actions.filter(a => a.diff > 0);
+            const sells = actions.filter(a => a.diff < 0 && a.assetId !== 'cash' && a.assetId !== 'money_market');
+            expect(buys.length).toBeGreaterThan(0);
+            expect(sells.length).toBe(0);
+            const totalBuyAmount = buys.reduce((sum, a) => sum + a.diff, 0);
+            expect(Math.round(totalBuyAmount)).toBe(10000);
+        });
     });
 
     // === EMERGENCY FUND SURPLUS TESTS ===
     describe('Emergency Fund Surplus', () => {
-        it('should add emergency surplus to investable total', () => {
+        it('should track emergency surplus accurately without inflating investment targets', () => {
             const { result } = renderHook(() => usePortfolio());
 
             act(() => {
                 result.current.actions.setEmergencyFund(20000); // Target $20k
-            });
-
-            act(() => {
-                result.current.actions.setNewAccountName('HYSA');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('HYSA', 'emergency_fund');
             });
 
             const accId = Object.keys(result.current.state.accounts)[0];
 
             act(() => {
                 result.current.actions.updateAccountCash(accId, 30000); // $30k actual
-                result.current.actions.updateAccount(accId, 'cashIsEmergency', true);
             });
 
-            // $30k - $20k = $10k surplus should be investable
             expect(result.current.metrics.emergencyActual).toBe(30000);
             expect(result.current.metrics.emergencyTarget).toBe(20000);
-            expect(result.current.metrics.investableTotal).toBe(10000);
+            expect(result.current.metrics.investableTotal).toBe(0);
+            expect(result.current.rebalancingPlan.efAction.status).toBe('surplus');
+            expect(result.current.rebalancingPlan.efAction.diff).toBe(10000);
         });
     });
 
@@ -302,9 +305,7 @@ describe('usePortfolio Hook', () => {
             const { result } = renderHook(() => usePortfolio());
 
             act(() => {
-                result.current.actions.setNewAccountName('Empty');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('Empty', 'taxable');
             });
 
             // Account has $0
@@ -337,12 +338,7 @@ describe('usePortfolio Hook', () => {
                 result.current.actions.setTaxStrategy('mirrored');
                 result.current.actions.setBondAllocation(40);
                 result.current.actions.setEquityStrategy({ us_broad: 100 });
-            });
-
-            act(() => {
-                result.current.actions.setNewAccountName('Account1');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('Account1', 'taxable');
             });
 
             const acc1Id = Object.keys(result.current.state.accounts)[0];
@@ -356,6 +352,33 @@ describe('usePortfolio Hook', () => {
             // Should calculate plan without crashing
             expect(plan).toBeDefined();
             expect(plan.accountActions[acc1Id]).toBeDefined();
+        });
+
+        it('should prioritize international equities in taxable for balanced_roth', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setTaxStrategy('balanced_roth');
+                result.current.actions.setBondAllocation(0);
+                result.current.actions.setEquityStrategy({ us_broad: 50, intl: 50 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+                result.current.actions.createAccount('Roth', 'roth_ira');
+            });
+
+            const [acc1, acc2] = Object.keys(result.current.state.accounts);
+            const taxableId = result.current.state.accounts[acc1].taxType === 'taxable' ? acc1 : acc2;
+            const rothId = taxableId === acc1 ? acc2 : acc1;
+
+            act(() => {
+                result.current.actions.updateAccountCash(taxableId, 50000);
+                result.current.actions.updateAccountCash(rothId, 50000);
+            });
+
+            const plan = result.current.rebalancingPlan;
+            // In balanced_roth, international equities (intl) should be placed in taxable for FTC
+            expect(plan.accountActions[taxableId].targetHoldings.intl).toBe(50000);
+            // Domestic equities should be in Roth
+            expect(plan.accountActions[rothId].targetHoldings.us_broad).toBe(50000);
         });
     });
 
@@ -381,9 +404,7 @@ describe('usePortfolio Hook', () => {
             const { result } = renderHook(() => usePortfolio());
 
             act(() => {
-                result.current.actions.setNewAccountName('Brokerage');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('Brokerage', 'taxable');
             });
 
             const accId = Object.keys(result.current.state.accounts)[0];
@@ -409,6 +430,35 @@ describe('usePortfolio Hook', () => {
             // Now should be counted as emergency, not investable
             expect(result.current.metrics.emergencyActual).toBe(50000);
             expect(result.current.metrics.investableTotal).toBe(0);
+        });
+
+        it('should deploy money market fund balances as liquid cash', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setBondAllocation(0);
+                result.current.actions.setRebalanceModeTaxable('inflow');
+                result.current.actions.setEquityStrategy({ us_broad: 100 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+            });
+
+            const accId = Object.keys(result.current.state.accounts)[0];
+
+            // Brokerage has $0 sweep cash, but $15,000 in VMFXX (money_market)
+            act(() => {
+                result.current.actions.importFunds(accId, [
+                    { name: 'VMFXX', value: 15000, type: 'money_market' }
+                ]);
+            });
+
+            const plan = result.current.rebalancingPlan;
+            const actions = plan.accountActions[accId]?.actions || [];
+
+            // Inflow mode should deploy the $15k money market fund to BUY VTI
+            const buyAction = actions.find(a => a.assetId === 'us_broad');
+            expect(buyAction).toBeDefined();
+            expect(buyAction.action).toBe('BUY');
+            expect(Math.round(buyAction.diff)).toBe(15000);
         });
     });
 });

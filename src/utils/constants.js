@@ -174,7 +174,7 @@ export const DEMO_DATA = {
         'demo_1': { id: 'demo_1', name: 'Vanguard Brokerage', typeId: 'taxable', taxType: 'taxable', cash: 5000, funds: [{ id: 1, name: 'VTI', type: 'us_broad', value: 150000 }, { id: 2, name: 'VXUS', type: 'intl', value: 80000 }] },
         'demo_2': { id: 'demo_2', name: 'Fidelity IRA', typeId: 'trad_ira', taxType: 'deferred', cash: 1000, funds: [{ id: 3, name: 'BND', type: 'bonds', value: 40000 }, { id: 4, name: 'VTV', type: 'us_large_value', value: 20000 }] },
         'demo_3': { id: 'demo_3', name: 'Roth IRA', typeId: 'roth_ira', taxType: 'roth', cash: 500, funds: [{ id: 5, name: 'VUG', type: 'us_large_growth', value: 30000 }, { id: 6, name: 'VNQ', type: 'reit', value: 10000 }] },
-        'demo_ef': { id: 'demo_ef', name: 'HYSA Emergency Fund', typeId: 'emergency_fund', taxType: 'taxable', cash: 25000, funds: [] }
+        'demo_ef': { id: 'demo_ef', name: 'HYSA Emergency Fund', typeId: 'emergency_fund', taxType: 'taxable', cash: 25000, cashIsEmergency: true, isEmergencyFund: true, funds: [] }
     },
     bondAllocation: 15,
     emergencyFund: 25000,
