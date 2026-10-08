@@ -524,5 +524,46 @@ describe('usePortfolio Hook', () => {
             expect(buyAction.action).toBe('BUY');
             expect(Math.round(buyAction.diff)).toBe(15000);
         });
+
+        it('should align INVEST CASH diff exactly with total buy volume when cash exceeds buy needs', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setBondAllocation(0);
+                result.current.actions.setRebalanceModeTaxable('bands');
+                // Target: 80% us_broad, 20% cash
+                result.current.actions.setCashAllocation(20);
+                result.current.actions.setEquityStrategy({ us_broad: 100 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+            });
+
+            const accId = Object.keys(result.current.state.accounts)[0];
+
+            // $80k VTI (80%), $20k cash (20%) -> Perfectly balanced portfolio at $100k
+            // Now add $5k cash -> Total = $105k. Target us_broad: 80% * 105k = $84k (buy $4k).
+            // Target cash: 20% * 105k = $21k (diff = -$4k from $25k).
+            // Available cash = $25k. Buy needed = $4k.
+            act(() => {
+                result.current.actions.importFunds(accId, [
+                    { name: 'VTI', value: 80000, type: 'us_broad' }
+                ]);
+                result.current.actions.updateAccountCash(accId, 25000);
+            });
+
+            const plan = result.current.rebalancingPlan;
+            const actions = plan.accountActions[accId]?.actions || [];
+
+            const buyAction = actions.find(a => a.assetId === 'us_broad');
+            const cashAction = actions.find(a => a.assetId === 'cash');
+
+            expect(buyAction).toBeDefined();
+            expect(buyAction.action).toBe('BUY');
+            expect(Math.round(buyAction.diff)).toBe(4000);
+
+            // Cash diff must be -$4000 (investing $4k cash), NOT -$25000!
+            expect(cashAction).toBeDefined();
+            expect(cashAction.action).toBe('INVEST CASH');
+            expect(Math.round(cashAction.diff)).toBe(-4000);
+        });
     });
 });
