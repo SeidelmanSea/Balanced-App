@@ -457,6 +457,12 @@ export function usePortfolio() {
             const targetPct = investableTotal > 0 ? (target / investableTotal) * 100 : 0;
             const currentPct = investableTotal > 0 ? (current / investableTotal) * 100 : 0;
             
+            // Uninvested cash surplus (current >= target) does not breach bands to force equity sales;
+            // it is deployed directly via cash inflows into underweight holdings.
+            if ((assetId === 'cash' || assetId === 'money_market') && currentPct >= targetPct) {
+                return false;
+            }
+
             // 5/25 rule: 5% absolute or 25% relative (whichever is tighter)
             // Added a 0.5% absolute floor to prevent dust/pennies in 0% target assets from triggering rebalances
             const theoreticalThreshold = targetPct >= 20 ? 5 : targetPct * 0.25;
@@ -720,22 +726,24 @@ export function usePortfolio() {
             }
 
             if (taxStrategy === 'balanced_roth') {
-                const isInternationalEquity = (id) => ['intl', 'intl_dev', 'intl_emerg', 'intl_small', 'europe', 'pacific'].includes(id);
+                // FTC-eligible international equities that benefit from Taxable location
+                const isFtcInternational = (id) => ['intl', 'intl_dev', 'europe', 'pacific'].includes(id);
 
                 const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
                 if (rothCapacity > 0) {
-                    const domesticEquities = Object.keys(remainingTargets).filter(assetId => {
+                    // Roth prioritizes high-growth equities not reserved for Taxable FTC (including domestic equities, emerging markets, and small cap)
+                    const rothCandidates = Object.keys(remainingTargets).filter(assetId => {
                         if (remainingTargets[assetId] <= 0) return false;
-                        if (isInternationalEquity(assetId)) return false;
+                        if (isFtcInternational(assetId)) return false;
                         const asset = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
                         return asset?.type === 'equity';
                     });
 
-                    const totalDomesticTarget = domesticEquities.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
+                    const totalRothCandidates = rothCandidates.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
 
-                    if (totalDomesticTarget > 0) {
-                        const rothRatio = Math.min(1, rothCapacity / totalDomesticTarget);
-                        domesticEquities.forEach(assetId => {
+                    if (totalRothCandidates > 0) {
+                        const rothRatio = Math.min(1, rothCapacity / totalRothCandidates);
+                        rothCandidates.forEach(assetId => {
                             const amountForRoth = remainingTargets[assetId] * rothRatio;
                             addToBucket(assetId, 'roth', amountForRoth);
                         });
@@ -745,7 +753,7 @@ export function usePortfolio() {
                 const taxableCapacity = buckets.taxable.capacity - buckets.taxable.filled;
                 if (taxableCapacity > 0) {
                     const intlEquities = Object.keys(remainingTargets).filter(assetId => {
-                        return remainingTargets[assetId] > 0 && isInternationalEquity(assetId);
+                        return remainingTargets[assetId] > 0 && isFtcInternational(assetId);
                     });
 
                     intlEquities.forEach(assetId => {

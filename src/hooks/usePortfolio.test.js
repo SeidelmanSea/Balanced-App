@@ -273,6 +273,38 @@ describe('usePortfolio Hook', () => {
             const totalBuyAmount = buys.reduce((sum, a) => sum + a.diff, 0);
             expect(Math.round(totalBuyAmount)).toBe(10000);
         });
+
+        it('should not breach global bands when adding uninvested cash surplus', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setBondAllocation(10);
+                result.current.actions.setCashAllocation(0); // 0% cash target
+                result.current.actions.setRebalanceModeTaxable('bands');
+                result.current.actions.setEquityStrategy({ us_broad: 100 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+                result.current.actions.createAccount('HSA', 'trad_ira');
+            });
+
+            const [brokerageId, hsaId] = Object.keys(result.current.state.accounts);
+
+            act(() => {
+                // Brokerage has 90k stocks, 10k bonds (perfect 90/10 balance)
+                result.current.actions.importFunds(brokerageId, [
+                    { name: 'VTI', value: 90000, type: 'us_broad' },
+                    { name: 'BND', value: 10000, type: 'bonds' }
+                ]);
+                // User adds $5,000 cash in HSA
+                result.current.actions.updateAccountCash(hsaId, 5000);
+            });
+
+            const plan = result.current.rebalancingPlan;
+            // Cash surplus should not trigger a band breach to force sales
+            expect(plan.globalBandsTriggered).toBe(false);
+            // Brokerage should have 0 sell actions
+            const brokerageActions = plan.accountActions[brokerageId]?.actions || [];
+            expect(brokerageActions.filter(a => a.diff < 0).length).toBe(0);
+        });
     });
 
     // === EMERGENCY FUND SURPLUS TESTS ===
@@ -379,6 +411,38 @@ describe('usePortfolio Hook', () => {
             expect(plan.accountActions[taxableId].targetHoldings.intl).toBe(50000);
             // Domestic equities should be in Roth
             expect(plan.accountActions[rothId].targetHoldings.us_broad).toBe(50000);
+        });
+
+        it('should keep emerging markets in Roth/deferred and out of taxable in balanced_roth', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setTaxStrategy('balanced_roth');
+                result.current.actions.setBondAllocation(10);
+                result.current.actions.setEquityStrategy({ us_broad: 50, intl: 30, intl_emerg: 10, us_small_val: 10 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+                result.current.actions.createAccount('Roth', 'roth_ira');
+                result.current.actions.createAccount('Traditional 401k', 'trad_401k');
+            });
+
+            const [acc1, acc2, acc3] = Object.keys(result.current.state.accounts);
+            const taxableId = [acc1, acc2, acc3].find(id => result.current.state.accounts[id].taxType === 'taxable');
+            const rothId = [acc1, acc2, acc3].find(id => result.current.state.accounts[id].taxType === 'roth');
+            const defId = [acc1, acc2, acc3].find(id => result.current.state.accounts[id].taxType === 'deferred');
+
+            act(() => {
+                result.current.actions.updateAccountCash(taxableId, 100000);
+                result.current.actions.updateAccountCash(rothId, 50000);
+                result.current.actions.updateAccountCash(defId, 50000);
+            });
+
+            const plan = result.current.rebalancingPlan;
+            // Emerging markets should NEVER be forced into taxable in balanced_roth when sheltered capacity exists
+            expect(plan.accountActions[taxableId].targetHoldings.intl_emerg || 0).toBe(0);
+            // Emerging markets should be held in sheltered accounts (Roth or Deferred)
+            const shelteredEmerg = (plan.accountActions[rothId].targetHoldings.intl_emerg || 0) +
+                                   (plan.accountActions[defId].targetHoldings.intl_emerg || 0);
+            expect(shelteredEmerg).toBeGreaterThan(0);
         });
     });
 
