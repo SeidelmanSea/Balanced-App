@@ -129,8 +129,7 @@ export function usePortfolio() {
             return;
         }
 
-        const newId = `acc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-        const isEmergency = typeToUse === 'emergency_fund';
+        const newId = `acc_${Date.now()}`;
 
         setAccounts(prev => ({
             ...prev,
@@ -141,8 +140,6 @@ export function usePortfolio() {
                 taxType: accountTypeInfo.taxType,
                 iconId: typeToUse,
                 cash: 0,
-                cashIsEmergency: isEmergency,
-                isEmergencyFund: isEmergency,
                 funds: []
             }
         }));
@@ -179,7 +176,6 @@ export function usePortfolio() {
             timestamp: new Date().toISOString(),
             accounts,
             bondAllocation,
-            cashAllocation,
             emergencyFund,
             userAge,
             retirementYear,
@@ -218,7 +214,6 @@ export function usePortfolio() {
                         onConfirm: () => {
                             setAccounts(importedData.accounts || {});
                             setBondAllocation(importedData.bondAllocation || 10);
-                            setCashAllocation(importedData.cashAllocation !== undefined ? importedData.cashAllocation : 0);
                             setEmergencyFund(importedData.emergencyFund || 10000);
 
                             if (importedData.retirementYear) {
@@ -261,7 +256,6 @@ export function usePortfolio() {
             onConfirm: () => {
                 setAccounts({});
                 setBondAllocation(10);
-                setCashAllocation(0);
                 setEmergencyFund(10000);
                 setUserAge(38);
                 setBondStrategyMode('smart');
@@ -284,7 +278,6 @@ export function usePortfolio() {
             onConfirm: () => {
                 setAccounts(DEMO_DATA.accounts);
                 setBondAllocation(DEMO_DATA.bondAllocation);
-                setCashAllocation(DEMO_DATA.cashAllocation !== undefined ? DEMO_DATA.cashAllocation : 0);
                 setEmergencyFund(DEMO_DATA.emergencyFund);
                 setUserAge(DEMO_DATA.userAge);
                 setBondStrategyMode(DEMO_DATA.bondStrategyMode);
@@ -358,9 +351,6 @@ export function usePortfolio() {
         Object.values(accounts).forEach((accData) => {
             if (!accData) return;
 
-            const isAccEmergency = Boolean(accData.isEmergencyFund || accData.typeId === 'emergency_fund');
-            const isCashEmergency = Boolean(accData.cashIsEmergency || isAccEmergency);
-
             let effectiveCash = parseFloat(accData.cash) || 0;
             let accFundsTotal = 0;
             if (Array.isArray(accData.funds)) {
@@ -373,7 +363,7 @@ export function usePortfolio() {
             accountTotals[accData.id] = accTotal;
             totalNetWorth += accTotal;
 
-            if (isCashEmergency) {
+            if (accData.cashIsEmergency) {
                 autoEmergencyFund += effectiveCash;
             } else {
                 investableTotal += effectiveCash;
@@ -384,15 +374,16 @@ export function usePortfolio() {
             if (Array.isArray(accData.funds)) {
                 accData.funds.forEach(fund => {
                     const val = parseFloat(fund.value) || 0;
-                    const isFundEmergency = Boolean(fund.isEmergency || isAccEmergency);
 
-                    if (isFundEmergency) {
+                    if (fund.isEmergency) {
                         autoEmergencyFund += val;
                     } else {
                         investableTotal += val;
-                        // Unified Cash: Money market funds and cash funds are added to 'cash' key
-                        let type = (fund.type === 'money_market' || fund.type === 'cash') ? 'cash' : (fund.type || 'us_broad');
-                        if (currentAllocation[type] !== undefined) {
+                        // Unified Cash: Money market funds are added to 'cash' key
+                        let type = fund.type || 'us_broad';
+                        if (type === 'money_market') {
+                            currentAllocation['cash'] += val;
+                        } else if (currentAllocation[type] !== undefined) {
                             currentAllocation[type] += val;
                         }
                     }
@@ -441,10 +432,10 @@ export function usePortfolio() {
             target: emergencyTarget
         };
 
-        if (investableTotal === 0) return { efAction, accountActions: {}, globalBandsTriggered: false };
+        if (investableTotal === 0) return { efAction, accountActions: {} };
 
         const accountActions = {};
-        const investmentAccounts = Object.values(accounts).filter(a => !a.isEmergencyFund && a.typeId !== 'emergency_fund');
+        const investmentAccounts = Object.values(accounts).filter(a => !a.isEmergencyFund);
 
         // --- Fix 2: Compute bandsTriggered ONCE at the portfolio level ---
         // We use portfolio-wide currentAllocation vs targets so that tax-location
@@ -456,25 +447,17 @@ export function usePortfolio() {
         ]);
 
         const globalBandsTriggered = Array.from(allAssetIds).some(assetId => {
-            // Cash surplus never breaches bands to force equity sales;
-            // it is deployed directly via cash inflows into underweight holdings.
-            if (assetId === 'cash' || assetId === 'money_market') {
-                return false;
-            }
-
             const target = targets[assetId] || 0;
             const current = currentAllocation[assetId] || 0;
             const targetPct = investableTotal > 0 ? (target / investableTotal) * 100 : 0;
             const currentPct = investableTotal > 0 ? (current / investableTotal) * 100 : 0;
-
+            
             // 5/25 rule: 5% absolute or 25% relative (whichever is tighter)
             // Added a 0.5% absolute floor to prevent dust/pennies in 0% target assets from triggering rebalances
             const theoreticalThreshold = targetPct >= 20 ? 5 : targetPct * 0.25;
             const threshold = Math.max(0.5, theoreticalThreshold);
             
-            // An asset breaches rebalancing drift bands only if it is OVERWEIGHT beyond threshold.
-            // Underweight assets never require selling; they are bought using incoming cash or rebalancing proceeds.
-            return (currentPct - targetPct) > threshold;
+            return Math.abs(currentPct - targetPct) > threshold;
         });
 
         const processActions = (rawActions, accTotal, mode, availableCash, portfolioTotal) => {
@@ -483,7 +466,6 @@ export function usePortfolio() {
             if (totalBuyNeeded > availableCash && totalBuyNeeded > 0) {
                 inflowRatio = Math.max(0, availableCash) / totalBuyNeeded;
             }
-            const cashToDeploy = Math.min(availableCash, totalBuyNeeded);
 
             return rawActions.map(action => {
                 let { diff, current, target, assetId } = action;
@@ -492,11 +474,6 @@ export function usePortfolio() {
                 if (assetId === 'cash' || assetId === 'money_market') actionLabel = diff > 0 ? 'RAISE CASH' : 'INVEST CASH';
                 let finalAction = actionLabel;
                 let explanation = '';
-
-                // De minimis trade filter: ignore trivial differences under $10 across all modes
-                if (Math.abs(diff) < 10) {
-                    finalAction = 'HOLD';
-                }
 
                 if (mode === 'strict') {
                     if (Math.abs(diff) < 10) finalAction = 'HOLD';
@@ -507,14 +484,13 @@ export function usePortfolio() {
                         // Drift bands not breached. However, if there is significant uninvested cash (>$10)
                         // we should gracefully fall back to inflow-only mode so the user knows where
                         // to deploy it, without triggering any unnecessary tax-generating sales.
-                        if (availableCash > 10 && cashToDeploy > 10) {
+                        if (availableCash > 10) {
                             if (diff < 0 && assetId !== 'cash' && assetId !== 'money_market') {
                                 finalAction = 'HOLD'; // Don't sell equities
                             } else if (diff > 0 && assetId !== 'cash' && assetId !== 'money_market') {
                                 diff = diff * inflowRatio;
                                 explanation = inflowRatio < 1 ? 'Deploying cash (pro-rata)' : 'Deploying cash';
                             } else if ((assetId === 'cash' || assetId === 'money_market') && diff < 0) {
-                                diff = -cashToDeploy;
                                 explanation = 'Deploying cash';
                             } else {
                                 finalAction = 'HOLD';
@@ -541,19 +517,6 @@ export function usePortfolio() {
                             explanation = 'Reduced (Cash Limit)';
                         }
                     }
-                    if ((assetId === 'cash' || assetId === 'money_market') && diff < 0) {
-                        if (cashToDeploy < 10) {
-                            finalAction = 'HOLD';
-                        } else {
-                            diff = -cashToDeploy;
-                            explanation = 'Deploying cash';
-                        }
-                    }
-                }
-
-                // Final de minimis check after scaling: don't execute fractional tiny trades under $10
-                if (Math.abs(diff) < 10) {
-                    finalAction = 'HOLD';
                 }
 
                 return { ...action, diff, action: finalAction, explanation };
@@ -569,12 +532,11 @@ export function usePortfolio() {
                     return;
                 }
 
-                const isAccEmergency = Boolean(accData.isEmergencyFund || accData.typeId === 'emergency_fund');
                 let accShielded = 0;
-                if (accData.cashIsEmergency || isAccEmergency) accShielded += (parseFloat(accData.cash) || 0);
+                if (accData.cashIsEmergency) accShielded += (parseFloat(accData.cash) || 0);
                 if (Array.isArray(accData.funds)) {
                     accData.funds.forEach(f => {
-                        if (f.isEmergency || isAccEmergency) accShielded += (parseFloat(f.value) || 0);
+                        if (f.isEmergency) accShielded += (parseFloat(f.value) || 0);
                     });
                 }
                 const accInvestable = Math.max(0, accTotal - accShielded);
@@ -588,19 +550,15 @@ export function usePortfolio() {
                 Object.keys(ASSET_CLASSES).forEach(k => currentHoldings[ASSET_CLASSES[k].id] = 0);
                 if (accData && Array.isArray(accData.funds)) {
                     accData.funds.forEach(f => {
-                        if (f.isEmergency || isAccEmergency) return;
+                        if (f.isEmergency) return;
                         let type = (f.type === 'money_market' || f.type === 'cash') ? 'cash' : f.type;
                         currentHoldings[type] = (currentHoldings[type] || 0) + parseFloat(f.value);
                     });
                 }
-                const actualCashInAccount = (!accData.cashIsEmergency && !isAccEmergency) ? (parseFloat(accData.cash) || 0) : 0;
-                currentHoldings['cash'] = (currentHoldings['cash'] || 0) + actualCashInAccount;
-
-                // Available deployable cash in this account includes settlement cash + liquid money market funds
-                const cashFundsInAccount = (accData.funds || [])
-                    .filter(f => !f.isEmergency && !isAccEmergency && (f.type === 'money_market' || f.type === 'cash'))
-                    .reduce((sum, f) => sum + (parseFloat(f.value) || 0), 0);
-                const availableCashToDeploy = actualCashInAccount + cashFundsInAccount;
+                const actualCashInAccount = accData ? (parseFloat(accData.cash) || 0) : 0;
+                if (!accData.cashIsEmergency) {
+                    currentHoldings['cash'] = (currentHoldings['cash'] || 0) + actualCashInAccount;
+                }
 
                 let rawActions = [];
                 Object.values(ASSET_CLASSES).forEach(assetClass => {
@@ -615,7 +573,7 @@ export function usePortfolio() {
                 });
 
                 const mode = accData.taxType === 'taxable' ? rebalanceModeTaxable : rebalanceModeSheltered;
-                const processedActions = processActions(rawActions, accTotal, mode, availableCashToDeploy, investableTotal);
+                const processedActions = processActions(rawActions, accTotal, mode, actualCashInAccount, investableTotal);
                 accountActions[accData.id] = { targetHoldings, currentTotal: accTotal, actions: processedActions.sort((a, b) => a.diff - b.diff) };
             });
         } else {
@@ -629,15 +587,14 @@ export function usePortfolio() {
                 const bucket = buckets[acc.taxType];
                 if (bucket) {
                     const accTotal = accountTotals[acc.id] || 0;
-                    const isAccEmergency = Boolean(acc.isEmergencyFund || acc.typeId === 'emergency_fund');
                     let emergencyAmount = 0;
 
-                    if (acc.cashIsEmergency || isAccEmergency) {
+                    if (acc.cashIsEmergency) {
                         emergencyAmount += (parseFloat(acc.cash) || 0);
                     }
                     if (Array.isArray(acc.funds)) {
                         acc.funds.forEach(f => {
-                            if (f.isEmergency || isAccEmergency) emergencyAmount += (parseFloat(f.value) || 0);
+                            if (f.isEmergency) emergencyAmount += (parseFloat(f.value) || 0);
                         });
                     }
 
@@ -666,13 +623,13 @@ export function usePortfolio() {
                 if (amount <= 0) return;
 
                 const assetInfo = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
-                let prefs = ['taxable', 'deferred', 'roth'];
+                let prefs = ['taxable'];
 
+                // Use taxPref from constants - no hardcoded overrides for cash/money_market
                 if (taxStrategy === 'roth_growth') {
-                    // Cash & money_market prefer taxable (saving Roth for highest growth),
-                    // but will spill over into deferred then roth if taxable space is full or absent.
+                    // Cash & money_market always stay in taxable (already tax-efficient)
                     if (assetId === 'cash' || assetId === 'money_market') {
-                        prefs = ['taxable', 'deferred', 'roth'];
+                        prefs = ['taxable'];
                     } else if (assetInfo?.type === 'fixed') {
                         prefs = ['deferred', 'taxable', 'roth'];
                     } else {
@@ -685,26 +642,10 @@ export function usePortfolio() {
                 for (let prefType of prefs) {
                     if (remainingTargets[assetId] <= 0) break;
                     const bucket = buckets[prefType];
-                    if (!bucket) continue;
                     const available = bucket.capacity - bucket.filled;
                     if (available > 0) {
                         const take = Math.min(available, remainingTargets[assetId]);
                         addToBucket(assetId, prefType, take);
-                    }
-                }
-
-                // Fallback: If preferences did not exhaust the target but other buckets have room,
-                // allocate to any bucket with remaining capacity so target allocation is never lost.
-                if (remainingTargets[assetId] > 0) {
-                    for (let fallbackType of ['taxable', 'deferred', 'roth']) {
-                        if (remainingTargets[assetId] <= 0) break;
-                        const bucket = buckets[fallbackType];
-                        if (!bucket) continue;
-                        const available = bucket.capacity - bucket.filled;
-                        if (available > 0) {
-                            const take = Math.min(available, remainingTargets[assetId]);
-                            addToBucket(assetId, fallbackType, take);
-                        }
                     }
                 }
             }
@@ -714,7 +655,7 @@ export function usePortfolio() {
             if (targets['money_market']) allocateAssetStandard('money_market');
             if (targets['bonds']) allocateAssetStandard('bonds');
 
-            if (taxStrategy === 'standard') {
+            if (taxStrategy !== 'mirrored') {
                 const taxableCapacity = buckets.taxable.capacity - buckets.taxable.filled;
                 if (taxableCapacity > 0) {
                     const taxableCandidates = Object.keys(remainingTargets).filter(key => {
@@ -722,6 +663,10 @@ export function usePortfolio() {
                         if (remainingTargets[key] <= 0) return false;
                         const asset = Object.values(ASSET_CLASSES).find(a => a.id === key);
                         let prefs = asset?.taxPref || ['taxable'];
+                        if (taxStrategy === 'roth_growth') {
+                            if (asset?.type === 'fixed') prefs = ['deferred', 'taxable', 'roth'];
+                            else prefs = ['roth', 'taxable', 'deferred'];
+                        }
                         return prefs[0] === 'taxable';
                     });
 
@@ -759,24 +704,20 @@ export function usePortfolio() {
             }
 
             if (taxStrategy === 'balanced_roth') {
-                // FTC-eligible international equities that benefit from Taxable location
-                const isFtcInternational = (id) => ['intl', 'intl_dev', 'europe', 'pacific'].includes(id);
-
                 const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
                 if (rothCapacity > 0) {
-                    // Roth prioritizes high-growth equities not reserved for Taxable FTC (including domestic equities, emerging markets, and small cap)
-                    const rothCandidates = Object.keys(remainingTargets).filter(assetId => {
+                    const domesticEquities = Object.keys(remainingTargets).filter(assetId => {
                         if (remainingTargets[assetId] <= 0) return false;
-                        if (isFtcInternational(assetId)) return false;
+                        if (assetId === 'intl_developed' || assetId === 'emerging_markets') return false;
                         const asset = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
                         return asset?.type === 'equity';
                     });
 
-                    const totalRothCandidates = rothCandidates.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
+                    const totalDomesticTarget = domesticEquities.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
 
-                    if (totalRothCandidates > 0) {
-                        const rothRatio = Math.min(1, rothCapacity / totalRothCandidates);
-                        rothCandidates.forEach(assetId => {
+                    if (totalDomesticTarget > 0) {
+                        const rothRatio = Math.min(1, rothCapacity / totalDomesticTarget);
+                        domesticEquities.forEach(assetId => {
                             const amountForRoth = remainingTargets[assetId] * rothRatio;
                             addToBucket(assetId, 'roth', amountForRoth);
                         });
@@ -785,20 +726,14 @@ export function usePortfolio() {
 
                 const taxableCapacity = buckets.taxable.capacity - buckets.taxable.filled;
                 if (taxableCapacity > 0) {
-                    const intlEquities = Object.keys(remainingTargets).filter(assetId => {
-                        return remainingTargets[assetId] > 0 && isFtcInternational(assetId);
-                    });
-
-                    const totalIntlTarget = intlEquities.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
-                    if (totalIntlTarget > 0) {
-                        const intlRatio = Math.min(1, taxableCapacity / totalIntlTarget);
-                        intlEquities.forEach(assetId => {
-                            const intlAmount = remainingTargets[assetId] * intlRatio;
+                    ['intl_developed', 'emerging_markets'].forEach(assetId => {
+                        if (remainingTargets[assetId] > 0) {
+                            const intlAmount = Math.min(taxableCapacity, remainingTargets[assetId]);
                             if (intlAmount > 0) {
                                 addToBucket(assetId, 'taxable', intlAmount);
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
 
@@ -810,20 +745,15 @@ export function usePortfolio() {
 
             investmentAccounts.forEach(accData => {
                 const accId = accData.id;
-                const accTotal = accountTotals[accId] || 0;
                 const bucket = buckets[accData.taxType];
-                if (!bucket) {
-                    accountActions[accId] = { targetHoldings: {}, currentTotal: accTotal, actions: [] };
-                    return;
-                }
+                const accTotal = accountTotals[accId] || 0;
                 const bucketTotal = bucket.capacity;
 
-                const isAccEmergency = Boolean(accData.isEmergencyFund || accData.typeId === 'emergency_fund');
                 let accShielded = 0;
-                if (accData.cashIsEmergency || isAccEmergency) accShielded += (parseFloat(accData.cash) || 0);
+                if (accData.cashIsEmergency) accShielded += (parseFloat(accData.cash) || 0);
                 if (Array.isArray(accData.funds)) {
                     accData.funds.forEach(f => {
-                        if (f.isEmergency || isAccEmergency) accShielded += (parseFloat(f.value) || 0);
+                        if (f.isEmergency) accShielded += (parseFloat(f.value) || 0);
                     });
                 }
                 const accInvestable = Math.max(0, accTotal - accShielded);
@@ -832,26 +762,22 @@ export function usePortfolio() {
                 const targetHoldings = {};
                 Object.entries(bucket.allocations).forEach(([assetId, amount]) => targetHoldings[assetId] = amount * share);
 
+                let rawActions = [];
                 const currentHoldings = {};
                 Object.keys(ASSET_CLASSES).forEach(k => currentHoldings[ASSET_CLASSES[k].id] = 0);
 
                 if (accData && Array.isArray(accData.funds)) {
                     accData.funds.forEach(f => {
-                        if (f.isEmergency || isAccEmergency) return;
+                        if (f.isEmergency) return;
                         let type = (f.type === 'money_market' || f.type === 'cash') ? 'cash' : f.type;
                         currentHoldings[type] = (currentHoldings[type] || 0) + parseFloat(f.value);
                     });
                 }
-                const actualCashInAccount = (!accData.cashIsEmergency && !isAccEmergency) ? (parseFloat(accData.cash) || 0) : 0;
-                currentHoldings['cash'] = (currentHoldings['cash'] || 0) + actualCashInAccount;
+                const actualCashInAccount = accData ? (parseFloat(accData.cash) || 0) : 0;
+                if (!accData.cashIsEmergency) {
+                    currentHoldings['cash'] = (currentHoldings['cash'] || 0) + actualCashInAccount;
+                }
 
-                // Available deployable cash in this account includes settlement cash + liquid money market funds
-                const cashFundsInAccount = (accData.funds || [])
-                    .filter(f => !f.isEmergency && !isAccEmergency && (f.type === 'money_market' || f.type === 'cash'))
-                    .reduce((sum, f) => sum + (parseFloat(f.value) || 0), 0);
-                const availableCashToDeploy = actualCashInAccount + cashFundsInAccount;
-
-                let rawActions = [];
                 Object.values(ASSET_CLASSES).forEach(assetClass => {
                     const assetId = assetClass.id;
                     const target = targetHoldings[assetId] || 0;
@@ -864,7 +790,7 @@ export function usePortfolio() {
                 });
 
                 const mode = accData.taxType === 'taxable' ? rebalanceModeTaxable : rebalanceModeSheltered;
-                const processedActions = processActions(rawActions, accTotal, mode, availableCashToDeploy, investableTotal);
+                const processedActions = processActions(rawActions, accTotal, mode, actualCashInAccount, investableTotal);
                 accountActions[accId] = { targetHoldings, currentTotal: accTotal, actions: processedActions.sort((a, b) => a.diff - b.diff) };
             });
         }

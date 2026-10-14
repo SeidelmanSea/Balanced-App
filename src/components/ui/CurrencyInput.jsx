@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const CurrencyInput = ({ value, onChange, className, placeholder, ...rest }) => {
+const CurrencyInput = ({ value, onChange, className, placeholder }) => {
     const [localValue, setLocalValue] = useState(value?.toString() || '');
     const [isFocused, setIsFocused] = useState(false);
 
@@ -39,7 +39,6 @@ const CurrencyInput = ({ value, onChange, className, placeholder, ...rest }) => 
             onBlur={() => setIsFocused(false)}
             onChange={handleChange}
             inputMode="decimal"
-            {...rest}
         />
     );
 };
