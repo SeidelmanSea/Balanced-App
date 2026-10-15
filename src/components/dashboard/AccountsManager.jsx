@@ -20,7 +20,8 @@ const AccountsManager = ({
     createAccount,
     deleteAccount,
     importFunds,
-    isDarkMode
+    isDarkMode,
+    hsaStrategy = 'roth'
 }) => {
     const [showAccountModal, setShowAccountModal] = useState(false);
     const [newAccountName, setNewAccountName] = useState('');
@@ -93,7 +94,9 @@ const AccountsManager = ({
                                         <div>
                                             <div className="flex items-center gap-2">
                                                 <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">{accountData.name}</h3>
-                                                <span className="text-[10px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-0.5 rounded uppercase tracking-wide">{accountData.taxType}</span>
+                                                <span className="text-[10px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-0.5 rounded uppercase tracking-wide">
+                                                    {accountData.typeId === 'hsa' ? (hsaStrategy === 'roth' ? 'roth (hsa)' : 'deferred (hsa)') : accountData.taxType}
+                                                </span>
                                             </div>
                                             <p className="text-xs text-zinc-500">
                                                 {typeOption ? typeOption.name : 'Custom Account'} • {formatCurrency(totalAccountValue)}

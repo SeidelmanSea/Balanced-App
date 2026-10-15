@@ -357,6 +357,53 @@ describe('usePortfolio Hook', () => {
             expect(plan).toBeDefined();
             expect(plan.accountActions[acc1Id]).toBeDefined();
         });
+
+        it('should route equities to HSA when hsaStrategy is roth and bonds to traditional accounts', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setTaxStrategy('balanced_roth');
+                result.current.actions.setHsaStrategy('roth');
+                result.current.actions.setBondAllocation(20);
+                result.current.actions.setEquityStrategy({ us_broad: 60, intl: 40 });
+                result.current.actions.setAccounts({
+                    'acc_trad': { id: 'acc_trad', name: 'Trad 401k', typeId: 'trad_401k', taxType: 'deferred', cash: 50000, funds: [] },
+                    'acc_hsa': { id: 'acc_hsa', name: 'HSA', typeId: 'hsa', taxType: 'deferred', cash: 50000, funds: [] }
+                });
+            });
+
+            const plan = result.current.rebalancingPlan;
+            expect(plan.accountActions['acc_hsa']).toBeDefined();
+            expect(plan.accountActions['acc_trad']).toBeDefined();
+
+            // When hsaStrategy is roth, HSA should target equities (us_broad) and NOT bonds
+            const hsaTargetHoldings = plan.accountActions['acc_hsa'].targetHoldings;
+            expect(hsaTargetHoldings['bonds'] || 0).toBe(0);
+            expect(hsaTargetHoldings['us_broad']).toBeGreaterThan(0);
+
+            // Traditional account should hold the bonds
+            const tradTargetHoldings = plan.accountActions['acc_trad'].targetHoldings;
+            expect(tradTargetHoldings['bonds']).toBeGreaterThan(0);
+        });
+
+        it('should route bonds to HSA when hsaStrategy is deferred', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setTaxStrategy('balanced_roth');
+                result.current.actions.setHsaStrategy('deferred');
+                result.current.actions.setBondAllocation(20);
+                result.current.actions.setEquityStrategy({ us_broad: 60, intl: 40 });
+                result.current.actions.setAccounts({
+                    'acc_hsa': { id: 'acc_hsa', name: 'HSA', typeId: 'hsa', taxType: 'deferred', cash: 50000, funds: [] }
+                });
+            });
+
+            const plan = result.current.rebalancingPlan;
+            const hsaTargetHoldings = plan.accountActions['acc_hsa'].targetHoldings;
+            // Since HSA is deferred, it receives bonds
+            expect(hsaTargetHoldings['bonds']).toBeGreaterThan(0);
+        });
     });
 
     // === ALLOCATION CONSTRAINT TESTS ===

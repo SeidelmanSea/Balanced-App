@@ -14,6 +14,7 @@ export function usePortfolio() {
     const [equityStrategy, setEquityStrategy] = useState(DEFAULT_EQUITY_SPLIT);
     const [isAddingAsset, setIsAddingAsset] = useState(false);
     const [taxStrategy, setTaxStrategy] = useState('standard');
+    const [hsaStrategy, setHsaStrategy] = useState('roth');
 
     // Rebalancing Settings - Split by Account Type
     const [rebalanceModeTaxable, setRebalanceModeTaxable] = useState('bands');
@@ -80,6 +81,7 @@ export function usePortfolio() {
                 if (parsed.equityStrategy !== undefined) setEquityStrategy(parsed.equityStrategy);
                 if (parsed.cashAllocation !== undefined) setCashAllocation(parsed.cashAllocation);
                 if (parsed.taxStrategy) setTaxStrategy(parsed.taxStrategy);
+                if (parsed.hsaStrategy !== undefined) setHsaStrategy(parsed.hsaStrategy);
 
                 // Load split rebalance modes, fallback to old global mode if present
                 if (parsed.rebalanceModeTaxable) setRebalanceModeTaxable(parsed.rebalanceModeTaxable);
@@ -107,12 +109,12 @@ export function usePortfolio() {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             localStorage.setItem('balanced_data_v7', JSON.stringify({
-                accounts, bondAllocation, cashAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered
+                accounts, bondAllocation, cashAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, hsaStrategy
             }));
         }, 1000);
 
         return () => clearTimeout(timeoutId);
-    }, [accounts, bondAllocation, cashAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered]);
+    }, [accounts, bondAllocation, cashAllocation, emergencyFund, userAge, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, hsaStrategy]);
 
 
     const createAccount = (nameArg, typeArg) => {
@@ -182,6 +184,7 @@ export function usePortfolio() {
             bondStrategyMode,
             equityStrategy,
             taxStrategy,
+            hsaStrategy,
             rebalanceModeTaxable,
             rebalanceModeSheltered
         };
@@ -230,6 +233,7 @@ export function usePortfolio() {
                             setBondStrategyMode(importedData.bondStrategyMode || 'smart');
                             setEquityStrategy(importedData.equityStrategy || DEFAULT_EQUITY_SPLIT);
                             setTaxStrategy(importedData.taxStrategy || 'standard');
+                            if (importedData.hsaStrategy !== undefined) setHsaStrategy(importedData.hsaStrategy);
                             if (importedData.rebalanceModeTaxable) setRebalanceModeTaxable(importedData.rebalanceModeTaxable);
                             if (importedData.rebalanceModeSheltered) setRebalanceModeSheltered(importedData.rebalanceModeSheltered);
                             setNotification({ message: 'Data restored successfully', type: 'success' });
@@ -261,6 +265,7 @@ export function usePortfolio() {
                 setBondStrategyMode('smart');
                 setEquityStrategy(DEFAULT_EQUITY_SPLIT);
                 setTaxStrategy('standard');
+                setHsaStrategy('roth');
                 setRebalanceModeTaxable('strict');
                 setRebalanceModeSheltered('strict');
                 setNotification({ message: 'All data has been reset', type: 'success' });
@@ -283,6 +288,7 @@ export function usePortfolio() {
                 setBondStrategyMode(DEMO_DATA.bondStrategyMode);
                 setEquityStrategy(DEMO_DATA.equityStrategy);
                 setTaxStrategy(DEMO_DATA.taxStrategy);
+                setHsaStrategy('roth');
                 setNotification({ message: 'Demo portfolio loaded!', type: 'success' });
                 setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null });
                 setActiveTab('dashboard');
@@ -583,8 +589,16 @@ export function usePortfolio() {
                 roth: { capacity: 0, accounts: [], filled: 0, allocations: {} }
             };
 
+            const getEffectiveTaxType = (acc) => {
+                if (acc && (acc.typeId === 'hsa' || acc.id === 'hsa')) {
+                    return hsaStrategy === 'roth' ? 'roth' : 'deferred';
+                }
+                return acc?.taxType;
+            };
+
             investmentAccounts.forEach(acc => {
-                const bucket = buckets[acc.taxType];
+                const effectiveTaxType = getEffectiveTaxType(acc);
+                const bucket = buckets[effectiveTaxType];
                 if (bucket) {
                     const accTotal = accountTotals[acc.id] || 0;
                     let emergencyAmount = 0;
@@ -745,9 +759,10 @@ export function usePortfolio() {
 
             investmentAccounts.forEach(accData => {
                 const accId = accData.id;
-                const bucket = buckets[accData.taxType];
+                const effectiveTaxType = getEffectiveTaxType(accData);
+                const bucket = buckets[effectiveTaxType];
                 const accTotal = accountTotals[accId] || 0;
-                const bucketTotal = bucket.capacity;
+                const bucketTotal = bucket ? bucket.capacity : 0;
 
                 let accShielded = 0;
                 if (accData.cashIsEmergency) accShielded += (parseFloat(accData.cash) || 0);
@@ -760,7 +775,9 @@ export function usePortfolio() {
 
                 const share = bucketTotal > 0 ? accInvestable / bucketTotal : 0;
                 const targetHoldings = {};
-                Object.entries(bucket.allocations).forEach(([assetId, amount]) => targetHoldings[assetId] = amount * share);
+                if (bucket) {
+                    Object.entries(bucket.allocations).forEach(([assetId, amount]) => targetHoldings[assetId] = amount * share);
+                }
 
                 let rawActions = [];
                 const currentHoldings = {};
@@ -796,7 +813,7 @@ export function usePortfolio() {
         }
 
         return { efAction, accountActions, globalBandsTriggered };
-    }, [portfolioMetrics, accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, equityStrategy]);
+    }, [portfolioMetrics, accounts, emergencyFund, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, equityStrategy, hsaStrategy]);
 
 
     const updateAccount = (accId, field, val) => {
@@ -971,7 +988,7 @@ export function usePortfolio() {
     return {
         state: {
             isDarkMode, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear,
-            bondStrategyMode, equityStrategy, isAddingAsset, taxStrategy,
+            bondStrategyMode, equityStrategy, isAddingAsset, taxStrategy, hsaStrategy,
             rebalanceModeTaxable, rebalanceModeSheltered, accounts,
             showAccountModal, newAccountName, newAccountType, fileInputRef,
             activeTab, notification, confirmModal, pasteModal,
@@ -982,7 +999,7 @@ export function usePortfolio() {
         rebalancingPlan,
         actions: {
             setIsDarkMode, setBondAllocation, setCashAllocation, setEmergencyFund, setUserAge, setRetirementYear,
-            setBondStrategyMode, setEquityStrategy, setIsAddingAsset, setTaxStrategy,
+            setBondStrategyMode, setEquityStrategy, setIsAddingAsset, setTaxStrategy, setHsaStrategy,
             setRebalanceModeTaxable, setRebalanceModeSheltered, setAccounts,
             setShowAccountModal, setNewAccountName, setNewAccountType, setActiveTab,
             setNotification, setConfirmModal, setPasteModal, setShowWelcome,

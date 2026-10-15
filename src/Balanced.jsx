@@ -47,6 +47,7 @@ export default function PortfolioApp() {
     equityStrategy,
     isAddingAsset,
     taxStrategy,
+    hsaStrategy,
     rebalanceModeTaxable,
     rebalanceModeSheltered
   } = state;
@@ -129,6 +130,7 @@ export default function PortfolioApp() {
                 deleteAccount={actions.deleteAccount}
                 importFunds={actions.importFunds}
                 isDarkMode={isDarkMode}
+                hsaStrategy={hsaStrategy}
               />
             </div>
           )}
@@ -144,6 +146,8 @@ export default function PortfolioApp() {
                 setEmergencyFund={actions.setEmergencyFund}
                 taxStrategy={taxStrategy}
                 setTaxStrategy={actions.setTaxStrategy}
+                hsaStrategy={hsaStrategy}
+                setHsaStrategy={actions.setHsaStrategy}
                 bondAllocation={bondAllocation}
                 setBondAllocation={actions.setBondAllocation}
                 cashAllocation={cashAllocation}
@@ -174,6 +178,7 @@ export default function PortfolioApp() {
                 rebalancingPlan={rebalancingPlan}
                 setActiveTab={actions.setActiveTab}
                 equityStrategy={equityStrategy}
+                hsaStrategy={hsaStrategy}
               />
             </div>
           )}

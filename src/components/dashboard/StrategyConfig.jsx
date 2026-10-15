@@ -14,6 +14,8 @@ const StrategyConfig = ({
     setEmergencyFund,
     taxStrategy,
     setTaxStrategy,
+    hsaStrategy = 'roth',
+    setHsaStrategy,
     bondAllocation,
     setBondAllocation,
     cashAllocation,
@@ -417,6 +419,62 @@ const StrategyConfig = ({
                                 <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium line-clamp-3">{strategy.desc}</div>
                             </button>
                         ))}
+                    </div>
+
+                    {/* HSA Treatment Selection */}
+                    <div className="mt-8 pt-8 border-t border-zinc-100 dark:border-zinc-800">
+                        <div className="mb-4">
+                            <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Health Savings Account (HSA) Treatment</h4>
+                            <p className="text-xs text-zinc-500">Choose whether Health Savings Accounts are treated as tax-free growth or conservative healthcare liquidity</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setHsaStrategy && setHsaStrategy('roth')}
+                                className={`group p-5 rounded-2xl border-2 text-left transition-all ${hsaStrategy === 'roth' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-emerald-200'}`}
+                            >
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className={`p-2 rounded-xl text-xs font-bold uppercase tracking-wide ${hsaStrategy === 'roth' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
+                                        Tax-Free Growth (Super Roth)
+                                    </div>
+                                    {hsaStrategy === 'roth' && (
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/30">
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="font-black text-sm tracking-tight mb-1 text-zinc-900 dark:text-zinc-100">
+                                    Maximize Triple-Tax-Free Compounding
+                                </div>
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
+                                    Treats the HSA like a Roth IRA. Prioritizes high-growth equities (stocks) in your HSA to maximize compounding, and keeps fixed income/bonds in Traditional accounts. Best if paying current medical bills out-of-pocket.
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setHsaStrategy && setHsaStrategy('deferred')}
+                                className={`group p-5 rounded-2xl border-2 text-left transition-all ${hsaStrategy === 'deferred' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-emerald-200'}`}
+                            >
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className={`p-2 rounded-xl text-xs font-bold uppercase tracking-wide ${hsaStrategy === 'deferred' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
+                                        Capital Preservation (Deferred)
+                                    </div>
+                                    {hsaStrategy === 'deferred' && (
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/30">
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="font-black text-sm tracking-tight mb-1 text-zinc-900 dark:text-zinc-100">
+                                    Healthcare Reserve Protection
+                                </div>
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
+                                    Treats the HSA like a Traditional IRA/401(k). Bonds and defensive assets may be placed here to preserve capital for anticipated healthcare expenses or near-term medical deductibles.
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </Card>
             </section>

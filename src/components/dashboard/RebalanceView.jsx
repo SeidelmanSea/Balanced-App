@@ -14,7 +14,8 @@ const RebalanceView = ({
     setRebalanceModeSheltered,
     rebalancingPlan,
     setActiveTab,
-    equityStrategy
+    equityStrategy,
+    hsaStrategy = 'roth'
 }) => {
     const hasAccounts = Object.keys(accounts).length > 0;
     const isEquityValid = equityStrategy && Math.abs(Object.values(equityStrategy).reduce((a, b) => a + b, 0) - 100) < 0.1;
@@ -235,7 +236,9 @@ const RebalanceView = ({
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-zinc-800 dark:text-zinc-100">{accountData.name}</h3>
-                                        <p className="text-xs text-zinc-500 uppercase tracking-wider">{accountData.taxType}</p>
+                                        <p className="text-xs text-zinc-500 uppercase tracking-wider">
+                                            {accountData.typeId === 'hsa' ? (hsaStrategy === 'roth' ? 'roth (hsa)' : 'deferred (hsa)') : accountData.taxType}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="text-xs bg-zinc-200 dark:bg-zinc-700 px-2 py-1 rounded font-medium text-zinc-600 dark:text-zinc-300">
