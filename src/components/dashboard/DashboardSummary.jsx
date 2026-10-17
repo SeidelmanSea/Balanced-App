@@ -99,6 +99,7 @@ const DashboardSummary = ({
     } = portfolioMetrics;
 
     const [compositionView, setCompositionView] = useState('donut'); // 'donut' | 'treemap'
+    const [donutMode, setDonutMode] = useState('specific'); // 'specific' | 'general'
     const [treemapGroup, setTreemapGroup] = useState('account'); // 'account' | 'asset'
     const [alignmentView, setAlignmentView] = useState('bands'); // 'bands' | 'bars'
     const [locationView, setLocationView] = useState('current'); // 'current' | 'target'
@@ -188,7 +189,7 @@ const DashboardSummary = ({
         });
     }, [assetList, currentAllocation, targets, investableTotal]);
 
-    // Macro ring data for Concentric Donut
+    // Macro ring data for General Donut view (Equities, Bonds, Cash)
     const macroData = useMemo(() => {
         const totals = { equity: 0, fixed: 0, cash: 0 };
         const targetTotals = { equity: 0, fixed: 0, cash: 0 };
@@ -210,7 +211,7 @@ const DashboardSummary = ({
             },
             {
                 id: 'macro_fixed',
-                name: 'Fixed Income',
+                name: 'Bonds',
                 current: totals.fixed,
                 target: targetTotals.fixed,
                 currentPct: investableTotal > 0 ? (totals.fixed / investableTotal) * 100 : 0,
@@ -219,7 +220,7 @@ const DashboardSummary = ({
             },
             {
                 id: 'macro_cash',
-                name: 'Investable Cash',
+                name: 'Cash',
                 current: totals.cash,
                 target: targetTotals.cash,
                 currentPct: investableTotal > 0 ? (totals.cash / investableTotal) * 100 : 0,
@@ -228,6 +229,8 @@ const DashboardSummary = ({
             }
         ].filter(d => d.current > 1 || d.target > 1);
     }, [driftItems, investableTotal]);
+
+    const activeDonutData = donutMode === 'general' ? macroData : driftItems;
 
     // Portfolio Drift Summary
     const driftSummary = useMemo(() => {
@@ -755,7 +758,7 @@ const DashboardSummary = ({
 
             {/* === ROW 1: PORTFOLIO COMPOSITION & TARGET ALIGNMENT === */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* CARD 1: Portfolio Composition (Concentric Donut <-> Treemap) */}
+                {/* CARD 1: Portfolio Composition (Donut <-> Treemap) */}
                 <Card className="p-6 flex flex-col justify-between">
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -766,7 +769,9 @@ const DashboardSummary = ({
                                 </h3>
                                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
                                     {compositionView === 'donut'
-                                        ? 'Inner ring: Macro risk split • Outer ring: Asset classes'
+                                        ? (donutMode === 'general'
+                                            ? 'Macro asset split (Equities, Bonds, Cash)'
+                                            : 'Breakdown by specific asset class')
                                         : 'Proportional market map of your holdings'}
                                 </p>
                             </div>
@@ -781,7 +786,7 @@ const DashboardSummary = ({
                                             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                     }`}
                                 >
-                                    <PieChartIcon className="w-3.5 h-3.5" /> Sunburst
+                                    <PieChartIcon className="w-3.5 h-3.5" /> Donut
                                 </button>
                                 <button
                                     onClick={() => setCompositionView('treemap')}
@@ -808,53 +813,63 @@ const DashboardSummary = ({
                                 </button>
                             </div>
                         ) : compositionView === 'donut' ? (
-                            <div>
-                                {/* Concentric 2-Ring Donut with Interactive Center */}
+                            <div className="space-y-2">
+                                {/* Sub-Toggle: Specific vs General (Equities, Bonds, Cash) */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[11px] text-zinc-400">
+                                        {donutMode === 'general' ? 'Equities, Bonds & Cash' : 'Detailed asset classes'}
+                                    </span>
+                                    <div className="flex items-center gap-1 text-[11px]">
+                                        <button
+                                            onClick={() => {
+                                                setDonutMode('specific');
+                                                setHoveredSlice(null);
+                                            }}
+                                            className={`px-2.5 py-0.5 rounded font-medium transition-colors ${
+                                                donutMode === 'specific'
+                                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                                    : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+                                            }`}
+                                        >
+                                            Specific
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setDonutMode('general');
+                                                setHoveredSlice(null);
+                                            }}
+                                            className={`px-2.5 py-0.5 rounded font-medium transition-colors ${
+                                                donutMode === 'general'
+                                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                                    : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+                                            }`}
+                                        >
+                                            General
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Clean Single-Ring Donut with Spacious Interactive Center */}
                                 <div className="relative h-64 w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
-                                            {/* Inner Ring: Macro Split (Stocks / Bonds / Cash) */}
                                             <Pie
-                                                data={macroData}
+                                                data={activeDonutData}
                                                 dataKey="current"
                                                 nameKey="name"
                                                 cx="50%"
                                                 cy="50%"
-                                                innerRadius={48}
-                                                outerRadius={68}
+                                                innerRadius={64}
+                                                outerRadius={98}
                                                 paddingAngle={2}
                                                 stroke={isDarkMode ? '#18181b' : '#ffffff'}
                                                 strokeWidth={2}
-                                                onMouseEnter={(_, idx) => setHoveredSlice(macroData[idx])}
+                                                onMouseEnter={(_, idx) => setHoveredSlice(activeDonutData[idx])}
                                                 onMouseLeave={() => setHoveredSlice(null)}
                                             >
-                                                {macroData.map((entry, idx) => (
+                                                {activeDonutData.map((entry, idx) => (
                                                     <Cell
-                                                        key={`macro-${idx}`}
-                                                        fill={entry.color}
-                                                        className="transition-opacity duration-200 hover:opacity-85 cursor-pointer"
-                                                    />
-                                                ))}
-                                            </Pie>
-
-                                            {/* Outer Ring: Granular Asset Classes */}
-                                            <Pie
-                                                data={driftItems}
-                                                dataKey="current"
-                                                nameKey="name"
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={74}
-                                                outerRadius={104}
-                                                paddingAngle={1.5}
-                                                stroke={isDarkMode ? '#18181b' : '#ffffff'}
-                                                strokeWidth={2}
-                                                onMouseEnter={(_, idx) => setHoveredSlice(driftItems[idx])}
-                                                onMouseLeave={() => setHoveredSlice(null)}
-                                            >
-                                                {driftItems.map((entry, idx) => (
-                                                    <Cell
-                                                        key={`asset-${idx}`}
+                                                        key={`donut-slice-${entry.id || idx}`}
                                                         fill={entry.color}
                                                         className="transition-opacity duration-200 hover:opacity-85 cursor-pointer"
                                                     />
@@ -867,13 +882,13 @@ const DashboardSummary = ({
                                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4">
                                         {hoveredSlice ? (
                                             <>
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 max-w-[90px] truncate">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 max-w-[110px] truncate">
                                                     {hoveredSlice.name}
                                                 </span>
-                                                <span className="text-sm font-extrabold text-zinc-900 dark:text-zinc-50 mt-0.5">
+                                                <span className="text-base font-extrabold text-zinc-900 dark:text-zinc-50 mt-0.5">
                                                     {formatCurrency(hoveredSlice.current)}
                                                 </span>
-                                                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                                                     {hoveredSlice.currentPct.toFixed(1)}%
                                                     <span className="text-zinc-400 font-normal">
                                                         {' '}(T: {hoveredSlice.targetPct.toFixed(0)}%)
@@ -885,7 +900,7 @@ const DashboardSummary = ({
                                                 <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
                                                     Investable
                                                 </span>
-                                                <span className="text-sm font-extrabold text-zinc-800 dark:text-zinc-100 mt-0.5">
+                                                <span className="text-base font-extrabold text-zinc-800 dark:text-zinc-100 mt-0.5">
                                                     {formatCurrency(investableTotal)}
                                                 </span>
                                                 <span className="text-[10px] text-zinc-400">
@@ -896,9 +911,9 @@ const DashboardSummary = ({
                                     </div>
                                 </div>
 
-                                {/* Compact Custom Asset Legend */}
+                                {/* Compact Custom Legend synced to Specific or General mode */}
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-2 pt-3 border-t border-zinc-100 dark:border-zinc-800/80">
-                                    {driftItems.map(item => (
+                                    {activeDonutData.map(item => (
                                         <div
                                             key={item.id}
                                             onMouseEnter={() => setHoveredSlice(item)}
@@ -1319,9 +1334,9 @@ const DashboardSummary = ({
                             </button>
                         </div>
 
-                        <div className="h-56 w-full mt-2">
+                        <div className="h-60 w-full mt-2">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={glidePathSeries} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
+                                <AreaChart data={glidePathSeries} margin={{ top: 28, right: 16, left: 0, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="dashEquityGrad" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
@@ -1339,6 +1354,7 @@ const DashboardSummary = ({
                                         style={{ fontSize: '10px', fill: chartTextColor }}
                                     />
                                     <YAxis
+                                        width={38}
                                         domain={[0, 100]}
                                         tickFormatter={(v) => `${v}%`}
                                         style={{ fontSize: '10px', fill: chartTextColor }}
@@ -1374,8 +1390,9 @@ const DashboardSummary = ({
                                         label={{
                                             value: `You (${yearsToRetirement}y to 20${String(retirementYear).slice(-2)})`,
                                             position: 'top',
+                                            offset: 8,
                                             fill: '#f59e0b',
-                                            fontSize: 10,
+                                            fontSize: 11,
                                             fontWeight: 700
                                         }}
                                     />
