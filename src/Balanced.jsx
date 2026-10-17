@@ -107,12 +107,20 @@ export default function PortfolioApp() {
           {activeTab === 'dashboard' && (
             <DashboardSummary
               portfolioMetrics={metrics}
+              rebalancingPlan={rebalancingPlan}
               accounts={accounts}
               setActiveTab={actions.setActiveTab}
               setShowAccountModal={actions.setShowAccountModal}
               isDarkMode={isDarkMode}
               loadDemoData={actions.loadDemoData}
               equityStrategy={equityStrategy}
+              bondAllocation={bondAllocation}
+              cashAllocation={cashAllocation}
+              bondStrategyMode={bondStrategyMode}
+              taxStrategy={taxStrategy}
+              hsaStrategy={hsaStrategy}
+              retirementYear={retirementYear}
+              userAge={userAge}
             />
           )}
 
