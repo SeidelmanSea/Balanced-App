@@ -77,35 +77,32 @@ export default function PortfolioApp() {
       />
 
       {/* Frosted-Glass Sticky Header */}
-      <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-zinc-200/80 dark:border-zinc-800/80 sticky top-0 z-30 transition-colors duration-200">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="bg-white/85 dark:bg-zinc-950/85 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800/80 sticky top-0 z-30 transition-colors duration-200">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src="/pwa-icon.svg" alt="Balanced" className="w-9 h-9 shadow-lg shadow-emerald-500/20 rounded-2xl hover:scale-105 transition-transform" />
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">Balanced</h1>
+            <img src="/pwa-icon.svg" alt="Balanced" className="w-7 h-7 rounded-lg" />
+            <h1 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Balanced</h1>
+            <span className="hidden sm:inline-block text-zinc-300 dark:text-zinc-700">/</span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:inline-block font-medium">Portfolio OS</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {hasAccounts && (
               <button
                 type="button"
-                onClick={() => actions.setActiveTab( !isEquityValid ? 'configure' : 'rebalance')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all border ${
-                  !isEquityValid
-                    ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/60'
-                    : totalTrades > 0
-                    ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/60'
-                    : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/60'
-                }`}
+                onClick={() => actions.setActiveTab(!isEquityValid ? 'configure' : 'rebalance')}
+                className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-100/80 hover:bg-zinc-200/70 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-800 transition-colors"
               >
-                <span className={`w-2 h-2 rounded-full ${!isEquityValid ? 'bg-red-500 animate-pulse' : totalTrades > 0 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                {!isEquityValid
-                  ? 'Strategy Invalid'
-                  : totalTrades > 0
-                  ? `${totalTrades} Trade${totalTrades !== 1 ? 's' : ''} Ready`
-                  : 'Balanced'}
+                <span className={`w-1.5 h-1.5 rounded-full ${!isEquityValid ? 'bg-rose-500 animate-pulse' : totalTrades > 0 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                <span className="tabular-nums">
+                  {!isEquityValid
+                    ? 'Strategy invalid'
+                    : totalTrades > 0
+                    ? `${totalTrades} trade${totalTrades !== 1 ? 's' : ''} ready`
+                    : 'Balanced'}
+                </span>
               </button>
             )}
-            <div className="text-xs text-zinc-400 hidden md:block font-medium">Tax-Efficient Portfolio Manager</div>
-            <button onClick={actions.toggleTheme} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500" aria-label="Toggle Dark Mode">
+            <button onClick={actions.toggleTheme} className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200 border border-transparent hover:border-zinc-200/80 dark:hover:border-zinc-800 transition-all focus:outline-none" aria-label="Toggle Dark Mode">
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
@@ -114,20 +111,24 @@ export default function PortfolioApp() {
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Desktop Navigation Bar */}
-        <div className="hidden sm:inline-flex space-x-1 bg-white dark:bg-zinc-900 p-1 rounded-2xl shadow-sm border border-zinc-200/80 dark:border-zinc-800 mb-8">
+        <div className="hidden sm:inline-flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-900 p-1 rounded-lg border border-zinc-200/70 dark:border-zinc-800/90 mb-8">
           {navTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => actions.setActiveTab(tab.id)}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+              className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 shadow-[0_1px_2px_rgba(0,0,0,0.06)] border border-zinc-200/60 dark:border-zinc-700/60'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border border-transparent'
+              }`}
             >
-              <tab.icon className="w-4 h-4" />
+              <tab.icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
               {tab.badge === true && (
-                <span className="w-2 h-2 bg-red-500 rounded-full" />
+                <span className="w-1.5 h-1.5 bg-rose-500 rounded-full" />
               )}
               {typeof tab.badge === 'number' && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 tabular-nums">
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-zinc-200/80 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 tabular-nums">
                   {tab.badge}
                 </span>
               )}

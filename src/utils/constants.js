@@ -17,48 +17,48 @@ import {
 
 export const ASSET_CLASSES = {
     // Cash & Equivalents - STRONGLY prefer taxable (already tax-efficient)
-    CASH: { id: 'cash', name: 'Cash & Equivalents', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
-    MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+    CASH: { id: 'cash', name: 'Cash & Equivalents', color: '#94a3b8', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+    MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#64748b', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
 
 
     // US Equities - Core
-    US_BROAD: { id: 'us_broad', name: 'US Broad Market', color: '#10b981', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    US_LARGE: { id: 'us_large', name: 'US Large Cap (S&P 500)', color: '#34d399', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    US_MID: { id: 'us_mid', name: 'US Mid Cap', color: '#2dd4bf', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
-    US_SMALL: { id: 'us_small', name: 'US Small Cap', color: '#06b6d4', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
+    US_BROAD: { id: 'us_broad', name: 'US Broad Market', color: '#059669', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    US_LARGE: { id: 'us_large', name: 'US Large Cap (S&P 500)', color: '#10b981', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    US_MID: { id: 'us_mid', name: 'US Mid Cap', color: '#0d9488', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
+    US_SMALL: { id: 'us_small', name: 'US Small Cap', color: '#0891b2', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
 
     // US Equities - Style
-    US_LARGE_GROWTH: { id: 'us_large_growth', name: 'US Large Growth', color: '#3b82f6', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    US_LARGE_VALUE: { id: 'us_large_value', name: 'US Large Value', color: '#6366f1', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    US_SMALL_VAL: { id: 'us_small_val', name: 'US Small Value', color: '#8b5cf6', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
-    US_SMALL_GROWTH: { id: 'us_small_growth', name: 'US Small Growth', color: '#d946ef', type: 'equity', taxPref: ['roth', 'taxable', 'deferred'] },
+    US_LARGE_GROWTH: { id: 'us_large_growth', name: 'US Large Growth', color: '#2563eb', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    US_LARGE_VALUE: { id: 'us_large_value', name: 'US Large Value', color: '#4f46e5', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    US_SMALL_VAL: { id: 'us_small_val', name: 'US Small Value', color: '#7c3aed', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
+    US_SMALL_GROWTH: { id: 'us_small_growth', name: 'US Small Growth', color: '#9333ea', type: 'equity', taxPref: ['roth', 'taxable', 'deferred'] },
 
     // International
-    INTL: { id: 'intl', name: 'Intl Broad Market', color: '#f59e0b', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
-    INTL_DEV: { id: 'intl_dev', name: 'Intl Developed Mkts', color: '#fbbf24', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
-    INTL_EMERG: { id: 'intl_emerg', name: 'Emerging Markets', color: '#f97316', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
-    INTL_SMALL: { id: 'intl_small', name: 'Intl Small Cap', color: '#ea580c', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
-    EUROPE: { id: 'europe', name: 'Europe ETF', color: '#38bdf8', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
-    PACIFIC: { id: 'pacific', name: 'Pacific / Asia ETF', color: '#0ea5e9', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
+    INTL: { id: 'intl', name: 'Intl Broad Market', color: '#d97706', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
+    INTL_DEV: { id: 'intl_dev', name: 'Intl Developed Mkts', color: '#eab308', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
+    INTL_EMERG: { id: 'intl_emerg', name: 'Emerging Markets', color: '#ea580c', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
+    INTL_SMALL: { id: 'intl_small', name: 'Intl Small Cap', color: '#c2410c', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
+    EUROPE: { id: 'europe', name: 'Europe ETF', color: '#0284c7', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
+    PACIFIC: { id: 'pacific', name: 'Pacific / Asia ETF', color: '#0369a1', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
 
     // Sectors & Thematic
-    SECTOR_TECH: { id: 'sector_tech', name: 'Technology Sector', color: '#06b6d4', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    SECTOR_HEALTH: { id: 'sector_health', name: 'Healthcare Sector', color: '#ec4899', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    SECTOR_ENERGY: { id: 'sector_energy', name: 'Energy Sector', color: '#ef4444', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    SECTOR_FINANCE: { id: 'sector_finance', name: 'Financials Sector', color: '#64748b', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
+    SECTOR_TECH: { id: 'sector_tech', name: 'Technology Sector', color: '#0891b2', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    SECTOR_HEALTH: { id: 'sector_health', name: 'Healthcare Sector', color: '#db2777', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    SECTOR_ENERGY: { id: 'sector_energy', name: 'Energy Sector', color: '#dc2626', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    SECTOR_FINANCE: { id: 'sector_finance', name: 'Financials Sector', color: '#475569', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
 
     // Specialized / Alternatives
-    DIVIDEND: { id: 'dividend', name: 'Dividend Growth', color: '#8b5cf6', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    DIVIDEND: { id: 'dividend', name: 'Dividend Growth', color: '#6d28d9', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
     REIT: { id: 'reit', name: 'Real Estate (REITs)', color: '#be185d', type: 'equity', taxPref: ['deferred', 'roth', 'taxable'] },
-    GOLD: { id: 'gold', name: 'Gold / Precious Metals', color: '#eab308', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    COMMODITIES: { id: 'commodities', name: 'Broad Commodities', color: '#a16207', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    CRYPTO: { id: 'crypto', name: 'Bitcoin / Crypto', color: '#f59e0b', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    GOLD: { id: 'gold', name: 'Gold / Precious Metals', color: '#ca8a04', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    COMMODITIES: { id: 'commodities', name: 'Broad Commodities', color: '#854d0e', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    CRYPTO: { id: 'crypto', name: 'Bitcoin / Crypto', color: '#d97706', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
 
     // Fixed Income & Cash
-    BONDS: { id: 'bonds', name: 'Bonds', color: '#f43f5e', type: 'fixed', taxPref: ['deferred', 'taxable', 'roth'] },
+    BONDS: { id: 'bonds', name: 'Bonds', color: '#e11d48', type: 'fixed', taxPref: ['deferred', 'taxable', 'roth'] },
 
     // Individual Stocks
-    INDIVIDUAL_STOCK: { id: 'individual_stock', name: 'Individual Stocks', color: '#a855f7', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    INDIVIDUAL_STOCK: { id: 'individual_stock', name: 'Individual Stocks', color: '#7e22ce', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
 };
 
 export const TICKER_MAPPING = {

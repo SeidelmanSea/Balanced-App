@@ -67,40 +67,33 @@ const StrategyConfig = ({
     const availableAssets = Object.values(ASSET_CLASSES).filter(a => a.id !== 'cash' && a.id !== 'money_market' && a.id !== 'bonds' && equityStrategy[a.id] === undefined);
 
     return (
-        <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-12 pb-20">
+        <div className="max-w-4xl mx-auto animate-in fade-in duration-500 space-y-8 pb-20">
             {/* Header */}
-            <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl text-emerald-600 dark:text-emerald-400">
-                        <SlidersHorizontal className="w-6 h-6" />
-                    </div>
-                    <h2 className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">Portfolio Strategy</h2>
-                </div>
-                <p className="text-zinc-500 dark:text-zinc-400 text-sm ml-12">Define your financial guardrails and investment philosophy.</p>
+            <div>
+                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">Portfolio strategy</h2>
+                <p className="text-zinc-500 dark:text-zinc-400 text-xs mt-0.5">Define your liquidity guardrails, macro asset split, and tax-location policy.</p>
             </div>
 
             {/* STAGE 1: FOUNDATIONS */}
-            <section className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">1</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Planning Parameters</h3>
+            <section className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                    <span className="font-mono text-[11px] font-medium text-zinc-400">01</span>
+                    <h3 className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Planning parameters</h3>
                 </div>
 
-                <Card className="p-0 overflow-hidden border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900">
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-100 dark:divide-zinc-800">
+                <Card className="p-0 overflow-hidden">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200/80 dark:divide-zinc-800/80">
                         {/* Emergency Fund */}
-                        <div className="p-6 space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
-                                    <Shield className="w-5 h-5" />
-                                </div>
+                        <div className="p-6 space-y-3">
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Emergency Fund</h4>
-                                    <p className="text-xs text-zinc-500">Target liquidity cushion</p>
+                                    <h4 className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Emergency reserve target</h4>
+                                    <p className="text-[11px] text-zinc-500">Shielded liquidity cushion before investing</p>
                                 </div>
+                                <Shield className="w-4 h-4 text-zinc-400" />
                             </div>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-medium">$</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm">$</span>
                                 <input
                                     type="number"
                                     value={emergencyFund}
@@ -108,22 +101,20 @@ const StrategyConfig = ({
                                         const val = e.target.value === '' ? '' : parseFloat(e.target.value);
                                         setEmergencyFund(typeof val === 'number' ? Math.max(0, val) : val);
                                     }}
-                                    className="w-full pl-10 pr-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl font-bold text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                    className="w-full pl-8 pr-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/80 rounded-lg font-mono font-semibold text-base tabular-nums focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-400 outline-none transition-all"
                                     placeholder="0"
                                 />
                             </div>
                         </div>
 
                         {/* Retirement Timeline */}
-                        <div className="p-6 space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-                                    <Target className="w-5 h-5" />
-                                </div>
+                        <div className="p-6 space-y-3">
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Retirement Year</h4>
-                                    <p className="text-xs text-zinc-500">{yearsToRetirement} years remaining</p>
+                                    <h4 className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Target retirement year</h4>
+                                    <p className="text-[11px] text-zinc-500 tabular-nums">{yearsToRetirement} years remaining</p>
                                 </div>
+                                <Target className="w-4 h-4 text-zinc-400" />
                             </div>
                             <input
                                 type="number"
@@ -132,7 +123,7 @@ const StrategyConfig = ({
                                     const val = parseInt(e.target.value) || currentYear;
                                     setRetirementYear(Math.max(currentYear, Math.min(currentYear + 80, val)));
                                 }}
-                                className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl font-bold text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                className="w-full px-3.5 py-2 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/80 rounded-lg font-mono font-semibold text-base tabular-nums focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-400 outline-none transition-all"
                             />
                         </div>
                     </div>
@@ -140,61 +131,63 @@ const StrategyConfig = ({
             </section>
 
             {/* STAGE 2: MACRO ALLOCATION (THE HUB) */}
-            <section className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">2</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Asset Allocation</h3>
+            <section className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                    <span className="font-mono text-[11px] font-medium text-zinc-400">02</span>
+                    <h3 className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Macro asset allocation</h3>
                 </div>
 
-                <Card className="p-8 border-none shadow-2xl shadow-emerald-900/5 dark:shadow-none bg-white dark:bg-zinc-900">
-                    <div className="space-y-8">
-                        {/* Macro Dashboard */}
-                        <div className="space-y-3">
-                            <div className="bg-zinc-50 dark:bg-zinc-800/30 p-1.5 rounded-2xl flex md:flex-row flex-col gap-1.5">
-                                {[
-                                    { label: 'Stocks', val: Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0)), color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-white dark:bg-zinc-900 shadow-sm border border-emerald-100 dark:border-emerald-900/30' },
-                                    { label: 'Bonds', val: bondAllocation || 0, color: 'text-red-600 dark:text-red-400', bg: 'bg-white/60 dark:bg-zinc-900/40 border border-transparent' },
-                                    { label: 'Cash', val: cashAllocation || 0, color: 'text-zinc-600 dark:text-zinc-300', bg: 'bg-white/60 dark:bg-zinc-900/40 border border-transparent' }
-                                ].map((item, idx) => (
-                                    <div key={idx} className={`flex-1 p-4 rounded-xl text-center flex flex-col items-center justify-center ${item.bg}`}>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{item.label}</span>
-                                        <span className={`text-3xl font-black tabular-nums ${item.color}`}>{item.val}%</span>
-                                        {investableTotal > 0 && (
-                                            <span className="text-xs font-mono font-semibold text-zinc-400 dark:text-zinc-500 mt-1 tabular-nums">
-                                                {formatCurrency(investableTotal * (item.val / 100))}
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
+                <Card className="p-0 overflow-hidden">
+                    {/* Bento Macro Summary Strip */}
+                    <div className="grid grid-cols-3 divide-x divide-zinc-200/80 dark:divide-zinc-800/80 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/50">
+                        {[
+                            { label: 'Equities', val: Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0)), dot: 'bg-emerald-600 dark:bg-emerald-500' },
+                            { label: 'Fixed income', val: bondAllocation || 0, dot: 'bg-rose-600 dark:bg-rose-500' },
+                            { label: 'Cash target', val: cashAllocation || 0, dot: 'bg-slate-400 dark:bg-slate-500' }
+                        ].map((item, idx) => (
+                            <div key={idx} className="p-5 flex flex-col justify-between">
+                                <div className="flex items-center gap-1.5">
+                                    <span className={`w-1.5 h-1.5 rounded-full ${item.dot}`} />
+                                    <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{item.label}</span>
+                                </div>
+                                <div className="mt-2 flex items-baseline gap-2">
+                                    <span className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight tabular-nums">{item.val}%</span>
+                                    {investableTotal > 0 && (
+                                        <span className="text-xs font-mono text-zinc-400 dark:text-zinc-500 tabular-nums">
+                                            {formatCurrency(investableTotal * (item.val / 100))}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
+                        ))}
+                    </div>
 
-                            {/* Macro Visual Proportion Bar */}
-                            <div className="h-2.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
-                                <div
-                                    style={{ width: `${Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}%` }}
-                                    className="bg-emerald-500 h-full transition-all duration-300"
-                                    title={`Stocks: ${Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}%`}
-                                />
-                                <div
-                                    style={{ width: `${Math.min(100, bondAllocation || 0)}%` }}
-                                    className="bg-red-500 h-full transition-all duration-300"
-                                    title={`Bonds: ${bondAllocation || 0}%`}
-                                />
-                                <div
-                                    style={{ width: `${Math.min(100, cashAllocation || 0)}%` }}
-                                    className="bg-zinc-400 dark:bg-zinc-500 h-full transition-all duration-300"
-                                    title={`Cash: ${cashAllocation || 0}%`}
-                                />
-                            </div>
+                    <div className="p-6 space-y-6">
+                        {/* Macro Visual Proportion Bar */}
+                        <div className="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex gap-0.5">
+                            <div
+                                style={{ width: `${Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}%` }}
+                                className="bg-emerald-600 dark:bg-emerald-500 h-full transition-all duration-300"
+                                title={`Stocks: ${Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}%`}
+                            />
+                            <div
+                                style={{ width: `${Math.min(100, bondAllocation || 0)}%` }}
+                                className="bg-rose-600 dark:bg-rose-500 h-full transition-all duration-300"
+                                title={`Bonds: ${bondAllocation || 0}%`}
+                            />
+                            <div
+                                style={{ width: `${Math.min(100, cashAllocation || 0)}%` }}
+                                className="bg-slate-400 dark:bg-slate-500 h-full transition-all duration-300"
+                                title={`Cash: ${cashAllocation || 0}%`}
+                            />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Cash Controls */}
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <h5 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
-                                        <div className="w-1.5 h-4 bg-zinc-400 dark:bg-zinc-500 rounded-full"></div>
-                                        Cash Target
+                                    <h5 className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                                        Portfolio cash target
                                     </h5>
                                     <div className="relative w-20">
                                         <input
@@ -204,9 +197,9 @@ const StrategyConfig = ({
                                                 const val = parseInt(e.target.value) || 0;
                                                 setCashAllocation(Math.max(0, Math.min(100, val)));
                                             }}
-                                            className="w-full pl-3 pr-7 py-1.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-bold tabular-nums focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                            className="w-full pl-3 pr-6 py-1 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md text-xs font-mono font-semibold tabular-nums focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-400 outline-none transition-all"
                                         />
-                                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">%</span>
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-mono">%</span>
                                     </div>
                                 </div>
                                 <input
@@ -216,46 +209,43 @@ const StrategyConfig = ({
                                     step="1"
                                     value={Math.min(50, cashAllocation || 0)}
                                     onChange={(e) => setCashAllocation(parseInt(e.target.value) || 0)}
-                                    className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-600 dark:accent-zinc-400"
+                                    className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-700 dark:accent-zinc-300"
                                 />
-                                <p className="text-xs text-zinc-500 leading-relaxed italic">Held for short-term liquidity and opportunistic buying above your Emergency Fund.</p>
+                                <p className="text-[11px] text-zinc-500 leading-relaxed">Dry powder held inside investment accounts above your emergency reserve.</p>
                             </div>
 
                             {/* Bond Selection Controls */}
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <h5 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
-                                        <div className="w-1.5 h-4 bg-red-400 dark:bg-red-600 rounded-full"></div>
-                                        Bond Strategy
+                                    <h5 className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                                        Bond allocation mode
                                     </h5>
-                                    <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
+                                    <div className="flex bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-lg border border-zinc-200/60 dark:border-zinc-800">
                                         <button
                                             onClick={() => { setBondStrategyMode('smart'); setBondAllocation(getSuggestedBondAllocation(syntheticAge)); }}
-                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode === 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm' : 'text-zinc-500'}`}
-                                        >DYNAMIC</button>
+                                            className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${bondStrategyMode === 'smart' ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs' : 'text-zinc-500'}`}
+                                        >Glidepath</button>
                                         <button
                                             onClick={() => setBondStrategyMode('custom')}
-                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode !== 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm' : 'text-zinc-500'}`}
-                                        >FIXED</button>
+                                            className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${bondStrategyMode !== 'smart' ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs' : 'text-zinc-500'}`}
+                                        >Fixed %</button>
                                     </div>
                                 </div>
 
                                 {bondStrategyMode === 'smart' ? (
-                                    <div className="bg-red-50/50 dark:bg-red-900/10 p-4 rounded-xl border border-red-100 dark:border-red-900/20 animate-in zoom-in-95 duration-200">
-                                        <div className="flex items-start gap-3">
-                                            <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mt-0.5">
-                                                <Activity className="w-4 h-4" />
-                                            </div>
+                                    <div className="bg-zinc-50 dark:bg-zinc-800/40 p-3.5 rounded-lg border border-zinc-200/70 dark:border-zinc-800">
+                                        <div className="flex items-start gap-2.5">
+                                            <Activity className="w-4 h-4 text-zinc-500 dark:text-zinc-400 mt-0.5 shrink-0" />
                                             <div>
-                                                <h6 className="text-xs font-bold text-red-800 dark:text-red-200 mb-1">Target Date Glide Path</h6>
-                                                <p className="text-[10px] text-red-700/70 dark:text-red-400/70 leading-relaxed">
-                                                    Automatically adjusts your risk lower as 20{retirementYear.toString().slice(-2)} approaches. Currently targeting <strong>{getSuggestedBondAllocation(syntheticAge)}%</strong> bonds.
+                                                <h6 className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Target-date glidepath</h6>
+                                                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed mt-0.5">
+                                                    Gradually de-risks as {retirementYear} approaches. Currently targeting <span className="font-mono font-semibold text-zinc-800 dark:text-zinc-200">{getSuggestedBondAllocation(syntheticAge)}%</span> bonds.
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="space-y-3 animate-in fade-in duration-300">
+                                    <div className="space-y-2.5 animate-in fade-in duration-200">
                                         <div className="flex items-center gap-3">
                                             <input
                                                 type="range"
@@ -267,10 +257,10 @@ const StrategyConfig = ({
                                                     setBondAllocation(parseInt(e.target.value) || 0);
                                                     setBondStrategyMode('custom');
                                                 }}
-                                                className="flex-1 h-1.5 bg-red-100 dark:bg-red-950/40 rounded-lg appearance-none cursor-pointer accent-red-500"
+                                                className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-800 dark:accent-zinc-200"
                                             />
-                                            <div className="relative w-24 shrink-0">
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">%</span>
+                                            <div className="relative w-20 shrink-0">
+                                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-mono">%</span>
                                                 <input
                                                     type="number"
                                                     value={bondAllocation}
@@ -279,17 +269,17 @@ const StrategyConfig = ({
                                                         setBondAllocation(Math.max(0, Math.min(100, val)));
                                                         setBondStrategyMode('custom');
                                                     }}
-                                                    className="w-full pl-3 pr-7 py-1.5 bg-red-50/30 dark:bg-red-950/10 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-sm font-bold tabular-nums rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all placeholder:text-red-200"
+                                                    className="w-full pl-2.5 pr-6 py-1 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-mono font-semibold tabular-nums rounded-md focus:ring-2 focus:ring-zinc-900 outline-none transition-all"
                                                     placeholder="0"
                                                 />
                                             </div>
                                         </div>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-1.5">
                                             {bondStrategies.filter(s => s.id !== 'smart').map(s => (
                                                 <button
                                                     key={s.id}
                                                     onClick={() => { setBondAllocation(s.value); setBondStrategyMode('custom'); }}
-                                                    className="px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-100 dark:border-zinc-800 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 transition-all active:scale-95"
+                                                    className="px-2.5 py-1 rounded-md bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200/70 dark:border-zinc-700/80 text-[11px] font-medium text-zinc-600 dark:text-zinc-300 transition-all"
                                                     title={s.desc}
                                                 >
                                                     {s.name} <span className="text-zinc-400 font-mono ml-1">{s.value}%</span>
@@ -302,7 +292,7 @@ const StrategyConfig = ({
                         </div>
 
                         {((bondAllocation || 0) + (cashAllocation || 0)) > 100 && (
-                            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-xl border border-red-100 dark:border-red-900/30 font-bold animate-pulse">
+                            <div className="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-xs rounded-lg border border-rose-200 dark:border-rose-900/30 font-medium">
                                 <AlertTriangle className="w-4 h-4" /> Bonds + Cash cannot exceed 100%
                             </div>
                         )}
@@ -311,66 +301,66 @@ const StrategyConfig = ({
             </section>
 
             {/* STAGE 3: EQUITY STRATEGY */}
-            <section className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">3</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Equity Strategy</h3>
+            <section className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                    <span className="font-mono text-[11px] font-medium text-zinc-400">03</span>
+                    <h3 className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Equity sleeve breakdown</h3>
                 </div>
 
-                <Card className="p-8 border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900">
-                    <div className="flex flex-col gap-10">
+                <Card className="p-6">
+                    <div className="flex flex-col gap-6">
                         {/* Summary & Presets */}
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Asset Selection</h4>
-                                    <p className="text-xs text-zinc-500">How your stock portfolio is sliced</p>
+                                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Equity weights</h4>
+                                    <p className="text-xs text-zinc-500">Relative weights within the stock portion of your portfolio</p>
                                 </div>
-                            <div className="flex items-center gap-2">
-                                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${isEquityValid ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20' : 'bg-red-50 text-red-500 dark:bg-red-950/20'}`}>
-                                    {totalEquityAllocation}% / 100%
+                                <div className="flex items-center gap-2">
+                                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-mono font-semibold text-xs tabular-nums border ${isEquityValid ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-zinc-200/70 dark:border-zinc-700' : 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/30 dark:border-rose-800'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${isEquityValid ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                                        {totalEquityAllocation}% / 100%
+                                    </div>
+                                    {!isEquityValid && totalEquityAllocation > 0 && (
+                                        <button
+                                            onClick={normalizeEquityStrategy}
+                                            className="px-2.5 py-1 text-xs font-medium rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all"
+                                            title="Rescale all assets proportionally so they sum to exactly 100%"
+                                        >
+                                            Normalize
+                                        </button>
+                                    )}
                                 </div>
-                                {!isEquityValid && totalEquityAllocation > 0 && (
-                                    <button
-                                        onClick={normalizeEquityStrategy}
-                                        className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-all active:scale-95"
-                                        title="Rescale all assets proportionally so they sum to exactly 100%"
-                                    >
-                                        Auto-normalize
-                                    </button>
-                                )}
-                            </div>
                             </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                                 {EQUITY_PRESETS.map(preset => {
                                     const isMatch = Object.keys(preset.allocation).length === Object.keys(equityStrategy).length && Object.keys(preset.allocation).every(key => equityStrategy[key] === preset.allocation[key]);
                                     return (
                                         <button
                                             key={preset.name}
                                             onClick={() => setEquityStrategy(preset.allocation)}
-                                            className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden ${isMatch ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-emerald-200'}`}
+                                            className={`p-3 rounded-lg border text-left transition-all relative ${isMatch ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-800/70' : 'border-zinc-200/70 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'}`}
                                         >
-                                            <div className="font-bold text-[10px] text-zinc-800 dark:text-zinc-100 truncate mb-1">{preset.name}</div>
-                                            <div className="text-[8px] text-zinc-400 leading-tight">{preset.desc}</div>
-                                            {isMatch && <CheckCircle2 className="absolute -right-2 -bottom-2 w-8 h-8 text-emerald-500/10" />}
+                                            <div className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 truncate mb-0.5">{preset.name}</div>
+                                            <div className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug">{preset.desc}</div>
                                         </button>
                                     );
                                 })}
                             </div>
 
                             {/* Bar Chart */}
-                            <div className="relative h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
+                            <div className="relative h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex gap-0.5">
                                 {Object.entries(equityStrategy).map(([key, val]) => {
                                     const asset = Object.values(ASSET_CLASSES).find(a => a.id === key);
                                     if (!asset || val <= 0) return null;
-                                    return (<div key={key} style={{ width: `${(val / totalEquityAllocation) * 100}%`, backgroundColor: asset.color }} className="h-full transition-all duration-700 ease-out first:rounded-l-full last:rounded-r-full" />);
+                                    return (<div key={key} style={{ width: `${(val / (totalEquityAllocation || 100)) * 100}%`, backgroundColor: asset.color }} className="h-full transition-all duration-500 ease-out" />);
                                 })}
                             </div>
                         </div>
 
                         {/* Editable Rows */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {Object.entries(equityStrategy).sort((a, b) => b[1] - a[1]).map(([key, val]) => {
                                 const asset = Object.values(ASSET_CLASSES).find(a => a.id === key);
                                 if (!asset) return null;
@@ -378,21 +368,21 @@ const StrategyConfig = ({
                                 const assetDollarTarget = investableTotal > 0 ? investableTotal * equityMacroPct * (val / 100) : 0;
 
                                 return (
-                                    <div key={key} className="p-3.5 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/30 border border-zinc-100 dark:border-zinc-800/80 flex items-center gap-3.5 group hover:border-zinc-200 dark:hover:border-zinc-700 transition-all">
-                                        <div className="w-1.5 h-12 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: asset.color }}></div>
+                                    <div key={key} className="p-3.5 rounded-lg bg-zinc-50/60 dark:bg-zinc-800/25 border border-zinc-200/70 dark:border-zinc-800 flex items-center gap-3 group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+                                        <div className="w-1 h-10 rounded-full shrink-0" style={{ backgroundColor: asset.color }}></div>
                                         <div className="flex-1 min-w-0 space-y-2">
                                             <div className="flex justify-between items-center gap-2">
                                                 <div className="flex items-center gap-2 min-w-0">
-                                                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">{asset.name}</span>
+                                                    <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{asset.name}</span>
                                                     {investableTotal > 0 && (
-                                                        <span className="text-[11px] font-mono font-semibold text-zinc-400 dark:text-zinc-500 tabular-nums shrink-0">
+                                                        <span className="text-[11px] font-mono text-zinc-400 dark:text-zinc-500 tabular-nums shrink-0">
                                                             {formatCurrency(assetDollarTarget)}
                                                         </span>
                                                     )}
                                                 </div>
                                                 <button
                                                     onClick={() => removeEquityAsset(key)}
-                                                    className="p-1 text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                                                    className="p-1 text-zinc-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all shrink-0"
                                                     title={`Remove ${asset.name}`}
                                                 >
                                                     <X className="w-3.5 h-3.5" />
@@ -413,7 +403,7 @@ const StrategyConfig = ({
                                                     <button
                                                         type="button"
                                                         onClick={() => updateEquityStrategy(key, Math.max(0, (parseFloat(val) || 0) - 5))}
-                                                        className="p-1 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
+                                                        className="p-1 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
                                                         title="Decrease by 5%"
                                                     >
                                                         <Minus className="w-3 h-3" />
@@ -423,14 +413,14 @@ const StrategyConfig = ({
                                                             type="number"
                                                             value={val}
                                                             onChange={(e) => updateEquityStrategy(key, e.target.value)}
-                                                            className={`w-full pl-2 pr-5 py-1 bg-white dark:bg-zinc-900 border rounded-lg text-xs font-bold tabular-nums text-right focus:ring-1 outline-none transition-all ${isEquityValid ? 'border-zinc-200 dark:border-zinc-700 focus:ring-emerald-500' : 'border-red-200 focus:ring-red-500 text-red-600'}`}
+                                                            className={`w-full pl-2 pr-5 py-1 bg-white dark:bg-zinc-900 border rounded text-xs font-mono font-semibold tabular-nums text-right focus:ring-1 outline-none transition-all ${isEquityValid ? 'border-zinc-200 dark:border-zinc-700 focus:ring-zinc-900' : 'border-rose-300 focus:ring-rose-500 text-rose-600'}`}
                                                         />
-                                                        <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-400">%</span>
+                                                        <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400">%</span>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={() => updateEquityStrategy(key, Math.min(100, (parseFloat(val) || 0) + 5))}
-                                                        className="p-1 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
+                                                        className="p-1 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
                                                         title="Increase by 5%"
                                                     >
                                                         <Plus className="w-3 h-3" />
@@ -443,31 +433,31 @@ const StrategyConfig = ({
                             })}
 
                             {/* Add Asset Toggle */}
-                            <div className="relative pt-6 md:pt-0">
+                            <div className="relative">
                                 <button
                                     onClick={() => setIsAddingAsset(!isAddingAsset)}
-                                    className="w-full h-full min-h-[64px] flex items-center justify-center gap-2 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-400 hover:text-emerald-500 hover:border-emerald-300 dark:hover:border-emerald-900 transition-all group"
+                                    className="w-full h-full min-h-[64px] flex items-center justify-center gap-1.5 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-400 dark:hover:border-zinc-600 transition-all"
                                 >
-                                    <Plus className="w-5 h-5 group-hover:scale-125 transition-transform" />
-                                    <span className="text-xs font-bold uppercase tracking-widest">Add Asset</span>
+                                    <Plus className="w-4 h-4" />
+                                    <span className="text-xs font-medium">Add asset class</span>
                                 </button>
 
                                 {isAddingAsset && (
                                     <>
                                         <div className="fixed inset-0 z-40" onClick={() => setIsAddingAsset(false)}></div>
-                                        <div className="absolute left-0 right-0 bottom-full mb-3 bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl border border-zinc-100 dark:border-zinc-800 z-50 overflow-hidden animate-in zoom-in-95 duration-200">
-                                            <div className="max-h-60 overflow-y-auto divide-y divide-zinc-50 dark:divide-zinc-900">
+                                        <div className="absolute left-0 right-0 bottom-full mb-2 bg-white dark:bg-zinc-950 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 z-50 overflow-hidden animate-in zoom-in-95 duration-200">
+                                            <div className="max-h-60 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-900">
                                                 {availableAssets.map(asset => (
                                                     <button
                                                         key={asset.id}
                                                         onClick={() => { addEquityAsset(asset.id); setIsAddingAsset(false); }}
-                                                        className="w-full text-left px-5 py-3 text-sm hover:bg-emerald-50 dark:hover:bg-emerald-900/30 flex items-center justify-between group/item"
+                                                        className="w-full text-left px-4 py-2.5 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-900 flex items-center justify-between group/item"
                                                     >
-                                                        <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-2.5">
                                                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: asset.color }}></div>
-                                                            <span className="font-semibold text-zinc-700 dark:text-zinc-200">{asset.name}</span>
+                                                            <span className="font-medium text-zinc-700 dark:text-zinc-200">{asset.name}</span>
                                                         </div>
-                                                        <Plus className="w-3 h-3 text-zinc-300 opacity-0 group-hover/item:opacity-100" />
+                                                        <Plus className="w-3.5 h-3.5 text-zinc-400 opacity-0 group-hover/item:opacity-100" />
                                                     </button>
                                                 ))}
                                             </div>
@@ -478,9 +468,9 @@ const StrategyConfig = ({
                         </div>
 
                         {!isEquityValid && (
-                            <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-xl border border-red-100 dark:border-red-900/30 flex items-center gap-3 text-red-600 dark:text-red-400">
-                                <AlertTriangle className="w-5 h-5 shrink-0" />
-                                <span className="text-xs font-bold leading-tight">Total allocation must equal 100%. Please rebalance your percentages above.</span>
+                            <div className="bg-rose-50 dark:bg-rose-950/20 p-3.5 rounded-lg border border-rose-200 dark:border-rose-900/30 flex items-center gap-2.5 text-rose-600 dark:text-rose-400">
+                                <AlertTriangle className="w-4 h-4 shrink-0" />
+                                <span className="text-xs font-medium">Total equity allocation must equal 100%.</span>
                             </div>
                         )}
                     </div>
@@ -488,88 +478,114 @@ const StrategyConfig = ({
             </section>
 
             {/* STAGE 4: TAX OPTIMIZATION */}
-            <section className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-[10px] font-bold text-white dark:text-zinc-900">4</span>
-                    <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Asset Location</h3>
+            <section className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                    <span className="font-mono text-[11px] font-medium text-zinc-400">04</span>
+                    <h3 className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Asset location & tax placement</h3>
                 </div>
 
-                <Card className="p-8 border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900">
-                    <div className="mb-8">
-                        <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Asset Location Strategy</h4>
-                        <p className="text-xs text-zinc-500">How we distribute assets across account types</p>
+                <Card className="p-6">
+                    <div className="mb-5">
+                        <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Asset location strategy</h4>
+                        <p className="text-xs text-zinc-500">Rules for placing assets across Taxable, Traditional, and Roth accounts</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.values(TAX_STRATEGIES).map(strategy => (
-                            <button
-                                key={strategy.id}
-                                onClick={() => setTaxStrategy(strategy.id)}
-                                className={`group p-5 rounded-2xl border-2 text-left transition-all ${taxStrategy === strategy.id ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-emerald-200'}`}
-                            >
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className={`p-2.5 rounded-xl ${taxStrategy === strategy.id ? 'bg-emerald-100 text-emerald-600' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800'}`}>
-                                        <strategy.icon className="w-5 h-5" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                        {Object.values(TAX_STRATEGIES).map(strategy => {
+                            const isSelected = taxStrategy === strategy.id;
+                            return (
+                                <button
+                                    key={strategy.id}
+                                    onClick={() => setTaxStrategy(strategy.id)}
+                                    className={`group p-4 rounded-xl border text-left transition-all ${
+                                        isSelected
+                                            ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-50/90 dark:bg-zinc-800/60'
+                                            : 'border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className={`p-2 rounded-lg border ${
+                                            isSelected
+                                                ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100'
+                                                : 'bg-zinc-100 text-zinc-500 border-zinc-200/60 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700/60'
+                                        }`}>
+                                            <strategy.icon className="w-4 h-4" />
+                                        </div>
+                                        {isSelected && (
+                                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-300">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                Active
+                                            </span>
+                                        )}
                                     </div>
-                                    {taxStrategy === strategy.id && <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30"><CheckCircle2 className="w-4 h-4 text-white" /></div>}
-                                </div>
-                                <div className={`font-black tracking-tight mb-2 ${taxStrategy === strategy.id ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-700 dark:text-zinc-300'}`}>{strategy.name}</div>
-                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">{strategy.desc}</div>
-                            </button>
-                        ))}
+                                    <div className="text-sm font-semibold tracking-tight mb-1 text-zinc-900 dark:text-zinc-50">{strategy.name}</div>
+                                    <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{strategy.desc}</div>
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {/* HSA Treatment Selection */}
-                    <div className="mt-8 pt-8 border-t border-zinc-100 dark:border-zinc-800">
+                    <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800">
                         <div className="mb-4">
-                            <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Health Savings Account (HSA) Treatment</h4>
-                            <p className="text-xs text-zinc-500">Choose whether Health Savings Accounts are treated as tax-free growth or conservative healthcare liquidity</p>
+                            <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Health Savings Account (HSA) treatment</h4>
+                            <p className="text-xs text-zinc-500">Choose whether HSAs are treated as long-term tax-free growth or conservative medical liquidity</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                             <button
                                 type="button"
                                 onClick={() => setHsaStrategy && setHsaStrategy('roth')}
-                                className={`group p-5 rounded-2xl border-2 text-left transition-all ${hsaStrategy === 'roth' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-emerald-200'}`}
+                                className={`group p-4 rounded-xl border text-left transition-all ${
+                                    hsaStrategy === 'roth'
+                                        ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-50/90 dark:bg-zinc-800/60'
+                                        : 'border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                }`}
                             >
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className={`p-2 rounded-xl text-xs font-bold uppercase tracking-wide ${hsaStrategy === 'roth' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
-                                        Tax-Free Growth (Super Roth)
-                                    </div>
+                                <div className="flex items-center justify-between mb-2.5">
+                                    <span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700">
+                                        Tax-free growth (Super Roth)
+                                    </span>
                                     {hsaStrategy === 'roth' && (
-                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/30">
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                                        </div>
+                                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-300">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            Active
+                                        </span>
                                     )}
                                 </div>
-                                <div className="font-black text-sm tracking-tight mb-1 text-zinc-900 dark:text-zinc-100">
+                                <div className="font-semibold text-sm tracking-tight mb-1 text-zinc-900 dark:text-zinc-100">
                                     Maximize Triple-Tax-Free Compounding
                                 </div>
-                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-                                    Treats the HSA like a Roth IRA. Prioritizes high-growth equities (stocks) in your HSA to maximize compounding, and keeps fixed income/bonds in Traditional accounts. Best if paying current medical bills out-of-pocket.
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                                    Treats the HSA like a Roth IRA. Prioritizes high-growth equities in your HSA to maximize compounding, and keeps bonds in Traditional accounts.
                                 </div>
                             </button>
 
                             <button
                                 type="button"
                                 onClick={() => setHsaStrategy && setHsaStrategy('deferred')}
-                                className={`group p-5 rounded-2xl border-2 text-left transition-all ${hsaStrategy === 'deferred' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-emerald-200'}`}
+                                className={`group p-4 rounded-xl border text-left transition-all ${
+                                    hsaStrategy === 'deferred'
+                                        ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-50/90 dark:bg-zinc-800/60'
+                                        : 'border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                }`}
                             >
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className={`p-2 rounded-xl text-xs font-bold uppercase tracking-wide ${hsaStrategy === 'deferred' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
-                                        Capital Preservation (Deferred)
-                                    </div>
+                                <div className="flex items-center justify-between mb-2.5">
+                                    <span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700">
+                                        Capital preservation (Deferred)
+                                    </span>
                                     {hsaStrategy === 'deferred' && (
-                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/30">
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                                        </div>
+                                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-300">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            Active
+                                        </span>
                                     )}
                                 </div>
-                                <div className="font-black text-sm tracking-tight mb-1 text-zinc-900 dark:text-zinc-100">
+                                <div className="font-semibold text-sm tracking-tight mb-1 text-zinc-900 dark:text-zinc-100">
                                     Healthcare Reserve Protection
                                 </div>
-                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-                                    Treats the HSA like a Traditional IRA/401(k). Bonds and defensive assets may be placed here to preserve capital for anticipated healthcare expenses or near-term medical deductibles.
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                                    Treats the HSA like a Traditional IRA/401(k). Bonds and defensive assets may be placed here to preserve capital for near-term medical expenses.
                                 </div>
                             </button>
                         </div>

@@ -342,7 +342,7 @@ const DashboardSummary = ({
                 id: 'roth',
                 label: 'Tax-Free (Roth / HSA)',
                 sub: hsaStrategy === 'roth' ? 'Roth IRA, Roth 401(k), HSA' : 'Roth IRA, Roth 401(k)',
-                badgeColor: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40',
+                dotColor: 'bg-emerald-500',
                 currentTotal: 0,
                 targetTotal: 0,
                 currentAssets: {},
@@ -352,7 +352,7 @@ const DashboardSummary = ({
                 id: 'deferred',
                 label: 'Tax-Deferred (Pre-Tax)',
                 sub: hsaStrategy === 'deferred' ? 'Trad 401(k), Trad IRA, HSA' : 'Trad 401(k), Trad IRA, Rollover',
-                badgeColor: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40',
+                dotColor: 'bg-indigo-500',
                 currentTotal: 0,
                 targetTotal: 0,
                 currentAssets: {},
@@ -362,7 +362,7 @@ const DashboardSummary = ({
                 id: 'taxable',
                 label: 'Taxable (Brokerage)',
                 sub: 'Individual & Joint Brokerage',
-                badgeColor: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40',
+                dotColor: 'bg-amber-500',
                 currentTotal: 0,
                 targetTotal: 0,
                 currentAssets: {},
@@ -608,169 +608,167 @@ const DashboardSummary = ({
         <div className="space-y-6 animate-in fade-in duration-500">
             <SetupBanner />
 
-            {/* === TOP HERO KPI STRIP === */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Card 1: Total Net Worth + Wealth Composition Bar */}
-                <Card className="p-5 flex flex-col justify-between border-l-4 border-l-emerald-500">
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-wider">
-                                Total Net Worth
-                            </h3>
-                            <span className="text-[11px] font-medium text-zinc-400">
-                                {Object.keys(accounts).length} {Object.keys(accounts).length === 1 ? 'Account' : 'Accounts'}
-                            </span>
-                        </div>
-                        <p className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 mt-1.5 tracking-tight">
-                            {formatCurrency(totalNetWorth)}
-                        </p>
-                    </div>
-
-                    <div className="mt-4 space-y-2">
-                        <div className="w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex">
-                            {nwInvestedPct > 0 && (
-                                <div
-                                    style={{ width: `${nwInvestedPct}%` }}
-                                    className="h-full bg-emerald-500 transition-all duration-700"
-                                    title={`Invested: ${formatCurrency(investedSecurities)}`}
-                                />
-                            )}
-                            {nwCashPct > 0 && (
-                                <div
-                                    style={{ width: `${nwCashPct}%` }}
-                                    className="h-full bg-blue-500 transition-all duration-700"
-                                    title={`Investable Cash: ${formatCurrency(uninvestedCash)}`}
-                                />
-                            )}
-                            {nwEmergencyPct > 0 && (
-                                <div
-                                    style={{ width: `${nwEmergencyPct}%` }}
-                                    className="h-full bg-amber-500 transition-all duration-700"
-                                    title={`Emergency Reserve: ${formatCurrency(emergencyActual)}`}
-                                />
-                            )}
-                        </div>
-                        <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
-                            <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-                                Invested {nwInvestedPct.toFixed(0)}%
-                            </span>
-                            {nwCashPct >= 0.5 && (
-                                <span className="flex items-center gap-1">
-                                    <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
-                                    Cash {nwCashPct.toFixed(0)}%
-                                </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
-                                Shielded {nwEmergencyPct.toFixed(0)}%
-                            </span>
-                        </div>
-                    </div>
-                </Card>
-
-                {/* Card 2: Investable Portfolio + Drift Health Status */}
-                <Card className="p-5 flex flex-col justify-between border-l-4 border-l-blue-500">
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-wider">
-                                Investable Portfolio
-                            </h3>
-                            <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full">
-                                {targetEquityPct}% / {bondAllocation}%{cashAllocation > 0 ? ` / ${cashAllocation}%` : ''} Target
-                            </span>
-                        </div>
-                        <p className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 mt-1.5 tracking-tight">
-                            {formatCurrency(investableTotal)}
-                        </p>
-                    </div>
-
-                    <div className="mt-4 flex items-center justify-between gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-                        {driftSummary.globalBandsTriggered ? (
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                                <span>
-                                    Band Breached ({driftSummary.maxDrift.toFixed(1)}% max drift)
+            {/* === UNIFIED BENTO HERO KPI STRIP === */}
+            <Card className="p-0">
+                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-zinc-200/80 dark:divide-zinc-800/80">
+                    {/* Panel 1: Total Net Worth + Wealth Composition Bar */}
+                    <div className="p-6 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-zinc-500 dark:text-zinc-400 text-xs font-medium">
+                                    Total net worth
+                                </h3>
+                                <span className="text-[11px] font-mono text-zinc-400 tabular-nums">
+                                    {Object.keys(accounts).length} {Object.keys(accounts).length === 1 ? 'account' : 'accounts'}
                                 </span>
                             </div>
-                        ) : (
-                            <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                                <span>
-                                    Within 5/25 Bands ({driftSummary.maxDrift.toFixed(1)}% max drift)
-                                </span>
-                            </div>
-                        )}
-
-                        <button
-                            onClick={() => setActiveTab('rebalance')}
-                            className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-200 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-0.5 shrink-0 transition-colors"
-                        >
-                            Balance <ArrowUpRight className="w-3 h-3" />
-                        </button>
-                    </div>
-                </Card>
-
-                {/* Card 3: Emergency Reserve + Cushion Status */}
-                <Card className="p-5 flex flex-col justify-between border-l-4 border-l-amber-500">
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                                <Shield className="w-3.5 h-3.5 text-amber-500" /> Emergency Reserve
-                            </h3>
-                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                                emergencyActual >= emergencyTarget
-                                    ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
-                                    : 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
-                            }`}>
-                                {emergencyTarget > 0
-                                    ? `${Math.round((emergencyActual / emergencyTarget) * 100)}% Funded`
-                                    : 'No Target'}
-                            </span>
-                        </div>
-                        <div className="flex items-baseline gap-2 mt-1.5">
-                            <p className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">
-                                {formatCurrency(emergencyActual)}
+                            <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50 mt-2 tracking-tight tabular-nums">
+                                {formatCurrency(totalNetWorth)}
                             </p>
-                            <span className="text-xs text-zinc-400 font-medium">
-                                / {formatCurrency(emergencyTarget)} goal
-                            </span>
+                        </div>
+
+                        <div className="mt-5 space-y-2">
+                            <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex gap-0.5">
+                                {nwInvestedPct > 0 && (
+                                    <div
+                                        style={{ width: `${nwInvestedPct}%` }}
+                                        className="h-full bg-emerald-600 dark:bg-emerald-500 transition-all duration-700"
+                                        title={`Invested: ${formatCurrency(investedSecurities)}`}
+                                    />
+                                )}
+                                {nwCashPct > 0 && (
+                                    <div
+                                        style={{ width: `${nwCashPct}%` }}
+                                        className="h-full bg-slate-500 transition-all duration-700"
+                                        title={`Investable Cash: ${formatCurrency(uninvestedCash)}`}
+                                    />
+                                )}
+                                {nwEmergencyPct > 0 && (
+                                    <div
+                                        style={{ width: `${nwEmergencyPct}%` }}
+                                        className="h-full bg-amber-500 transition-all duration-700"
+                                        title={`Emergency Reserve: ${formatCurrency(emergencyActual)}`}
+                                    />
+                                )}
+                            </div>
+                            <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400 tabular-nums">
+                                <span className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500 inline-block" />
+                                    Invested {nwInvestedPct.toFixed(0)}%
+                                </span>
+                                {nwCashPct >= 0.5 && (
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-slate-500 inline-block" />
+                                        Cash {nwCashPct.toFixed(0)}%
+                                    </span>
+                                )}
+                                <span className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
+                                    Reserve {nwEmergencyPct.toFixed(0)}%
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="mt-4 space-y-1.5">
-                        <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
-                            <div
-                                className={`h-full transition-all duration-1000 ${
-                                    emergencyActual >= emergencyTarget ? 'bg-emerald-500' : 'bg-amber-500'
-                                }`}
-                                style={{ width: `${Math.min(100, (emergencyActual / (emergencyTarget || 1)) * 100)}%` }}
-                            />
+                    {/* Panel 2: Investable Portfolio + Drift Health Status */}
+                    <div className="p-6 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-zinc-500 dark:text-zinc-400 text-xs font-medium">
+                                    Investable portfolio
+                                </h3>
+                                <span className="text-[11px] font-mono font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-zinc-200/60 dark:border-zinc-700/60 tabular-nums">
+                                    {targetEquityPct}/{bondAllocation}{cashAllocation > 0 ? `/${cashAllocation}` : ''} target
+                                </span>
+                            </div>
+                            <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50 mt-2 tracking-tight tabular-nums">
+                                {formatCurrency(investableTotal)}
+                            </p>
                         </div>
-                        <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
-                            <span>Shielded from rebalancing</span>
-                            <span className="font-medium">
-                                {emergencyDiff >= 0
-                                    ? `${formatSignedCurrency(emergencyDiff)} cushion`
-                                    : `${formatCurrency(Math.abs(emergencyDiff))} needed`}
-                            </span>
+
+                        <div className="mt-5 flex items-center justify-between gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800/80">
+                            {driftSummary.globalBandsTriggered ? (
+                                <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                                    <span className="tabular-nums">
+                                        Drift band breached ({driftSummary.maxDrift.toFixed(1)}% max)
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                                    <span className="tabular-nums">
+                                        Within 5/25 bands ({driftSummary.maxDrift.toFixed(1)}% max)
+                                    </span>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={() => setActiveTab('rebalance')}
+                                className="text-xs font-medium text-zinc-800 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white flex items-center gap-0.5 shrink-0 transition-colors"
+                            >
+                                Rebalance <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
+                            </button>
                         </div>
                     </div>
-                </Card>
-            </div>
+
+                    {/* Panel 3: Emergency Reserve + Cushion Status */}
+                    <div className="p-6 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-zinc-500 dark:text-zinc-400 text-xs font-medium">
+                                    Emergency reserve
+                                </h3>
+                                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60 tabular-nums">
+                                    <span className={`w-1.5 h-1.5 rounded-full ${emergencyActual >= emergencyTarget ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                    {emergencyTarget > 0
+                                        ? `${Math.round((emergencyActual / emergencyTarget) * 100)}% funded`
+                                        : 'No target'}
+                                </span>
+                            </div>
+                            <div className="flex items-baseline gap-2 mt-2">
+                                <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight tabular-nums">
+                                    {formatCurrency(emergencyActual)}
+                                </p>
+                                <span className="text-xs font-mono text-zinc-400 tabular-nums">
+                                    / {formatCurrency(emergencyTarget)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="mt-5 space-y-2">
+                            <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full transition-all duration-1000 ${
+                                        emergencyActual >= emergencyTarget ? 'bg-emerald-600 dark:bg-emerald-500' : 'bg-amber-500'
+                                    }`}
+                                    style={{ width: `${Math.min(100, (emergencyActual / (emergencyTarget || 1)) * 100)}%` }}
+                                />
+                            </div>
+                            <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400 tabular-nums">
+                                <span>Shielded liquidity</span>
+                                <span className="font-mono">
+                                    {emergencyDiff >= 0
+                                        ? `${formatSignedCurrency(emergencyDiff)} surplus`
+                                        : `${formatCurrency(Math.abs(emergencyDiff))} shortfall`}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Card>
 
             {/* === ROW 1: PORTFOLIO COMPOSITION & TARGET ALIGNMENT === */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* CARD 1: Portfolio Composition (Donut <-> Treemap) */}
                 <Card className="p-6 flex flex-col justify-between">
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
-                                <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                                    <LayoutDashboard className="w-4 h-4 text-emerald-600" />
-                                    Portfolio Composition
+                                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                    Portfolio composition
                                 </h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                                     {compositionView === 'donut'
                                         ? (donutMode === 'general'
                                             ? 'Macro asset split (Equities, Bonds, Cash)'
@@ -780,12 +778,12 @@ const DashboardSummary = ({
                             </div>
 
                             {/* Segmented Toggle */}
-                            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-lg text-xs">
+                            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-0.5 rounded-lg text-xs border border-zinc-200/60 dark:border-zinc-800">
                                 <button
                                     onClick={() => setCompositionView('donut')}
-                                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all ${
+                                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
                                         compositionView === 'donut'
-                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs'
                                             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                     }`}
                                 >
@@ -793,9 +791,9 @@ const DashboardSummary = ({
                                 </button>
                                 <button
                                     onClick={() => setCompositionView('treemap')}
-                                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all ${
+                                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
                                         compositionView === 'treemap'
-                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs'
                                             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                     }`}
                                 >
@@ -810,7 +808,7 @@ const DashboardSummary = ({
                                 <span>Add funds to see breakdown</span>
                                 <button
                                     onClick={() => setActiveTab('accounts')}
-                                    className="text-xs text-emerald-600 font-medium hover:underline mt-1"
+                                    className="text-xs text-zinc-900 dark:text-zinc-100 font-medium hover:underline mt-1"
                                 >
                                     Go to Accounts →
                                 </button>
@@ -822,15 +820,15 @@ const DashboardSummary = ({
                                     <span className="text-[11px] text-zinc-400">
                                         {donutMode === 'general' ? 'Equities, Bonds & Cash' : 'Detailed asset classes'}
                                     </span>
-                                    <div className="flex items-center gap-1 text-[11px]">
+                                    <div className="flex items-center gap-1 text-[11px] bg-zinc-100/70 dark:bg-zinc-800/60 p-0.5 rounded-md">
                                         <button
                                             onClick={() => {
                                                 setDonutMode('specific');
                                                 setHoveredSlice(null);
                                             }}
-                                            className={`px-2.5 py-0.5 rounded font-medium transition-colors ${
+                                            className={`px-2 py-0.5 rounded font-medium transition-colors ${
                                                 donutMode === 'specific'
-                                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs'
                                                     : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                             }`}
                                         >
@@ -841,9 +839,9 @@ const DashboardSummary = ({
                                                 setDonutMode('general');
                                                 setHoveredSlice(null);
                                             }}
-                                            className={`px-2.5 py-0.5 rounded font-medium transition-colors ${
+                                            className={`px-2 py-0.5 rounded font-medium transition-colors ${
                                                 donutMode === 'general'
-                                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs'
                                                     : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                             }`}
                                         >
@@ -885,25 +883,25 @@ const DashboardSummary = ({
                                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4">
                                         {hoveredSlice ? (
                                             <>
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 max-w-[110px] truncate">
+                                                <span className="text-[11px] font-medium text-zinc-400 max-w-[115px] truncate">
                                                     {hoveredSlice.name}
                                                 </span>
-                                                <span className="text-base font-extrabold text-zinc-900 dark:text-zinc-50 mt-0.5">
+                                                <span className="text-base font-semibold text-zinc-900 dark:text-zinc-50 mt-0.5 tabular-nums">
                                                     {formatCurrency(hoveredSlice.current)}
                                                 </span>
-                                                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                                <span className="text-xs font-mono font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
                                                     {hoveredSlice.currentPct.toFixed(1)}%
                                                     <span className="text-zinc-400 font-normal">
-                                                        {' '}(T: {hoveredSlice.targetPct.toFixed(0)}%)
+                                                        {' '}/ {hoveredSlice.targetPct.toFixed(0)}%
                                                     </span>
                                                 </span>
                                             </>
                                         ) : (
                                             <>
-                                                <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                                                <span className="text-[11px] font-medium text-zinc-400">
                                                     Investable
                                                 </span>
-                                                <span className="text-base font-extrabold text-zinc-800 dark:text-zinc-100 mt-0.5">
+                                                <span className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5 tabular-nums">
                                                     {formatCurrency(investableTotal)}
                                                 </span>
                                                 <span className="text-[10px] text-zinc-400">
@@ -925,19 +923,19 @@ const DashboardSummary = ({
                                         >
                                             <div className="flex items-center gap-2 min-w-0">
                                                 <span
-                                                    className="w-2.5 h-2.5 rounded-sm shrink-0"
+                                                    className="w-2 h-2 rounded-full shrink-0"
                                                     style={{ backgroundColor: item.color }}
                                                 />
                                                 <span className="text-zinc-700 dark:text-zinc-300 truncate font-medium">
                                                     {item.name}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                                                <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                                            <div className="flex items-center gap-1.5 shrink-0 ml-2 font-mono tabular-nums">
+                                                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                                                     {item.currentPct.toFixed(1)}%
                                                 </span>
                                                 <span className="text-[10px] text-zinc-400">
-                                                    ({formatCurrency(item.current)})
+                                                    {formatCurrency(item.current)}
                                                 </span>
                                             </div>
                                         </div>
@@ -951,12 +949,12 @@ const DashboardSummary = ({
                                     <span className="text-[11px] text-zinc-400">
                                         Box size proportional to dollar value
                                     </span>
-                                    <div className="flex items-center gap-1 text-[11px]">
+                                    <div className="flex items-center gap-1 text-[11px] bg-zinc-100/70 dark:bg-zinc-800/60 p-0.5 rounded-md">
                                         <button
                                             onClick={() => setTreemapGroup('account')}
                                             className={`px-2 py-0.5 rounded font-medium ${
                                                 treemapGroup === 'account'
-                                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs'
                                                     : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                             }`}
                                         >
@@ -966,7 +964,7 @@ const DashboardSummary = ({
                                             onClick={() => setTreemapGroup('asset')}
                                             className={`px-2 py-0.5 rounded font-medium ${
                                                 treemapGroup === 'asset'
-                                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs'
                                                     : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                             }`}
                                         >
@@ -982,18 +980,18 @@ const DashboardSummary = ({
                                             <div
                                                 key={group.id}
                                                 style={{ flexGrow: Math.max(1, Math.round(group.pct)), flexBasis: `${basisPct}%` }}
-                                                className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40 flex flex-col justify-between min-w-[140px] transition-all hover:border-emerald-400/60"
+                                                className="p-3 rounded-lg border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40 flex flex-col justify-between min-w-[140px] transition-all hover:border-zinc-300 dark:hover:border-zinc-700"
                                             >
                                                 <div className="flex items-start justify-between gap-2 mb-2">
                                                     <div className="min-w-0">
-                                                        <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100 truncate">
+                                                        <div className="text-xs font-semibold text-zinc-800 dark:text-zinc-100 truncate">
                                                             {group.name}
                                                         </div>
-                                                        <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
+                                                        <div className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 tabular-nums">
                                                             {formatCurrency(group.total)} ({group.pct.toFixed(1)}%)
                                                         </div>
                                                     </div>
-                                                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-zinc-200/80 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                                    <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-200/70 dark:bg-zinc-700/80 text-zinc-600 dark:text-zinc-300 shrink-0">
                                                         {group.badge}
                                                     </span>
                                                 </div>
@@ -1009,13 +1007,13 @@ const DashboardSummary = ({
                                                                     flexGrow: Math.max(1, Math.round(hPct)),
                                                                     backgroundColor: h.color
                                                                 }}
-                                                                className="rounded-lg p-2 text-white min-w-[65px] shadow-sm transition-transform hover:scale-[1.01]"
+                                                                className="rounded-md p-2 text-white min-w-[65px] transition-transform hover:scale-[1.01]"
                                                                 title={`${h.name}: ${formatCurrency(h.value)} (${hPct.toFixed(1)}% of ${group.name})`}
                                                             >
-                                                                <div className="text-[10px] font-bold truncate drop-shadow-sm">
+                                                                <div className="text-[10px] font-semibold truncate">
                                                                     {h.name}
                                                                 </div>
-                                                                <div className="text-[10px] font-medium opacity-90 drop-shadow-sm">
+                                                                <div className="text-[10px] font-mono opacity-90 tabular-nums">
                                                                     {formatCurrency(h.value)}
                                                                 </div>
                                                             </div>
@@ -1036,11 +1034,10 @@ const DashboardSummary = ({
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
-                                <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                                    <Scale className="w-4 h-4 text-emerald-600" />
-                                    Target Alignment & Drift
+                                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                    Target alignment & drift
                                 </h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                                     {alignmentView === 'bands'
                                         ? 'Position relative to 5/25 drift band corridors (center = 0% drift)'
                                         : 'Current dollar holdings vs. target allocation ($)'}
@@ -1048,12 +1045,12 @@ const DashboardSummary = ({
                             </div>
 
                             {/* Segmented Toggle */}
-                            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-lg text-xs">
+                            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-0.5 rounded-lg text-xs border border-zinc-200/60 dark:border-zinc-800">
                                 <button
                                     onClick={() => setAlignmentView('bands')}
                                     className={`px-2.5 py-1 rounded-md font-medium transition-all ${
                                         alignmentView === 'bands'
-                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs'
                                             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                     }`}
                                 >
@@ -1063,7 +1060,7 @@ const DashboardSummary = ({
                                     onClick={() => setAlignmentView('bars')}
                                     className={`px-2.5 py-1 rounded-md font-medium transition-all ${
                                         alignmentView === 'bars'
-                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs'
                                             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                     }`}
                                 >
@@ -1087,11 +1084,11 @@ const DashboardSummary = ({
                                     const barWidthPct = Math.min(49, (Math.abs(item.driftPct) / maxScale) * 50);
                                     const isOver = item.driftPct >= 0;
 
-                                    let barColor = 'bg-emerald-500';
+                                    let barColor = 'bg-emerald-600 dark:bg-emerald-500';
                                     if (item.isBreached) {
                                         barColor = 'bg-amber-500';
                                     } else if (item.driftPct < -0.5) {
-                                        barColor = 'bg-blue-500';
+                                        barColor = 'bg-slate-500';
                                     }
 
                                     return (
@@ -1099,26 +1096,26 @@ const DashboardSummary = ({
                                             <div className="flex items-center justify-between text-xs">
                                                 <div className="flex items-center gap-2 min-w-0">
                                                     <span
-                                                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                                                        className="w-2 h-2 rounded-full shrink-0"
                                                         style={{ backgroundColor: item.color }}
                                                     />
-                                                    <span className="font-semibold text-zinc-800 dark:text-zinc-100 truncate">
+                                                    <span className="font-medium text-zinc-800 dark:text-zinc-100 truncate">
                                                         {item.name}
                                                     </span>
-                                                    <span className="text-[11px] text-zinc-400">
+                                                    <span className="text-[11px] font-mono text-zinc-400 tabular-nums">
                                                         {item.currentPct.toFixed(1)}% / {item.targetPct.toFixed(1)}%
                                                     </span>
                                                 </div>
 
                                                 <div className="flex items-center gap-2 shrink-0">
-                                                    <span className={`text-[11px] font-mono font-semibold ${
+                                                    <span className={`text-[11px] font-mono font-medium tabular-nums ${
                                                         item.isBreached
                                                             ? 'text-amber-600 dark:text-amber-400'
                                                             : Math.abs(item.driftPct) < 0.5
                                                             ? 'text-zinc-400'
                                                             : item.driftPct > 0
                                                             ? 'text-emerald-600 dark:text-emerald-400'
-                                                            : 'text-blue-600 dark:text-blue-400'
+                                                            : 'text-zinc-600 dark:text-zinc-400'
                                                     }`}>
                                                         {item.driftPct >= 0 ? `+${item.driftPct.toFixed(1)}%` : `${item.driftPct.toFixed(1)}%`}
                                                         {' '}({formatSignedCurrency(item.diffDollar)})
@@ -1127,7 +1124,7 @@ const DashboardSummary = ({
                                             </div>
 
                                             {/* Bullet Corridor Track */}
-                                            <div className="relative h-3.5 bg-zinc-100 dark:bg-zinc-800/90 rounded-md overflow-hidden flex items-center">
+                                            <div className="relative h-3 bg-zinc-100 dark:bg-zinc-800/90 rounded overflow-hidden flex items-center">
                                                 {/* Safe 5/25 Drift Corridor Zone */}
                                                 {item.id !== 'cash' && item.id !== 'money_market' && (
                                                     <div
@@ -1135,13 +1132,13 @@ const DashboardSummary = ({
                                                             left: `${50 - bandHalfWidthPct}%`,
                                                             width: `${bandHalfWidthPct * 2}%`
                                                         }}
-                                                        className="absolute inset-y-0 bg-emerald-500/10 dark:bg-emerald-400/10 border-x border-dashed border-emerald-500/40"
+                                                        className="absolute inset-y-0 bg-zinc-200/50 dark:bg-zinc-700/30 border-x border-dashed border-zinc-300 dark:border-zinc-600"
                                                         title={`Safe 5/25 Drift Corridor: ±${item.bandThreshold.toFixed(1)}%`}
                                                     />
                                                 )}
 
                                                 {/* Center 0% Target Line */}
-                                                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-zinc-400 dark:bg-zinc-500 z-10" />
+                                                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-zinc-400 dark:bg-zinc-500 z-10" />
 
                                                 {/* Active Drift Bar from Center */}
                                                 <div
@@ -1149,7 +1146,7 @@ const DashboardSummary = ({
                                                         left: isOver ? '50%' : `${50 - barWidthPct}%`,
                                                         width: `${ Math.max(1, barWidthPct)}%`
                                                     }}
-                                                    className={`absolute h-2 rounded-sm transition-all duration-500 ${barColor}`}
+                                                    className={`absolute h-1.5 rounded-xs transition-all duration-500 ${barColor}`}
                                                 />
                                             </div>
                                         </div>
@@ -1159,20 +1156,20 @@ const DashboardSummary = ({
                                 {/* Legend footer for Bullet Chart */}
                                 <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] text-zinc-400">
                                     <div className="flex items-center gap-3">
-                                        <span className="flex items-center gap-1">
-                                            <span className="w-2.5 h-2 rounded-xs bg-emerald-500/20 border border-dashed border-emerald-500/60 inline-block" />
-                                            Safe 5/25 Band
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="w-2.5 h-2 rounded-xs bg-zinc-200 dark:bg-zinc-700 border border-dashed border-zinc-400 inline-block" />
+                                            5/25 corridor
                                         </span>
-                                        <span className="flex items-center gap-1">
-                                            <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-500 inline-block" />
                                             Underweight
                                         </span>
-                                        <span className="flex items-center gap-1">
-                                            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
-                                            Band Breached
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
+                                            Breached
                                         </span>
                                     </div>
-                                    <span>Center = Target</span>
+                                    <span>Center = target</span>
                                 </div>
                             </div>
                         ) : (
@@ -1198,8 +1195,8 @@ const DashboardSummary = ({
                                             labelStyle={chartTooltipLabelStyle}
                                             itemStyle={chartTooltipItemStyle}
                                         />
-                                        <Bar dataKey="current" name="Current ($)" fill="#10b981" radius={[0, 4, 4, 0]} barSize={14} />
-                                        <Bar dataKey="target" name="Target ($)" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={14} />
+                                        <Bar dataKey="current" name="Current ($)" fill="#059669" radius={[0, 4, 4, 0]} barSize={12} />
+                                        <Bar dataKey="target" name="Target ($)" fill="#64748b" radius={[0, 4, 4, 0]} barSize={12} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -1209,66 +1206,66 @@ const DashboardSummary = ({
             </div>
 
             {/* === ROW 2: TAX-LOCATION X-RAY & RETIREMENT GLIDEPATH === */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* CARD 3: Tax-Location X-Ray */}
                 <Card className="p-6 flex flex-col justify-between">
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
-                                <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                                    <Layers className="w-4 h-4 text-emerald-600" />
-                                    Tax-Location X-Ray
+                                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                    Tax-location breakdown
                                 </h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                    Strategy: <span className="font-semibold text-zinc-700 dark:text-zinc-300">{activeStrategyLabel}</span>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                    Strategy: <span className="font-medium text-zinc-700 dark:text-zinc-300">{activeStrategyLabel}</span>
                                 </p>
                             </div>
 
                             {/* Toggle Current vs Ideal Target Location */}
-                            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-lg text-xs">
+                            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-0.5 rounded-lg text-xs border border-zinc-200/60 dark:border-zinc-800">
                                 <button
                                     onClick={() => setLocationView('current')}
                                     className={`px-2.5 py-1 rounded-md font-medium transition-all ${
                                         locationView === 'current'
-                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs'
                                             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                     }`}
                                 >
-                                    Current Location
+                                    Current
                                 </button>
                                 <button
                                     onClick={() => setLocationView('target')}
                                     className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all ${
                                         locationView === 'target'
-                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                                            ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs'
                                             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                     }`}
                                 >
-                                    <Sparkles className="w-3 h-3 text-emerald-500" /> Ideal Target
+                                    Ideal target
                                 </button>
                             </div>
                         </div>
 
-                        <div className="space-y-4 mt-2">
+                        <div className="space-y-3.5 mt-2">
                             {taxLocationBuckets.map(bucket => (
                                 <div
                                     key={bucket.id}
-                                    className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800 space-y-2.5"
+                                    className="p-3.5 rounded-lg bg-zinc-50/70 dark:bg-zinc-800/30 border border-zinc-200/60 dark:border-zinc-800 space-y-2.5"
                                 >
                                     <div className="flex items-center justify-between gap-2">
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+                                                <span className={`w-1.5 h-1.5 rounded-full ${bucket.dotColor}`} />
+                                                <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">
                                                     {bucket.label}
                                                 </span>
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${bucket.badgeColor}`}>
-                                                    {bucket.pctOfPortfolio.toFixed(0)}% of Portfolio
+                                                <span className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 tabular-nums">
+                                                    {bucket.pctOfPortfolio.toFixed(0)}%
                                                 </span>
                                             </div>
-                                            <div className="text-[11px] text-zinc-400">{bucket.sub}</div>
+                                            <div className="text-[11px] text-zinc-400 pl-3.5">{bucket.sub}</div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-sm font-extrabold text-zinc-800 dark:text-zinc-100">
+                                            <div className="text-sm font-mono font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
                                                 {formatCurrency(bucket.activeTotal)}
                                             </div>
                                         </div>
@@ -1277,7 +1274,7 @@ const DashboardSummary = ({
                                     {/* 100% Stacked Bar of Assets inside this Tax Bucket */}
                                     {bucket.segments.length > 0 ? (
                                         <>
-                                            <div className="w-full h-3.5 bg-zinc-200/70 dark:bg-zinc-700/60 rounded-lg overflow-hidden flex">
+                                            <div className="w-full h-2.5 bg-zinc-200/70 dark:bg-zinc-700/60 rounded-full overflow-hidden flex gap-0.5">
                                                 {bucket.segments.map(seg => (
                                                     <div
                                                         key={seg.id}
@@ -1285,28 +1282,28 @@ const DashboardSummary = ({
                                                             width: `${seg.pctOfBucket}%`,
                                                             backgroundColor: seg.color
                                                         }}
-                                                        className="h-full transition-all duration-500 first:rounded-l-lg last:rounded-r-lg"
+                                                        className="h-full transition-all duration-500"
                                                         title={`${seg.name}: ${formatCurrency(seg.value)} (${seg.pctOfBucket.toFixed(1)}%)`}
                                                     />
                                                 ))}
                                             </div>
-                                            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+                                            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] tabular-nums">
                                                 {bucket.segments.map(seg => (
-                                                    <span key={seg.id} className="flex items-center gap-1 text-zinc-600 dark:text-zinc-300">
+                                                    <span key={seg.id} className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
                                                         <span
-                                                            className="w-2 h-2 rounded-full shrink-0"
+                                                            className="w-1.5 h-1.5 rounded-full shrink-0"
                                                             style={{ backgroundColor: seg.color }}
                                                         />
-                                                        <span className="font-medium">{seg.name}:</span>
-                                                        <span className="text-zinc-500 dark:text-zinc-400">
-                                                            {seg.pctOfBucket.toFixed(0)}% ({formatCurrency(seg.value)})
+                                                        <span className="font-medium">{seg.name}</span>
+                                                        <span className="font-mono text-zinc-400">
+                                                            {seg.pctOfBucket.toFixed(0)}%
                                                         </span>
                                                     </span>
                                                 ))}
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="text-xs text-zinc-400 italic py-1">
+                                        <div className="text-xs text-zinc-400 italic py-1 pl-3.5">
                                             No accounts or holdings in this tax bucket
                                         </div>
                                     )}
@@ -1321,19 +1318,18 @@ const DashboardSummary = ({
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
-                                <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-emerald-600" />
-                                    Retirement Glidepath Trajectory
+                                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                    Retirement glidepath
                                 </h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                    Equity-to-Bond transition curve toward your {retirementYear} target retirement
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                    Equity-to-bond transition curve toward your {retirementYear} target retirement
                                 </p>
                             </div>
                             <button
                                 onClick={() => setActiveTab('configure')}
-                                className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5"
+                                className="text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-0.5 transition-colors"
                             >
-                                Edit Horizon <ChevronRight className="w-3.5 h-3.5" />
+                                Edit horizon <ChevronRight className="w-3.5 h-3.5" />
                             </button>
                         </div>
 
@@ -1342,12 +1338,12 @@ const DashboardSummary = ({
                                 <AreaChart data={glidePathSeries} margin={{ top: 28, right: 16, left: 0, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="dashEquityGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
-                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.05} />
+                                            <stop offset="5%" stopColor="#059669" stopOpacity={0.28} />
+                                            <stop offset="95%" stopColor="#059669" stopOpacity={0.02} />
                                         </linearGradient>
                                         <linearGradient id="dashBondGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.45} />
-                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0.08} />
+                                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.32} />
+                                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.04} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#27272a' : '#e5e7eb'} />
@@ -1373,7 +1369,7 @@ const DashboardSummary = ({
                                         type="monotone"
                                         dataKey="equities"
                                         name="Target Equities"
-                                        stroke="#10b981"
+                                        stroke="#059669"
                                         strokeWidth={2}
                                         fill="url(#dashEquityGrad)"
                                     />
@@ -1381,22 +1377,22 @@ const DashboardSummary = ({
                                         type="monotone"
                                         dataKey="bonds"
                                         name="Target Bonds"
-                                        stroke="#6366f1"
+                                        stroke="#4f46e5"
                                         strokeWidth={2}
                                         fill="url(#dashBondGrad)"
                                     />
                                     <ReferenceLine
                                         x={syntheticAge}
-                                        stroke="#f59e0b"
-                                        strokeWidth={2}
+                                        stroke="#d97706"
+                                        strokeWidth={1.5}
                                         strokeDasharray="4 4"
                                         label={{
                                             value: `You (${yearsToRetirement}y to 20${String(retirementYear).slice(-2)})`,
                                             position: 'top',
                                             offset: 8,
-                                            fill: '#f59e0b',
+                                            fill: '#d97706',
                                             fontSize: 11,
-                                            fontWeight: 700
+                                            fontWeight: 600
                                         }}
                                     />
                                 </AreaChart>
@@ -1405,25 +1401,25 @@ const DashboardSummary = ({
                     </div>
 
                     {/* Glidepath Comparison Footer */}
-                    <div className="grid grid-cols-3 gap-2 pt-3 mt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-center">
-                        <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/40">
-                            <div className="text-[10px] font-semibold uppercase text-zinc-400">Horizon</div>
-                            <div className="text-sm font-bold text-zinc-800 dark:text-zinc-100 mt-0.5">
-                                {yearsToRetirement} Years
+                    <div className="grid grid-cols-3 divide-x divide-zinc-200/70 dark:divide-zinc-800 pt-3 mt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-center">
+                        <div className="px-2">
+                            <div className="text-[11px] text-zinc-400">Horizon</div>
+                            <div className="text-sm font-mono font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5 tabular-nums">
+                                {yearsToRetirement} yrs
                             </div>
                         </div>
-                        <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/40">
-                            <div className="text-[10px] font-semibold uppercase text-zinc-400">Target Bonds</div>
-                            <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
+                        <div className="px-2">
+                            <div className="text-[11px] text-zinc-400">Target bonds</div>
+                            <div className="text-sm font-mono font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5 tabular-nums">
                                 {bondAllocation}%
                                 {bondStrategyMode !== 'smart' && (
-                                    <span className="text-[10px] text-zinc-400 font-normal"> (Glide: {suggestedBondAtAge}%)</span>
+                                    <span className="text-[10px] text-zinc-400 font-normal"> ({suggestedBondAtAge}%)</span>
                                 )}
                             </div>
                         </div>
-                        <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/40">
-                            <div className="text-[10px] font-semibold uppercase text-zinc-400">Actual Bonds</div>
-                            <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                        <div className="px-2">
+                            <div className="text-[11px] text-zinc-400">Actual bonds</div>
+                            <div className="text-sm font-mono font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5 tabular-nums">
                                 {actualBondPct.toFixed(1)}%
                             </div>
                         </div>
