@@ -744,27 +744,14 @@ export function usePortfolio() {
                         return prefs[0] === 'taxable';
                     });
 
-                    // In Standard Tax Efficiency, prioritize International Developed/Broad equities in Taxable first
-                    // to preserve the Foreign Tax Credit (which is 100% lost in IRA/Roth) before filling with US equities.
-                    const ftcAssets = taxableCandidates.filter(id =>
-                        id === 'intl' || id === 'intl_dev' || id === 'europe' || id === 'pacific'
-                    );
-                    const totalFtcTarget = ftcAssets.reduce((sum, id) => sum + remainingTargets[id], 0);
-                    const availForFtc = buckets.taxable.capacity - buckets.taxable.filled;
-                    if (totalFtcTarget > 0 && availForFtc > 0) {
-                        const ftcRatio = Math.min(1, availForFtc / totalFtcTarget);
-                        ftcAssets.forEach(assetId => {
-                            addToBucket(assetId, 'taxable', remainingTargets[assetId] * ftcRatio);
-                        });
-                    }
+                    // Proportional blend of all tax-efficient core equities (US Broad/Large + Developed/Broad Intl)
+                    // while high-dividend-drag / non-qualified assets (Emerging Markets, Small Cap, REITs)
+                    // naturally stay excluded because their taxPref[0] is 'roth' or 'deferred'.
+                    const totalCandidateTarget = taxableCandidates.reduce((sum, key) => sum + remainingTargets[key], 0);
 
-                    const remainingTaxableCap = buckets.taxable.capacity - buckets.taxable.filled;
-                    const remainingCandidates = taxableCandidates.filter(key => remainingTargets[key] > 0);
-                    const totalCandidateTarget = remainingCandidates.reduce((sum, key) => sum + remainingTargets[key], 0);
-
-                    if (totalCandidateTarget > 0 && remainingTaxableCap > 0) {
-                        const ratio = Math.min(1, remainingTaxableCap / totalCandidateTarget);
-                        remainingCandidates.forEach(assetId => {
+                    if (totalCandidateTarget > 0) {
+                        const ratio = Math.min(1, taxableCapacity / totalCandidateTarget);
+                        taxableCandidates.forEach(assetId => {
                             const amountForTaxable = remainingTargets[assetId] * ratio;
                             addToBucket(assetId, 'taxable', amountForTaxable);
                         });
@@ -794,55 +781,67 @@ export function usePortfolio() {
             }
 
             if (taxStrategy === 'balanced_roth') {
-                const INTL_ASSET_IDS = new Set(['intl', 'intl_dev', 'intl_emerg', 'intl_small', 'europe', 'pacific', 'intl_developed', 'emerging_markets']);
-                const rothCapacity = buckets.roth.capacity - buckets.roth.filled;
-                if (rothCapacity > 0) {
-                    const domesticEquities = Object.keys(remainingTargets).filter(assetId => {
+                // Step 1: Prioritize high-growth & high-non-qualified-dividend equities (Emerging Markets, Small Cap, etc.)
+                // into Roth first so they never create tax drag in Taxable.
+                const rothFirstEquities = Object.keys(remainingTargets).filter(assetId => {
+                    if (remainingTargets[assetId] <= 0) return false;
+                    const asset = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
+                    return asset?.type === 'equity' && asset?.taxPref?.[0] === 'roth';
+                });
+
+                const totalRothFirstTarget = rothFirstEquities.reduce((sum, id) => sum + remainingTargets[id], 0);
+                const availRoth1 = buckets.roth.capacity - buckets.roth.filled;
+                if (totalRothFirstTarget > 0 && availRoth1 > 0) {
+                    const r1 = Math.min(1, availRoth1 / totalRothFirstTarget);
+                    rothFirstEquities.forEach(assetId => {
+                        addToBucket(assetId, 'roth', remainingTargets[assetId] * r1);
+                    });
+                }
+
+                // If Roth is full and any high-drag equities (e.g. Emerging Markets) remain, shelter them in Tax-Deferred before Taxable
+                const availDeferredForHighDrag = buckets.deferred.capacity - buckets.deferred.filled;
+                const remainingRothFirst = rothFirstEquities.filter(id => remainingTargets[id] > 0);
+                const totalRemRothFirst = remainingRothFirst.reduce((sum, id) => sum + remainingTargets[id], 0);
+                if (totalRemRothFirst > 0 && availDeferredForHighDrag > 0) {
+                    const d1 = Math.min(1, availDeferredForHighDrag / totalRemRothFirst);
+                    remainingRothFirst.forEach(assetId => {
+                        addToBucket(assetId, 'deferred', remainingTargets[assetId] * d1);
+                    });
+                }
+
+                // Step 2: Fill remaining Roth capacity with a proportional blend of Domestic & Developed/Broad International equities
+                const availRoth2 = buckets.roth.capacity - buckets.roth.filled;
+                if (availRoth2 > 0) {
+                    const coreEquities = Object.keys(remainingTargets).filter(assetId => {
                         if (remainingTargets[assetId] <= 0) return false;
-                        if (INTL_ASSET_IDS.has(assetId)) return false;
                         const asset = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
                         return asset?.type === 'equity';
                     });
-
-                    const totalDomesticTarget = domesticEquities.reduce((sum, assetId) => sum + remainingTargets[assetId], 0);
-
-                    if (totalDomesticTarget > 0) {
-                        const rothRatio = Math.min(1, rothCapacity / totalDomesticTarget);
-                        domesticEquities.forEach(assetId => {
-                            const amountForRoth = remainingTargets[assetId] * rothRatio;
-                            addToBucket(assetId, 'roth', amountForRoth);
+                    const totalCoreTarget = coreEquities.reduce((sum, id) => sum + remainingTargets[id], 0);
+                    if (totalCoreTarget > 0) {
+                        const r2 = Math.min(1, availRoth2 / totalCoreTarget);
+                        coreEquities.forEach(assetId => {
+                            addToBucket(assetId, 'roth', remainingTargets[assetId] * r2);
                         });
                     }
                 }
 
-                const taxableCapacity = buckets.taxable.capacity - buckets.taxable.filled;
-                if (taxableCapacity > 0) {
-                    Array.from(INTL_ASSET_IDS).forEach(assetId => {
-                        if (remainingTargets[assetId] > 0) {
-                            const avail = buckets.taxable.capacity - buckets.taxable.filled;
-                            const intlAmount = Math.min(avail, remainingTargets[assetId]);
-                            if (intlAmount > 0) {
-                                addToBucket(assetId, 'taxable', intlAmount);
-                            }
-                        }
+                // Step 3: Fill Taxable capacity with a proportional blend of remaining tax-efficient Core Equities
+                // (US Broad/Large + Developed/Broad International) instead of concentrating high-yield Intl in Taxable
+                const availTaxable = buckets.taxable.capacity - buckets.taxable.filled;
+                if (availTaxable > 0) {
+                    const taxableCoreCandidates = Object.keys(remainingTargets).filter(key => {
+                        if (key === 'money_market' || key === 'bonds' || key === 'cash') return false;
+                        if (remainingTargets[key] <= 0) return false;
+                        const asset = Object.values(ASSET_CLASSES).find(a => a.id === key);
+                        return asset?.type === 'equity' && asset?.taxPref?.[0] === 'taxable';
                     });
-
-                    // Fill any remaining taxable capacity with remaining tax-efficient domestic equities
-                    const remTaxCap = buckets.taxable.capacity - buckets.taxable.filled;
-                    if (remTaxCap > 0) {
-                        const domTaxCandidates = Object.keys(remainingTargets).filter(key => {
-                            if (key === 'money_market' || key === 'bonds' || key === 'cash' || INTL_ASSET_IDS.has(key)) return false;
-                            if (remainingTargets[key] <= 0) return false;
-                            const asset = Object.values(ASSET_CLASSES).find(a => a.id === key);
-                            return asset?.taxPref?.[0] === 'taxable';
+                    const totalTaxCandidate = taxableCoreCandidates.reduce((sum, key) => sum + remainingTargets[key], 0);
+                    if (totalTaxCandidate > 0) {
+                        const tRatio = Math.min(1, availTaxable / totalTaxCandidate);
+                        taxableCoreCandidates.forEach(assetId => {
+                            addToBucket(assetId, 'taxable', remainingTargets[assetId] * tRatio);
                         });
-                        const totalDomCandidate = domTaxCandidates.reduce((sum, key) => sum + remainingTargets[key], 0);
-                        if (totalDomCandidate > 0) {
-                            const ratio = Math.min(1, remTaxCap / totalDomCandidate);
-                            domTaxCandidates.forEach(assetId => {
-                                addToBucket(assetId, 'taxable', remainingTargets[assetId] * ratio);
-                            });
-                        }
                     }
                 }
             }

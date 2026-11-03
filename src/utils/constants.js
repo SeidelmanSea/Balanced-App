@@ -99,7 +99,7 @@ export const TAX_STRATEGIES = {
         id: 'balanced_roth',
         name: 'Balanced Roth Growth',
         icon: Target,
-        desc: 'Balances tax-free growth with tax optimization. Prioritizes Domestic Stocks in Roth, International in Taxable (to preserve FTCs), and Bonds in Traditional. Well-suited for portfolios with significant international allocation.'
+        desc: 'Pragmatic tax-free compounding. Shelters high-growth & high-dividend-drag equities (Emerging Markets, Small Cap) in Roth first, pairs Domestic & Developed International proportionally across Roth and Taxable, and keeps Bonds in Traditional.'
     },
     MIRRORED: {
         id: 'mirrored',

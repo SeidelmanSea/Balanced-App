@@ -264,14 +264,14 @@ describe('usePortfolio Hook', () => {
             expect(vtiBuy.diff).toBeCloseTo(10000, 0);
         });
 
-        it('should keep International & Emerging Markets in Taxable under balanced_roth strategy', () => {
+        it('should shelter Emerging Markets in Roth and blend US + Developed Intl proportionally across Roth and Taxable under balanced_roth', () => {
             const { result } = renderHook(() => usePortfolio());
 
             act(() => {
                 result.current.actions.setBondStrategyMode('custom');
                 result.current.actions.setBondAllocation(0);
                 result.current.actions.setTaxStrategy('balanced_roth');
-                result.current.actions.setEquityStrategy({ us_broad: 60, intl: 30, intl_emerg: 10 });
+                result.current.actions.setEquityStrategy({ us_broad: 60, intl_dev: 30, intl_emerg: 10 });
                 result.current.actions.setAccounts({
                     'acc_tax': { id: 'acc_tax', name: 'Brokerage', typeId: 'taxable', taxType: 'taxable', cash: 50000, funds: [] },
                     'acc_roth': { id: 'acc_roth', name: 'Roth IRA', typeId: 'roth_ira', taxType: 'roth', cash: 50000, funds: [] }
@@ -282,15 +282,15 @@ describe('usePortfolio Hook', () => {
             const rothTargets = plan.accountActions['acc_roth'].targetHoldings;
             const taxTargets = plan.accountActions['acc_tax'].targetHoldings;
 
-            // Roth ($50k) should be filled 100% with domestic equity (us_broad = $50k)
-            expect(rothTargets['us_broad']).toBeCloseTo(50000, 0);
-            expect(rothTargets['intl'] || 0).toBe(0);
-            expect(rothTargets['intl_emerg'] || 0).toBe(0);
+            // Step 1: Emerging Markets ($10k) is 100% sheltered in Roth (0% in Taxable)
+            expect(rothTargets['intl_emerg']).toBeCloseTo(10000, 0);
+            expect(taxTargets['intl_emerg'] || 0).toBe(0);
 
-            // Taxable ($50k) should hold all $30k intl + $10k intl_emerg + remaining $10k us_broad
-            expect(taxTargets['intl']).toBeCloseTo(30000, 0);
-            expect(taxTargets['intl_emerg']).toBeCloseTo(10000, 0);
-            expect(taxTargets['us_broad']).toBeCloseTo(10000, 0);
+            // Step 2: Remaining $40k Roth & $50k Taxable blend US Broad ($60k) and Intl Dev ($30k) in their 2:1 ratio
+            expect(rothTargets['us_broad']).toBeCloseTo(26667, 0);
+            expect(rothTargets['intl_dev']).toBeCloseTo(13333, 0);
+            expect(taxTargets['us_broad']).toBeCloseTo(33333, 0);
+            expect(taxTargets['intl_dev']).toBeCloseTo(16667, 0);
         });
 
         it('should use 25% relative drift for minor holdings', () => {
