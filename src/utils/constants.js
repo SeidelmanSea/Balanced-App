@@ -17,8 +17,8 @@ import {
 
 export const ASSET_CLASSES = {
     // Cash & Equivalents - STRONGLY prefer taxable (already tax-efficient)
-    CASH: { id: 'cash', name: 'Cash & Equivalents', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable'] },
-    MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable'] },
+    CASH: { id: 'cash', name: 'Cash & Equivalents', color: '#a1a1aa', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
+    MONEY_MARKET: { id: 'money_market', name: 'Money Market', color: '#71717a', type: 'fixed', taxPref: ['taxable', 'deferred', 'roth'] },
 
 
     // US Equities - Core
@@ -38,24 +38,24 @@ export const ASSET_CLASSES = {
     INTL_DEV: { id: 'intl_dev', name: 'Intl Developed Mkts', color: '#fbbf24', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
     INTL_EMERG: { id: 'intl_emerg', name: 'Emerging Markets', color: '#f97316', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
     INTL_SMALL: { id: 'intl_small', name: 'Intl Small Cap', color: '#ea580c', type: 'equity', taxPref: ['roth', 'deferred', 'taxable'] },
-    EUROPE: { id: 'europe', name: 'Europe ETF', color: '#38bdf8', type: 'equity', taxPref: ['taxable', 'deferred'] },
-    PACIFIC: { id: 'pacific', name: 'Pacific / Asia ETF', color: '#0ea5e9', type: 'equity', taxPref: ['taxable', 'deferred'] },
+    EUROPE: { id: 'europe', name: 'Europe ETF', color: '#38bdf8', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
+    PACIFIC: { id: 'pacific', name: 'Pacific / Asia ETF', color: '#0ea5e9', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
 
     // Sectors & Thematic
-    SECTOR_TECH: { id: 'sector_tech', name: 'Technology Sector', color: '#06b6d4', type: 'equity', taxPref: ['taxable', 'roth'] },
-    SECTOR_HEALTH: { id: 'sector_health', name: 'Healthcare Sector', color: '#ec4899', type: 'equity', taxPref: ['taxable', 'roth'] },
-    SECTOR_ENERGY: { id: 'sector_energy', name: 'Energy Sector', color: '#ef4444', type: 'equity', taxPref: ['taxable', 'roth'] },
+    SECTOR_TECH: { id: 'sector_tech', name: 'Technology Sector', color: '#06b6d4', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    SECTOR_HEALTH: { id: 'sector_health', name: 'Healthcare Sector', color: '#ec4899', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    SECTOR_ENERGY: { id: 'sector_energy', name: 'Energy Sector', color: '#ef4444', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
     SECTOR_FINANCE: { id: 'sector_finance', name: 'Financials Sector', color: '#64748b', type: 'equity', taxPref: ['taxable', 'deferred', 'roth'] },
 
     // Specialized / Alternatives
     DIVIDEND: { id: 'dividend', name: 'Dividend Growth', color: '#8b5cf6', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
     REIT: { id: 'reit', name: 'Real Estate (REITs)', color: '#be185d', type: 'equity', taxPref: ['deferred', 'roth', 'taxable'] },
     GOLD: { id: 'gold', name: 'Gold / Precious Metals', color: '#eab308', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
-    COMMODITIES: { id: 'commodities', name: 'Broad Commodities', color: '#a16207', type: 'equity', taxPref: ['taxable', 'roth'] },
-    CRYPTO: { id: 'crypto', name: 'Bitcoin / Crypto', color: '#f59e0b', type: 'equity', taxPref: ['taxable', 'roth'] },
+    COMMODITIES: { id: 'commodities', name: 'Broad Commodities', color: '#a16207', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+    CRYPTO: { id: 'crypto', name: 'Bitcoin / Crypto', color: '#f59e0b', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
 
     // Fixed Income & Cash
-    BONDS: { id: 'bonds', name: 'Bonds', color: '#f43f5e', type: 'fixed', taxPref: ['deferred', 'roth', 'taxable'] },
+    BONDS: { id: 'bonds', name: 'Bonds', color: '#f43f5e', type: 'fixed', taxPref: ['deferred', 'taxable', 'roth'] },
 
     // Individual Stocks
     INDIVIDUAL_STOCK: { id: 'individual_stock', name: 'Individual Stocks', color: '#a855f7', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
@@ -174,9 +174,10 @@ export const DEMO_DATA = {
         'demo_1': { id: 'demo_1', name: 'Vanguard Brokerage', typeId: 'taxable', taxType: 'taxable', cash: 5000, funds: [{ id: 1, name: 'VTI', type: 'us_broad', value: 150000 }, { id: 2, name: 'VXUS', type: 'intl', value: 80000 }] },
         'demo_2': { id: 'demo_2', name: 'Fidelity IRA', typeId: 'trad_ira', taxType: 'deferred', cash: 1000, funds: [{ id: 3, name: 'BND', type: 'bonds', value: 40000 }, { id: 4, name: 'VTV', type: 'us_large_value', value: 20000 }] },
         'demo_3': { id: 'demo_3', name: 'Roth IRA', typeId: 'roth_ira', taxType: 'roth', cash: 500, funds: [{ id: 5, name: 'VUG', type: 'us_large_growth', value: 30000 }, { id: 6, name: 'VNQ', type: 'reit', value: 10000 }] },
-        'demo_ef': { id: 'demo_ef', name: 'HYSA Emergency Fund', typeId: 'emergency_fund', taxType: 'taxable', cash: 25000, funds: [] }
+        'demo_ef': { id: 'demo_ef', name: 'HYSA Emergency Fund', typeId: 'emergency_fund', taxType: 'taxable', cash: 25000, cashIsEmergency: true, funds: [] }
     },
     bondAllocation: 15,
+    cashAllocation: 0,
     emergencyFund: 25000,
     userAge: 35,
     bondStrategyMode: 'smart',

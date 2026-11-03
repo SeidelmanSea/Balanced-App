@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import SEO from './components/SEO';
 import { Link } from 'react-router-dom';
+import { BOND_MIN, BOND_MAX, GLIDE_PATH_START_AGE } from './utils/constants';
 
 export default function AssetAllocationCalc() {
     const [age, setAge] = useState('');
@@ -28,11 +29,7 @@ export default function AssetAllocationCalc() {
                 break;
             case 'smart':
             default:
-                // Non-linear glide path
-                const BOND_MIN = 10;
-                const BOND_MAX = 60;
-                const GLIDE_PATH_START_AGE = 30;
-
+                // Non-linear glide path matching main app constants
                 if (numericAge < GLIDE_PATH_START_AGE) {
                     bondAllocation = BOND_MIN;
                 } else if (numericAge >= retirement) {

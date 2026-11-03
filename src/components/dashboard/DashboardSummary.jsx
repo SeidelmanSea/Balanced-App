@@ -95,7 +95,9 @@ const DashboardSummary = ({
         totalNetWorth,
         investableTotal,
         emergencyActual,
-        emergencyTarget
+        emergencyTarget,
+        emergencySurplus = 0,
+        accountEmergencyMap = {}
     } = portfolioMetrics;
 
     const [compositionView, setCompositionView] = useState('donut'); // 'donut' | 'treemap'
@@ -268,7 +270,7 @@ const DashboardSummary = ({
         if (treemapGroup === 'account') {
             const accItems = [];
             Object.values(accounts).forEach(acc => {
-                if (!acc || acc.isEmergencyFund || acc.typeId === 'emergency_fund') return;
+                if (!acc || acc.isEmergencyFund) return;
                 const holdings = [];
                 let accValue = 0;
 
@@ -289,10 +291,11 @@ const DashboardSummary = ({
                     });
                 }
 
-                const cashVal = !acc.cashIsEmergency ? (parseFloat(acc.cash) || 0) : 0;
+                const efEntry = accountEmergencyMap?.[acc.id] || { spilloverCash: 0 };
+                const cashVal = (!acc.cashIsEmergency ? (parseFloat(acc.cash) || 0) : 0) + (efEntry.spilloverCash || 0);
                 if (cashVal > 1) {
                     holdings.push({
-                        name: 'Cash',
+                        name: efEntry.spilloverCash > 1 && acc.cashIsEmergency ? 'Excess Reserve Cash' : 'Cash',
                         assetName: 'Cash & Equivalents',
                         value: cashVal,
                         color: ASSET_CLASSES.CASH.color
@@ -330,7 +333,7 @@ const DashboardSummary = ({
                     holdings: [{ name: d.name, value: d.current, color: d.color }]
                 }));
         }
-    }, [accounts, treemapGroup, driftItems, investableTotal, hsaStrategy]);
+    }, [accounts, accountEmergencyMap, treemapGroup, driftItems, investableTotal, hsaStrategy]);
 
     // 3. Tax-Location X-Ray Data
     const taxLocationBuckets = useMemo(() => {
@@ -368,7 +371,7 @@ const DashboardSummary = ({
         };
 
         Object.values(accounts).forEach(acc => {
-            if (!acc || acc.isEmergencyFund || acc.typeId === 'emergency_fund') return;
+            if (!acc || acc.isEmergencyFund) return;
             const bucketKey = (acc.typeId === 'hsa' || acc.id === 'hsa')
                 ? (hsaStrategy === 'roth' ? 'roth' : 'deferred')
                 : (acc.taxType || 'taxable');
@@ -386,12 +389,11 @@ const DashboardSummary = ({
                     bucket.currentTotal += val;
                 });
             }
-            if (!acc.cashIsEmergency) {
-                const cashVal = parseFloat(acc.cash) || 0;
-                if (cashVal > 0) {
-                    bucket.currentAssets['cash'] = (bucket.currentAssets['cash'] || 0) + cashVal;
-                    bucket.currentTotal += cashVal;
-                }
+            const efEntry = accountEmergencyMap?.[acc.id] || { spilloverCash: 0 };
+            const cashVal = (!acc.cashIsEmergency ? (parseFloat(acc.cash) || 0) : 0) + (efEntry.spilloverCash || 0);
+            if (cashVal > 0) {
+                bucket.currentAssets['cash'] = (bucket.currentAssets['cash'] || 0) + cashVal;
+                bucket.currentTotal += cashVal;
             }
 
             // Target holdings in this account from rebalancingPlan
@@ -432,7 +434,7 @@ const DashboardSummary = ({
                 segments
             };
         });
-    }, [accounts, hsaStrategy, rebalancingPlan, locationView, assetList, investableTotal]);
+    }, [accounts, accountEmergencyMap, hsaStrategy, rebalancingPlan, locationView, assetList, investableTotal]);
 
     // 4. Glidepath Curve Data
     const currentYear = new Date().getFullYear();
@@ -589,12 +591,13 @@ const DashboardSummary = ({
     const chartTooltipLabelStyle = { color: isDarkMode ? '#ffffff' : '#18181b', fontWeight: '600' };
     const chartTooltipItemStyle = { color: isDarkMode ? '#e4e4e7' : '#27272a', fontSize: '12px' };
 
-    // Net Worth Breakdown segments
+    // Net Worth Breakdown segments (prevent double-counting emergencySurplus in both Cash and Shielded)
     const uninvestedCash = currentAllocation['cash'] || 0;
     const investedSecurities = Math.max(0, investableTotal - uninvestedCash);
+    const effectiveShielded = Math.max(0, emergencyActual - emergencySurplus);
     const nwInvestedPct = totalNetWorth > 0 ? (investedSecurities / totalNetWorth) * 100 : 0;
     const nwCashPct = totalNetWorth > 0 ? (uninvestedCash / totalNetWorth) * 100 : 0;
-    const nwEmergencyPct = totalNetWorth > 0 ? (emergencyActual / totalNetWorth) * 100 : 0;
+    const nwEmergencyPct = totalNetWorth > 0 ? (effectiveShielded / totalNetWorth) * 100 : 0;
 
     const targetEquityPct = Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0));
     const emergencyDiff = emergencyActual - emergencyTarget;

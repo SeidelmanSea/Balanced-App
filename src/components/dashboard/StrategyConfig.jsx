@@ -43,13 +43,13 @@ const StrategyConfig = ({
     const isEquityValid = Math.abs(totalEquityAllocation - 100) < 0.1;
     const isCustomMode = bondStrategyMode === 'custom';
 
-    const safeAge = Math.max(18, Math.min(100, numericAge || 35));
+    const safeAge = Math.max(18, Math.min(100, syntheticAge || numericAge || 35));
     const bondStrategies = React.useMemo(() => [
         { id: 'smart', name: 'Target Date', value: getSuggestedBondAllocation(syntheticAge), desc: `Non-linear glide path based on your 20${retirementYear.toString().slice(-2)} retirement goal.` },
         { id: 'aggressive', name: 'Aggressive', value: Math.max(0, safeAge - 20), desc: 'Set target to Age - 20' },
         { id: 'moderate', name: 'Moderate', value: Math.max(0, safeAge - 10), desc: 'Set target to Age - 10' },
         { id: 'conservative', name: 'Conservative', value: Math.min(100, safeAge), desc: 'Set target to Age' },
-    ], [numericAge, syntheticAge, retirementYear]);
+    ], [safeAge, syntheticAge, retirementYear]);
 
     // Sync bond allocation ONLY for Dynamic (smart) mode
     React.useEffect(() => {

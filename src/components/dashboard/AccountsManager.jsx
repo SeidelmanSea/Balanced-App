@@ -135,7 +135,7 @@ const AccountsManager = ({
                                                 {formatCurrency(
                                                     (parseFloat(accountData.cash) || 0) +
                                                     (accountData.funds || [])
-                                                        .filter(f => f.type === 'money_market')
+                                                        .filter(f => f.type === 'money_market' || f.type === 'cash')
                                                         .reduce((sum, f) => sum + (parseFloat(f.value) || 0), 0)
                                                 )}
                                             </div>

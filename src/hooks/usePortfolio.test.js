@@ -162,8 +162,8 @@ describe('usePortfolio Hook', () => {
 
         const account = result.current.state.accounts[accId];
 
-        // Cash should be added to cash field (1000 + 5000 = 6000)
-        expect(account.cash).toBe(6000);
+        // Cash should be replaced by snapshot cash field (5000)
+        expect(account.cash).toBe(5000);
 
         // Only non-cash entries should be in funds (2 items: VTSAX and VMFXX)
         expect(account.funds).toHaveLength(2);
@@ -183,10 +183,7 @@ describe('usePortfolio Hook', () => {
                 result.current.actions.setBondAllocation(40);
                 result.current.actions.setRebalanceModeTaxable('bands');
                 result.current.actions.setEquityStrategy({ us_broad: 100 }); // Set equity strategy
-
-                result.current.actions.setNewAccountName('Brokerage');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('Brokerage', 'taxable');
             });
 
             const accId = Object.keys(result.current.state.accounts)[0];
@@ -203,6 +200,97 @@ describe('usePortfolio Hook', () => {
 
             // Should have rebalance actions (not all HOLD)
             expect(actions.length).toBeGreaterThan(0);
+        });
+
+        it('should NOT trigger full sell rebalance when only uninvested cash exceeds 0.5%, deploying cash instead', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setBondStrategyMode('custom');
+                result.current.actions.setBondAllocation(40);
+                result.current.actions.setRebalanceModeTaxable('bands');
+                result.current.actions.setEquityStrategy({ us_broad: 100 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+            });
+
+            const accId = Object.keys(result.current.state.accounts)[0];
+
+            // Portfolio is within 5% bands (61% stock, 37% bond, 2% cash)
+            act(() => {
+                result.current.actions.updateAccountCash(accId, 2000);
+                result.current.actions.importFunds(accId, [
+                    { name: 'VTI', value: 61000, type: 'us_broad' },
+                    { name: 'BND', value: 37000, type: 'bonds' }
+                ]);
+            });
+
+            const plan = result.current.rebalancingPlan;
+            expect(plan.globalBandsTriggered).toBe(false);
+
+            const actions = plan.accountActions[accId]?.actions || [];
+            // Should NOT sell VTI (which is slightly overweight at 61% vs 60%), only deploy the $2,000 cash into BND
+            const vtiSell = actions.find(a => a.assetId === 'us_broad' && a.action === 'SELL');
+            const bndBuy = actions.find(a => a.assetId === 'bonds' && a.action === 'BUY');
+            expect(vtiSell).toBeUndefined();
+            expect(bndBuy).toBeDefined();
+            expect(bndBuy.diff).toBeCloseTo(2000, 0);
+        });
+
+        it('should treat unshielded money market funds as deployable cash in inflow mode', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setBondStrategyMode('custom');
+                result.current.actions.setBondAllocation(20);
+                result.current.actions.setRebalanceModeTaxable('inflow');
+                result.current.actions.setEquityStrategy({ us_broad: 100 });
+                result.current.actions.createAccount('Brokerage', 'taxable');
+            });
+
+            const accId = Object.keys(result.current.state.accounts)[0];
+
+            // User holds $10,000 in VMFXX (money_market) and $0 in raw sweep cash
+            act(() => {
+                result.current.actions.importFunds(accId, [
+                    { name: 'VTI', value: 70000, type: 'us_broad' },
+                    { name: 'BND', value: 20000, type: 'bonds' },
+                    { name: 'VMFXX', value: 10000, type: 'money_market' }
+                ]);
+            });
+
+            const actions = result.current.rebalancingPlan.accountActions[accId]?.actions || [];
+            const vtiBuy = actions.find(a => a.assetId === 'us_broad' && a.action === 'BUY');
+            expect(vtiBuy).toBeDefined();
+            expect(vtiBuy.diff).toBeCloseTo(10000, 0);
+        });
+
+        it('should keep International & Emerging Markets in Taxable under balanced_roth strategy', () => {
+            const { result } = renderHook(() => usePortfolio());
+
+            act(() => {
+                result.current.actions.setBondStrategyMode('custom');
+                result.current.actions.setBondAllocation(0);
+                result.current.actions.setTaxStrategy('balanced_roth');
+                result.current.actions.setEquityStrategy({ us_broad: 60, intl: 30, intl_emerg: 10 });
+                result.current.actions.setAccounts({
+                    'acc_tax': { id: 'acc_tax', name: 'Brokerage', typeId: 'taxable', taxType: 'taxable', cash: 50000, funds: [] },
+                    'acc_roth': { id: 'acc_roth', name: 'Roth IRA', typeId: 'roth_ira', taxType: 'roth', cash: 50000, funds: [] }
+                });
+            });
+
+            const plan = result.current.rebalancingPlan;
+            const rothTargets = plan.accountActions['acc_roth'].targetHoldings;
+            const taxTargets = plan.accountActions['acc_tax'].targetHoldings;
+
+            // Roth ($50k) should be filled 100% with domestic equity (us_broad = $50k)
+            expect(rothTargets['us_broad']).toBeCloseTo(50000, 0);
+            expect(rothTargets['intl'] || 0).toBe(0);
+            expect(rothTargets['intl_emerg'] || 0).toBe(0);
+
+            // Taxable ($50k) should hold all $30k intl + $10k intl_emerg + remaining $10k us_broad
+            expect(taxTargets['intl']).toBeCloseTo(30000, 0);
+            expect(taxTargets['intl_emerg']).toBeCloseTo(10000, 0);
+            expect(taxTargets['us_broad']).toBeCloseTo(10000, 0);
         });
 
         it('should use 25% relative drift for minor holdings', () => {
@@ -428,9 +516,7 @@ describe('usePortfolio Hook', () => {
             const { result } = renderHook(() => usePortfolio());
 
             act(() => {
-                result.current.actions.setNewAccountName('Brokerage');
-                result.current.actions.setNewAccountType('taxable');
-                result.current.actions.createAccount();
+                result.current.actions.createAccount('Brokerage', 'taxable');
             });
 
             const accId = Object.keys(result.current.state.accounts)[0];
