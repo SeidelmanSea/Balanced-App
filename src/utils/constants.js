@@ -99,7 +99,7 @@ export const TAX_STRATEGIES = {
         id: 'balanced_roth',
         name: 'Balanced Roth Growth',
         icon: Target,
-        desc: 'Pragmatic tax-free compounding. Shelters high-growth & high-dividend-drag equities (Emerging Markets, Small Cap) in Roth first, pairs Domestic & Developed International proportionally across Roth and Taxable, and keeps Bonds in Traditional.'
+        desc: 'Shelters high-drag equities (Emerging Markets, Small Cap) in Roth first, blends US & Developed International proportionally across Roth and Taxable, and keeps Bonds in Traditional.'
     },
     MIRRORED: {
         id: 'mirrored',

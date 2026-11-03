@@ -300,7 +300,7 @@ const StrategyConfig = ({
                                             className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden ${isMatch ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-zinc-100 dark:border-zinc-800 hover:border-emerald-200'}`}
                                         >
                                             <div className="font-bold text-[10px] text-zinc-800 dark:text-zinc-100 truncate mb-1">{preset.name}</div>
-                                            <div className="text-[8px] text-zinc-400 leading-tight line-clamp-2">{preset.desc}</div>
+                                            <div className="text-[8px] text-zinc-400 leading-tight">{preset.desc}</div>
                                             {isMatch && <CheckCircle2 className="absolute -right-2 -bottom-2 w-8 h-8 text-emerald-500/10" />}
                                         </button>
                                     );
@@ -416,7 +416,7 @@ const StrategyConfig = ({
                                     {taxStrategy === strategy.id && <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30"><CheckCircle2 className="w-4 h-4 text-white" /></div>}
                                 </div>
                                 <div className={`font-black tracking-tight mb-2 ${taxStrategy === strategy.id ? 'text-zinc-900 dark:text-zinc-50' : 'text-zinc-700 dark:text-zinc-300'}`}>{strategy.name}</div>
-                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium line-clamp-3">{strategy.desc}</div>
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">{strategy.desc}</div>
                             </button>
                         ))}
                     </div>
