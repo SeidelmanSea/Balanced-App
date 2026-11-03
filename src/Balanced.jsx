@@ -52,24 +52,60 @@ export default function PortfolioApp() {
     rebalanceModeSheltered
   } = state;
 
+  const totalEquity = Object.values(equityStrategy).reduce((a, b) => a + b, 0);
+  const isEquityValid = Math.abs(totalEquity - 100) < 0.1;
+  const totalTrades = Object.values(rebalancingPlan?.accountActions || {}).reduce(
+    (sum, p) => sum + (p.actions?.length || 0),
+    0
+  );
+  const hasAccounts = Object.keys(accounts).length > 0;
+
+  const navTabs = [
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: false },
+    { id: 'accounts', icon: Wallet, label: 'Accounts', badge: false },
+    { id: 'configure', icon: SlidersHorizontal, label: 'Strategy', badge: !isEquityValid },
+    { id: 'rebalance', icon: Scale, label: 'Balance', badge: totalTrades > 0 ? totalTrades : false },
+    { id: 'settings', icon: Settings, label: 'Settings', badge: false },
+  ];
+
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 pb-20 md:pb-0 font-sans">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 pb-24 sm:pb-0 font-sans">
       <SEO
         title="Dashboard"
         description="Manage your portfolio, track asset allocation, and calculate rebalancing trades."
         canonical="/app"
       />
 
-      {/* Mobile Header */}
-      <header className="bg-white dark:bg-zinc-900 shadow-sm border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-10 transition-colors duration-200">
+      {/* Frosted-Glass Sticky Header */}
+      <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-zinc-200/80 dark:border-zinc-800/80 sticky top-0 z-30 transition-colors duration-200">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <img src="/pwa-icon.svg" alt="Balanced" className="w-9 h-9 shadow-lg shadow-emerald-500/20 rounded-2xl hover:scale-105 transition-transform" />
             <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">Balanced</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-xs text-zinc-400 hidden sm:block font-medium">Tax-Efficient Portfolio Manager</div>
-            <button onClick={actions.toggleTheme} className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500" aria-label="Toggle Dark Mode">
+          <div className="flex items-center gap-3">
+            {hasAccounts && (
+              <button
+                type="button"
+                onClick={() => actions.setActiveTab( !isEquityValid ? 'configure' : 'rebalance')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all border ${
+                  !isEquityValid
+                    ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/60'
+                    : totalTrades > 0
+                    ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/60'
+                    : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/60'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${!isEquityValid ? 'bg-red-500 animate-pulse' : totalTrades > 0 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                {!isEquityValid
+                  ? 'Strategy Invalid'
+                  : totalTrades > 0
+                  ? `${totalTrades} Trade${totalTrades !== 1 ? 's' : ''} Ready`
+                  : 'Balanced'}
+              </button>
+            )}
+            <div className="text-xs text-zinc-400 hidden md:block font-medium">Tax-Efficient Portfolio Manager</div>
+            <button onClick={actions.toggleTheme} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500" aria-label="Toggle Dark Mode">
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
@@ -77,30 +113,26 @@ export default function PortfolioApp() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="flex space-x-1 bg-white dark:bg-zinc-900 p-1 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 mb-8 w-full sm:w-auto inline-flex overflow-x-auto">
-          {(() => {
-            const totalEquity = Object.values(equityStrategy).reduce((a, b) => a + b, 0);
-            const isEquityValid = Math.abs(totalEquity - 100) < 0.1;
-            return [
-              { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: false },
-              { id: 'accounts', icon: Wallet, label: 'Accounts', badge: false },
-              { id: 'configure', icon: SlidersHorizontal, label: 'Strategy', badge: !isEquityValid },
-              { id: 'rebalance', icon: Scale, label: 'Balance', badge: false },
-              { id: 'settings', icon: Settings, label: 'Settings', badge: false },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => actions.setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
-              >
-                <tab.icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
-                {tab.badge && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                )}
-              </button>
-            ));
-          })()}
+        {/* Desktop Navigation Bar */}
+        <div className="hidden sm:inline-flex space-x-1 bg-white dark:bg-zinc-900 p-1 rounded-2xl shadow-sm border border-zinc-200/80 dark:border-zinc-800 mb-8">
+          {navTabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => actions.setActiveTab(tab.id)}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+              {tab.badge === true && (
+                <span className="w-2 h-2 bg-red-500 rounded-full" />
+              )}
+              {typeof tab.badge === 'number' && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 tabular-nums">
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
         <div className="flex-1">
@@ -171,6 +203,7 @@ export default function PortfolioApp() {
                 removeEquityAsset={actions.removeEquityAsset}
                 resetEquityStrategy={actions.resetEquityStrategy}
                 normalizeEquityStrategy={actions.normalizeEquityStrategy}
+                investableTotal={metrics.investableTotal}
               />
             </div>
           )}
@@ -187,6 +220,10 @@ export default function PortfolioApp() {
                 setActiveTab={actions.setActiveTab}
                 equityStrategy={equityStrategy}
                 hsaStrategy={hsaStrategy}
+                applyRebalanceTrades={actions.applyRebalanceTrades}
+                portfolioMetrics={metrics}
+                bondAllocation={bondAllocation}
+                cashAllocation={cashAllocation}
               />
             </div>
           )}
@@ -223,7 +260,7 @@ export default function PortfolioApp() {
 
         {/* Global Notification */}
         {notification.message && (
-          <div className={`fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 animate-in slide-in-from-bottom-2 ${notification.type === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200'}`}>
+          <div className={`fixed bottom-20 sm:bottom-4 right-4 px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50 animate-in slide-in-from-bottom-2 ${notification.type === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200'}`}>
             {notification.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
             <span className="text-sm font-medium">{notification.message}</span>
           </div>
@@ -257,6 +294,35 @@ export default function PortfolioApp() {
           </div>
         </footer>
       </main>
+
+      {/* Mobile Fixed Bottom Navigation Bar */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-t border-zinc-200/80 dark:border-zinc-800/80 px-2 py-1.5 flex items-center justify-around">
+        {navTabs.map(tab => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => actions.setActiveTab(tab.id)}
+              className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all ${
+                isActive
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
+              }`}
+            >
+              <tab.icon className="w-5 h-5" />
+              <span className="text-[10px] font-semibold mt-0.5">{tab.label}</span>
+              {tab.badge === true && (
+                <span className="absolute top-1 right-2.5 w-2 h-2 bg-red-500 rounded-full" />
+              )}
+              {typeof tab.badge === 'number' && (
+                <span className="absolute top-0.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold bg-emerald-500 text-white flex items-center justify-center tabular-nums">
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }

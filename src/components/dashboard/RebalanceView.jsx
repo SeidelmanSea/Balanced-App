@@ -1,8 +1,8 @@
 
-import React from 'react';
-import { Scale, CheckCircle2, Shield, AlertCircle, ArrowDownRight, ArrowUpRight, Wallet, ShieldCheck, Layers } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Scale, CheckCircle2, Shield, AlertCircle, ArrowDownRight, ArrowUpRight, Wallet, ShieldCheck, Layers, Copy, Check, Sparkles, Calculator, CheckSquare, Square } from 'lucide-react';
 import Card from '../ui/Card';
-import { REBALANCE_MODES, ACCOUNT_CREATION_OPTIONS } from '../../utils/constants';
+import { REBALANCE_MODES, ACCOUNT_CREATION_OPTIONS, ASSET_CLASSES } from '../../utils/constants';
 
 const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
@@ -15,10 +15,85 @@ const RebalanceView = ({
     rebalancingPlan,
     setActiveTab,
     equityStrategy,
-    hsaStrategy = 'roth'
+    hsaStrategy = 'roth',
+    applyRebalanceTrades,
+    portfolioMetrics,
+    bondAllocation = 0,
+    cashAllocation = 0
 }) => {
+    const [checkedTrades, setCheckedTrades] = useState({});
+    const [copiedKey, setCopiedKey] = useState(null);
+    const [simulatedDeposit, setSimulatedDeposit] = useState('');
+    const [showSimulator, setShowSimulator] = useState(false);
+
     const hasAccounts = Object.keys(accounts).length > 0;
     const isEquityValid = equityStrategy && Math.abs(Object.values(equityStrategy).reduce((a, b) => a + b, 0) - 100) < 0.1;
+
+    const toggleTradeChecked = (key) => {
+        setCheckedTrades(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const handleCopyAmount = (e, key, amount) => {
+        e.stopPropagation();
+        const rawNumber = Math.round(Math.abs(amount)).toString();
+        if (navigator?.clipboard) {
+            navigator.clipboard.writeText(rawNumber);
+            setCopiedKey(key);
+            setTimeout(() => setCopiedKey(null), 1500);
+        }
+    };
+
+    // "What-If" Cash Contribution Simulator calculation
+    const simulatedBuys = useMemo(() => {
+        const deposit = parseFloat(simulatedDeposit) || 0;
+        if (deposit <= 0 || !portfolioMetrics) return [];
+
+        const currentInvestable = portfolioMetrics.investableTotal || 0;
+        const newTotal = currentInvestable + deposit;
+        const currentAlloc = portfolioMetrics.currentAllocation || {};
+
+        const targetBondRatio = (bondAllocation || 0) / 100;
+        const targetCashRatio = (cashAllocation || 0) / 100;
+        const targetEquityRatio = Math.max(0, 1 - targetBondRatio - targetCashRatio);
+
+        const deficits = [];
+        Object.values(ASSET_CLASSES).forEach(asset => {
+            if (asset.id === 'money_market') return; // Handled via 'cash'
+            let targetWeight = 0;
+            if (asset.id === 'cash') {
+                targetWeight = targetCashRatio;
+            } else if (asset.id === 'bonds') {
+                targetWeight = targetBondRatio;
+            } else {
+                const eqPct = (equityStrategy?.[asset.id] || 0) / 100;
+                targetWeight = targetEquityRatio * eqPct;
+            }
+
+            const targetDollars = newTotal * targetWeight;
+            const currentDollars = currentAlloc[asset.id] || 0;
+            const shortfall = Math.max(0, targetDollars - currentDollars);
+            if (shortfall > 1) {
+                deficits.push({
+                    id: asset.id,
+                    name: asset.name,
+                    color: asset.color,
+                    shortfall
+                });
+            }
+        });
+
+        const totalShortfall = deficits.reduce((s, d) => s + d.shortfall, 0);
+        if (totalShortfall <= 0) return [];
+
+        return deficits
+            .map(d => ({
+                ...d,
+                buyAmount: deposit * (d.shortfall / totalShortfall),
+                sharePct: (d.shortfall / totalShortfall) * 100
+            }))
+            .filter(d => d.buyAmount >= 1)
+            .sort((a, b) => b.buyAmount - a.buyAmount);
+    }, [simulatedDeposit, portfolioMetrics, bondAllocation, cashAllocation, equityStrategy]);
 
     if (!hasAccounts) {
         return (
@@ -121,13 +196,93 @@ const RebalanceView = ({
                 </Card>
             )}
 
+            {/* "What-If" Cash Contribution Simulator */}
+            <Card className="p-5 border-l-4 border-l-teal-500 bg-white dark:bg-zinc-900">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">
+                            <Calculator className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                                New Cash Contribution Simulator
+                                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">What-If</span>
+                            </h3>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">Preview how to allocate a fresh deposit into your most underweight assets without selling.</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setShowSimulator(!showSimulator)}
+                        className="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors self-start sm:self-auto shrink-0"
+                    >
+                        {showSimulator ? 'Hide Simulator' : 'Simulate Deposit'}
+                    </button>
+                </div>
+
+                {showSimulator && (
+                    <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-4 animate-in fade-in duration-200">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            <div className="relative flex-1 max-w-xs">
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">$</span>
+                                <input
+                                    type="number"
+                                    value={simulatedDeposit}
+                                    onChange={(e) => setSimulatedDeposit(e.target.value)}
+                                    placeholder="e.g. 2500"
+                                    className="w-full pl-8 pr-4 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold tabular-nums focus:ring-2 focus:ring-teal-500 outline-none"
+                                />
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                                {[500, 1000, 2500, 5000, 10000].map(preset => (
+                                    <button
+                                        key={preset}
+                                        type="button"
+                                        onClick={() => setSimulatedDeposit(preset.toString())}
+                                        className={`px-2.5 py-1.5 rounded-lg text-xs font-bold tabular-nums border transition-all ${parseFloat(simulatedDeposit) === preset ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100'}`}
+                                    >
+                                        +{formatCurrency(preset)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {parseFloat(simulatedDeposit) > 0 && (
+                            simulatedBuys.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                                    {simulatedBuys.map(item => (
+                                        <div key={item.id} className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/70 dark:border-zinc-800 flex items-center justify-between gap-2">
+                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                                                <div className="min-w-0">
+                                                    <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">{item.name}</div>
+                                                    <div className="text-[10px] text-zinc-400 tabular-nums">{item.sharePct.toFixed(0)}% of deposit</div>
+                                                </div>
+                                            </div>
+                                            <div className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400 tabular-nums shrink-0">
+                                                +{formatCurrency(item.buyAmount)}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-zinc-500 italic">Enter a valid strategy target to see suggested buys.</p>
+                            )
+                        )}
+                    </div>
+                )}
+            </Card>
+
             {/* Portfolio Rebalance Summary */}
             {(() => {
                 const { globalBandsTriggered } = rebalancingPlan;
-                const allActions = Object.values(accountActions).flatMap(p => p.actions);
-                const totalBuys = allActions.filter(a => a.diff > 0).reduce((s, a) => s + a.diff, 0);
-                const totalSells = allActions.filter(a => a.diff < 0).reduce((s, a) => s + Math.abs(a.diff), 0);
-                const tradeCount = allActions.length;
+                const allActionsWithKeys = Object.entries(accountActions).flatMap(([accId, p]) =>
+                    p.actions.map((a, idx) => ({ ...a, key: `${accId}_${a.assetId}_${idx}` }))
+                );
+                const totalBuys = allActionsWithKeys.filter(a => a.diff > 0).reduce((s, a) => s + a.diff, 0);
+                const totalSells = allActionsWithKeys.filter(a => a.diff < 0).reduce((s, a) => s + Math.abs(a.diff), 0);
+                const tradeCount = allActionsWithKeys.length;
+                const completedCount = allActionsWithKeys.filter(a => checkedTrades[a.key]).length;
                 const activeAccountCount = Object.values(accountActions).filter(p => p.actions.length > 0).length;
 
                 // Determine if either mode uses bands
@@ -136,7 +291,6 @@ const RebalanceView = ({
                 const isInflowOnly = rebalanceModeTaxable === 'inflow' && rebalanceModeSheltered === 'inflow';
 
                 // The "volume" number: in inflow mode, just buys; otherwise the rebalancing turnover
-                // (buys ≈ sells in a true rebalance, so we pick the larger side to avoid showing zero)
                 const volume = isInflowOnly ? totalBuys : Math.max(totalBuys, totalSells);
                 const volumeLabel = isInflowOnly ? 'Total to Invest' : 'Rebalancing Volume';
 
@@ -145,17 +299,42 @@ const RebalanceView = ({
 
                 return (
                     <Card className="p-5 border-l-4 border-l-emerald-500 bg-emerald-50/30 dark:bg-emerald-900/5">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                             <h3 className="font-semibold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
                                 <Scale className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                 Portfolio Summary
                             </h3>
-                            <span className="text-xs text-zinc-400 font-medium">
-                                {tradeCount > 0
-                                    ? `${tradeCount} trade${tradeCount !== 1 ? 's' : ''} across ${activeAccountCount} account${activeAccountCount !== 1 ? 's' : ''}`
-                                    : 'No trades required'}
-                            </span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium tabular-nums">
+                                    {tradeCount > 0
+                                        ? `${completedCount}/${tradeCount} completed across ${activeAccountCount} account${activeAccountCount !== 1 ? 's' : ''}`
+                                        : 'No trades required'}
+                                </span>
+                                {tradeCount > 0 && applyRebalanceTrades && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            applyRebalanceTrades();
+                                            setCheckedTrades({});
+                                        }}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all active:scale-95"
+                                        title="Update your account holdings automatically to match the target balances below"
+                                    >
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                        Apply Trades to Accounts
+                                    </button>
+                                )}
+                            </div>
                         </div>
+
+                        {tradeCount > 0 && (
+                            <div className="w-full h-1.5 bg-emerald-100 dark:bg-emerald-950/60 rounded-full overflow-hidden mb-3">
+                                <div
+                                    className="h-full bg-emerald-500 transition-all duration-300"
+                                    style={{ width: `${(completedCount / tradeCount) * 100}%` }}
+                                />
+                            </div>
+                        )}
 
                         {/* Bands status badge — only shown when at least one mode is 'bands' */}
                         {eitherIsBands && (
@@ -181,9 +360,14 @@ const RebalanceView = ({
 
                         {/* Volume — only show if there are trades */}
                         {tradeCount > 0 && (
-                            <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 border border-emerald-100 dark:border-emerald-900/30">
-                                <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{volumeLabel}</div>
-                                <div className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">{formatCurrency(volume)}</div>
+                            <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between">
+                                <div>
+                                    <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{volumeLabel}</div>
+                                    <div className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 tabular-nums">{formatCurrency(volume)}</div>
+                                </div>
+                                <div className="text-right text-xs text-zinc-400">
+                                    Click any trade row below to check it off as you execute
+                                </div>
                             </div>
                         )}
                     </Card>
@@ -199,14 +383,13 @@ const RebalanceView = ({
                                 <Shield className="w-5 h-5 text-zinc-500" /> Emergency Fund Action
                             </h3>
                             <p className="text-sm text-zinc-500 mt-1">
-                                {/* Fixed logic to avoid crash if efAction is missing properties, though it should be fine */}
                                 {efAction.status === 'balanced' && "Your emergency reserves are on target."}
                                 {efAction.status === 'deficit' && "Your emergency fund is below target."}
                                 {efAction.status === 'surplus' && "You have excess cash in your emergency fund."}
                             </p>
                         </div>
                         <div className="text-right">
-                            <div className={`text-2xl font-bold ${efAction.status === 'deficit' ? 'text-red-600' : 'text-emerald-600'}`}>
+                            <div className={`text-2xl font-bold tabular-nums ${efAction.status === 'deficit' ? 'text-red-600' : 'text-emerald-600'}`}>
                                 {efAction.status === 'balanced' ? <CheckCircle2 className="w-8 h-8 text-emerald-500" /> : formatCurrency(efAction.diff)}
                             </div>
                             {efAction.status !== 'balanced' && (
@@ -254,31 +437,68 @@ const RebalanceView = ({
                                 ) : (
                                     plan.actions.map((action, idx) => {
                                         const isBuy = action.diff > 0;
+                                        const tradeKey = `${accId}_${action.assetId}_${idx}`;
+                                        const isChecked = !!checkedTrades[tradeKey];
+
+                                        // Look up existing tickers in this account for this asset class
+                                        const matchingTickers = (accountData.funds || [])
+                                            .filter(f => !f.isEmergency && f.name && (f.type === action.assetId || (action.assetId === 'cash' && f.type === 'money_market')))
+                                            .map(f => f.name.trim())
+                                            .filter(Boolean);
 
                                         return (
-                                            <div key={idx} className="p-4 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isBuy ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
+                                            <div
+                                                key={idx}
+                                                onClick={() => toggleTradeChecked(tradeKey)}
+                                                className={`p-4 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all cursor-pointer group ${isChecked ? 'opacity-50 bg-zinc-50/60 dark:bg-zinc-900/40' : ''}`}
+                                            >
+                                                <div className="flex items-center gap-3.5 min-w-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.stopPropagation(); toggleTradeChecked(tradeKey); }}
+                                                        className={`text-zinc-400 hover:text-emerald-600 transition-colors shrink-0 ${isChecked ? 'text-emerald-600 dark:text-emerald-400' : ''}`}
+                                                        aria-label="Mark trade completed"
+                                                    >
+                                                        {isChecked ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                                                    </button>
+                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${isBuy ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
                                                         }`}>
-                                                        {isBuy ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                                                        {isBuy ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                                                     </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
+                                                    <div className="min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-2">
                                                             <span className={`text-xs font-bold px-2 py-0.5 rounded uppercase ${isBuy ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300'
                                                                 }`}>
                                                                 {action.action}
                                                             </span>
-                                                            <span className="font-medium text-zinc-800 dark:text-zinc-200">{action.assetName}</span>
+                                                            <span className={`font-medium text-zinc-800 dark:text-zinc-200 ${isChecked ? 'line-through' : ''}`}>
+                                                                {action.assetName}
+                                                            </span>
+                                                            {matchingTickers.length > 0 && (
+                                                                <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                                                                    {matchingTickers.join(', ')}
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                        <div className="text-xs text-zinc-400 mt-1 pl-1">
+                                                        <div className="text-xs text-zinc-400 mt-1 pl-0.5 tabular-nums">
                                                             Current: {formatCurrency(action.current)} &rarr; Target: {formatCurrency(action.target)}
                                                             {action.explanation && <span className="ml-2 text-zinc-500 italic">• {action.explanation}</span>}
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className={`text-lg font-mono font-semibold ${isBuy ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                                                    }`}>
-                                                    {(isBuy ? '+' : '') + formatCurrency(action.diff)}
+                                                <div className="flex items-center gap-2 shrink-0 ml-3">
+                                                    <div className={`text-lg font-mono font-semibold tabular-nums ${isChecked ? 'line-through text-zinc-400' : isBuy ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                                                        }`}>
+                                                        {(isBuy ? '+' : '') + formatCurrency(action.diff)}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => handleCopyAmount(e, tradeKey, action.diff)}
+                                                        className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all"
+                                                        title="Copy dollar amount"
+                                                    >
+                                                        {copiedKey === tradeKey ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                    </button>
                                                 </div>
                                             </div>
                                         );

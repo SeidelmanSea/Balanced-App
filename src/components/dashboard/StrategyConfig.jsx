@@ -1,9 +1,11 @@
 
 import React from 'react';
-import { SlidersHorizontal, Shield, LayoutDashboard, CheckCircle2, Calendar, Activity, Target, Lock, PieChart as PieChartIcon, Undo2, AlertTriangle, Plus, X, Percent } from 'lucide-react';
+import { SlidersHorizontal, Shield, LayoutDashboard, CheckCircle2, Calendar, Activity, Target, Lock, PieChart as PieChartIcon, Undo2, AlertTriangle, Plus, Minus, X, Percent } from 'lucide-react';
 import Card from '../ui/Card';
 import { TAX_STRATEGIES, REBALANCE_MODES, ASSET_CLASSES, EQUITY_PRESETS } from '../../utils/constants';
 import { getSuggestedBondAllocation } from '../../utils/finance';
+
+const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val || 0);
 
 const StrategyConfig = ({
     userAge,
@@ -30,7 +32,8 @@ const StrategyConfig = ({
     addEquityAsset,
     removeEquityAsset,
     resetEquityStrategy,
-    normalizeEquityStrategy
+    normalizeEquityStrategy,
+    investableTotal = 0
 }) => {
     const currentYear = new Date().getFullYear();
     const numericAge = parseInt(userAge) || 0;
@@ -146,17 +149,43 @@ const StrategyConfig = ({
                 <Card className="p-8 border-none shadow-2xl shadow-emerald-900/5 dark:shadow-none bg-white dark:bg-zinc-900">
                     <div className="space-y-8">
                         {/* Macro Dashboard */}
-                        <div className="bg-zinc-50 dark:bg-zinc-800/30 p-1 rounded-2xl flex md:flex-row flex-col gap-1">
-                            {[
-                                { label: 'Stocks', val: Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0)), color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-white dark:bg-zinc-900 shadow-sm border border-emerald-100 dark:border-emerald-900/30' },
-                                { label: 'Bonds', val: bondAllocation, color: 'text-red-600 dark:text-red-400', bg: 'bg-transparent' },
-                                { label: 'Cash', val: cashAllocation, color: 'text-zinc-600 dark:text-zinc-300', bg: 'bg-transparent' }
-                            ].map((item, idx) => (
-                                <div key={idx} className={`flex-1 p-4 rounded-xl text-center flex flex-col items-center justify-center ${item.bg}`}>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{item.label}</span>
-                                    <span className={`text-3xl font-black ${item.color}`}>{item.val}%</span>
-                                </div>
-                            ))}
+                        <div className="space-y-3">
+                            <div className="bg-zinc-50 dark:bg-zinc-800/30 p-1.5 rounded-2xl flex md:flex-row flex-col gap-1.5">
+                                {[
+                                    { label: 'Stocks', val: Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0)), color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-white dark:bg-zinc-900 shadow-sm border border-emerald-100 dark:border-emerald-900/30' },
+                                    { label: 'Bonds', val: bondAllocation || 0, color: 'text-red-600 dark:text-red-400', bg: 'bg-white/60 dark:bg-zinc-900/40 border border-transparent' },
+                                    { label: 'Cash', val: cashAllocation || 0, color: 'text-zinc-600 dark:text-zinc-300', bg: 'bg-white/60 dark:bg-zinc-900/40 border border-transparent' }
+                                ].map((item, idx) => (
+                                    <div key={idx} className={`flex-1 p-4 rounded-xl text-center flex flex-col items-center justify-center ${item.bg}`}>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{item.label}</span>
+                                        <span className={`text-3xl font-black tabular-nums ${item.color}`}>{item.val}%</span>
+                                        {investableTotal > 0 && (
+                                            <span className="text-xs font-mono font-semibold text-zinc-400 dark:text-zinc-500 mt-1 tabular-nums">
+                                                {formatCurrency(investableTotal * (item.val / 100))}
+                                            </span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Macro Visual Proportion Bar */}
+                            <div className="h-2.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
+                                <div
+                                    style={{ width: `${Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}%` }}
+                                    className="bg-emerald-500 h-full transition-all duration-300"
+                                    title={`Stocks: ${Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0))}%`}
+                                />
+                                <div
+                                    style={{ width: `${Math.min(100, bondAllocation || 0)}%` }}
+                                    className="bg-red-500 h-full transition-all duration-300"
+                                    title={`Bonds: ${bondAllocation || 0}%`}
+                                />
+                                <div
+                                    style={{ width: `${Math.min(100, cashAllocation || 0)}%` }}
+                                    className="bg-zinc-400 dark:bg-zinc-500 h-full transition-all duration-300"
+                                    title={`Cash: ${cashAllocation || 0}%`}
+                                />
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -164,7 +193,7 @@ const StrategyConfig = ({
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
                                     <h5 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
-                                        <div className="w-1.5 h-4 bg-zinc-300 dark:bg-zinc-600 rounded-full"></div>
+                                        <div className="w-1.5 h-4 bg-zinc-400 dark:bg-zinc-500 rounded-full"></div>
                                         Cash Target
                                     </h5>
                                     <div className="relative w-20">
@@ -175,12 +204,21 @@ const StrategyConfig = ({
                                                 const val = parseInt(e.target.value) || 0;
                                                 setCashAllocation(Math.max(0, Math.min(100, val)));
                                             }}
-                                            className="w-full pl-3 pr-7 py-1.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                            className="w-full pl-3 pr-7 py-1.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-bold tabular-nums focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                                         />
                                         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">%</span>
                                     </div>
                                 </div>
-                                <p className="text-xs text-zinc-500 leading-relaxed italic">Held for short-term liquidity and opportunistic buying.</p>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="50"
+                                    step="1"
+                                    value={Math.min(50, cashAllocation || 0)}
+                                    onChange={(e) => setCashAllocation(parseInt(e.target.value) || 0)}
+                                    className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-600 dark:accent-zinc-400"
+                                />
+                                <p className="text-xs text-zinc-500 leading-relaxed italic">Held for short-term liquidity and opportunistic buying above your Emergency Fund.</p>
                             </div>
 
                             {/* Bond Selection Controls */}
@@ -193,11 +231,11 @@ const StrategyConfig = ({
                                     <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
                                         <button
                                             onClick={() => { setBondStrategyMode('smart'); setBondAllocation(getSuggestedBondAllocation(syntheticAge)); }}
-                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode === 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 shadow-sm' : 'text-zinc-500'}`}
+                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode === 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm' : 'text-zinc-500'}`}
                                         >DYNAMIC</button>
                                         <button
                                             onClick={() => setBondStrategyMode('custom')}
-                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode !== 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 shadow-sm' : 'text-zinc-500'}`}
+                                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${bondStrategyMode !== 'smart' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm' : 'text-zinc-500'}`}
                                         >FIXED</button>
                                     </div>
                                 </div>
@@ -218,19 +256,33 @@ const StrategyConfig = ({
                                     </div>
                                 ) : (
                                     <div className="space-y-3 animate-in fade-in duration-300">
-                                        <div className="relative">
-                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">%</span>
+                                        <div className="flex items-center gap-3">
                                             <input
-                                                type="number"
-                                                value={bondAllocation}
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                step="5"
+                                                value={bondAllocation || 0}
                                                 onChange={(e) => {
-                                                    const val = parseInt(e.target.value) || 0;
-                                                    setBondAllocation(Math.max(0, Math.min(100, val)));
+                                                    setBondAllocation(parseInt(e.target.value) || 0);
                                                     setBondStrategyMode('custom');
                                                 }}
-                                                className="w-full pl-4 pr-10 py-2.5 bg-red-50/30 dark:bg-red-950/10 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 font-bold rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all placeholder:text-red-200"
-                                                placeholder="Set fixed %"
+                                                className="flex-1 h-1.5 bg-red-100 dark:bg-red-950/40 rounded-lg appearance-none cursor-pointer accent-red-500"
                                             />
+                                            <div className="relative w-24 shrink-0">
+                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">%</span>
+                                                <input
+                                                    type="number"
+                                                    value={bondAllocation}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value) || 0;
+                                                        setBondAllocation(Math.max(0, Math.min(100, val)));
+                                                        setBondStrategyMode('custom');
+                                                    }}
+                                                    className="w-full pl-3 pr-7 py-1.5 bg-red-50/30 dark:bg-red-950/10 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-sm font-bold tabular-nums rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all placeholder:text-red-200"
+                                                    placeholder="0"
+                                                />
+                                            </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {bondStrategies.filter(s => s.id !== 'smart').map(s => (
@@ -318,26 +370,72 @@ const StrategyConfig = ({
                         </div>
 
                         {/* Editable Rows */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                             {Object.entries(equityStrategy).sort((a, b) => b[1] - a[1]).map(([key, val]) => {
                                 const asset = Object.values(ASSET_CLASSES).find(a => a.id === key);
                                 if (!asset) return null;
+                                const equityMacroPct = Math.max(0, 100 - (bondAllocation || 0) - (cashAllocation || 0)) / 100;
+                                const assetDollarTarget = investableTotal > 0 ? investableTotal * equityMacroPct * (val / 100) : 0;
+
                                 return (
-                                    <div key={key} className="flex items-center gap-4 group">
-                                        <div className="w-1.5 h-10 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: asset.color }}></div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-center mb-1">
-                                                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 truncate">{asset.name}</span>
-                                                <button onClick={() => removeEquityAsset(key)} className="p-1 text-zinc-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X className="w-3 h-3" /></button>
+                                    <div key={key} className="p-3.5 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/30 border border-zinc-100 dark:border-zinc-800/80 flex items-center gap-3.5 group hover:border-zinc-200 dark:hover:border-zinc-700 transition-all">
+                                        <div className="w-1.5 h-12 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: asset.color }}></div>
+                                        <div className="flex-1 min-w-0 space-y-2">
+                                            <div className="flex justify-between items-center gap-2">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">{asset.name}</span>
+                                                    {investableTotal > 0 && (
+                                                        <span className="text-[11px] font-mono font-semibold text-zinc-400 dark:text-zinc-500 tabular-nums shrink-0">
+                                                            {formatCurrency(assetDollarTarget)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <button
+                                                    onClick={() => removeEquityAsset(key)}
+                                                    className="p-1 text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                                                    title={`Remove ${asset.name}`}
+                                                >
+                                                    <X className="w-3.5 h-3.5" />
+                                                </button>
                                             </div>
-                                            <div className="relative">
+                                            <div className="flex items-center gap-2">
                                                 <input
-                                                    type="number"
-                                                    value={val}
+                                                    type="range"
+                                                    min="0"
+                                                    max="100"
+                                                    step="5"
+                                                    value={Math.min(100, Math.max(0, val || 0))}
                                                     onChange={(e) => updateEquityStrategy(key, e.target.value)}
-                                                    className={`w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/50 border rounded-lg text-sm font-bold focus:ring-1 outline-none transition-all ${isEquityValid ? 'border-zinc-200 dark:border-zinc-700 focus:ring-emerald-500' : 'border-red-200 focus:ring-red-500 text-red-600'}`}
+                                                    style={{ accentColor: asset.color }}
+                                                    className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer"
                                                 />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-400">%</span>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => updateEquityStrategy(key, Math.max(0, (parseFloat(val) || 0) - 5))}
+                                                        className="p-1 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
+                                                        title="Decrease by 5%"
+                                                    >
+                                                        <Minus className="w-3 h-3" />
+                                                    </button>
+                                                    <div className="relative w-16">
+                                                        <input
+                                                            type="number"
+                                                            value={val}
+                                                            onChange={(e) => updateEquityStrategy(key, e.target.value)}
+                                                            className={`w-full pl-2 pr-5 py-1 bg-white dark:bg-zinc-900 border rounded-lg text-xs font-bold tabular-nums text-right focus:ring-1 outline-none transition-all ${isEquityValid ? 'border-zinc-200 dark:border-zinc-700 focus:ring-emerald-500' : 'border-red-200 focus:ring-red-500 text-red-600'}`}
+                                                        />
+                                                        <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-400">%</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => updateEquityStrategy(key, Math.min(100, (parseFloat(val) || 0) + 5))}
+                                                        className="p-1 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
+                                                        title="Increase by 5%"
+                                                    >
+                                                        <Plus className="w-3 h-3" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

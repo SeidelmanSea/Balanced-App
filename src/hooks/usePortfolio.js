@@ -1090,6 +1090,77 @@ export function usePortfolio() {
         setNotification({ message, type: 'success' });
     };
 
+    const applyRebalanceTrades = () => {
+        if (!rebalancingPlan?.accountActions) return;
+
+        setConfirmModal({
+            isOpen: true,
+            title: 'Apply Rebalance Plan to Accounts',
+            message: 'This will update your account holdings to match the recommended post-trade dollar amounts (preserving all shielded emergency funds). Continue?',
+            onConfirm: () => {
+                setAccounts(prev => {
+                    const next = { ...prev };
+                    Object.entries(rebalancingPlan.accountActions).forEach(([accId, plan]) => {
+                        const acc = next[accId];
+                        if (!acc || !plan.actions || plan.actions.length === 0) return;
+
+                        let updatedCash = parseFloat(acc.cash) || 0;
+                        const updatedFunds = (acc.funds || []).map(f => ({ ...f }));
+
+                        plan.actions.forEach(act => {
+                            const { assetId, diff } = act;
+                            if (Math.abs(diff) < 1) return;
+
+                            if (assetId === 'cash' || assetId === 'money_market') {
+                                if (!acc.cashIsEmergency) {
+                                    updatedCash = Math.max(0, Math.round(updatedCash + diff));
+                                } else {
+                                    const mmIdx = updatedFunds.findIndex(f => !f.isEmergency && (f.type === 'money_market' || f.type === 'cash'));
+                                    if (mmIdx !== -1) {
+                                        updatedFunds[mmIdx].value = Math.max(0, Math.round((parseFloat(updatedFunds[mmIdx].value) || 0) + diff));
+                                    }
+                                }
+                                return;
+                            }
+
+                            const matchingIndices = updatedFunds
+                                .map((f, idx) => (!f.isEmergency && f.type === assetId ? idx : -1))
+                                .filter(idx => idx !== -1);
+
+                            if (matchingIndices.length > 0) {
+                                const totalCurrent = matchingIndices.reduce((s, idx) => s + (parseFloat(updatedFunds[idx].value) || 0), 0);
+                                matchingIndices.forEach((idx, i) => {
+                                    const curVal = parseFloat(updatedFunds[idx].value) || 0;
+                                    const share = totalCurrent > 0 ? curVal / totalCurrent : (i === 0 ? 1 : 0);
+                                    updatedFunds[idx].value = Math.max(0, Math.round(curVal + diff * share));
+                                });
+                            } else if (diff > 0) {
+                                const assetInfo = Object.values(ASSET_CLASSES).find(a => a.id === assetId);
+                                updatedFunds.push({
+                                    id: `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                                    name: assetInfo?.name || assetId,
+                                    type: assetId,
+                                    value: Math.round(diff),
+                                    isEmergency: false
+                                });
+                            }
+                        });
+
+                        next[accId] = {
+                            ...acc,
+                            cash: updatedCash,
+                            lastUpdated: Date.now(),
+                            funds: updatedFunds.filter(f => f.isEmergency || (parseFloat(f.value) || 0) > 0)
+                        };
+                    });
+                    return next;
+                });
+                setNotification({ message: 'Rebalance trades applied to accounts!', type: 'success' });
+                setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null });
+            }
+        });
+    };
+
 
     return {
         state: {
@@ -1113,6 +1184,7 @@ export function usePortfolio() {
             createAccount, deleteAccount, updateAccount, updateAccountCash,
             addFund, updateFund, removeFund, toggleTheme,
             updateEquityStrategy, addEquityAsset, removeEquityAsset, resetEquityStrategy, normalizeEquityStrategy, importFunds,
+            applyRebalanceTrades,
             handleExportData, handleImportData, resetAllData, loadDemoData,
             startTour, nextTourStep, prevTourStep, endTour, dismissWelcome, handleLoadDemoFromWelcome
         }
