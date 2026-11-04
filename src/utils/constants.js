@@ -14,6 +14,7 @@ import {
     Briefcase,
     Activity
 } from 'lucide-react';
+import { getPalette } from './palettes';
 
 export const ASSET_CLASSES = {
     // Cash & Equivalents - STRONGLY prefer taxable (already tax-efficient)
@@ -59,6 +60,16 @@ export const ASSET_CLASSES = {
 
     // Individual Stocks
     INDIVIDUAL_STOCK: { id: 'individual_stock', name: 'Individual Stocks', color: '#7e22ce', type: 'equity', taxPref: ['taxable', 'roth', 'deferred'] },
+};
+
+export const applyPaletteToAssetClasses = (paletteId) => {
+    const palette = getPalette(paletteId);
+    Object.values(ASSET_CLASSES).forEach(asset => {
+        if (palette.assetColors[asset.id]) {
+            asset.color = palette.assetColors[asset.id];
+        }
+    });
+    return palette;
 };
 
 export const TICKER_MAPPING = {

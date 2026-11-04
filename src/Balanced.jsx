@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Sun,
   Moon,
@@ -10,11 +10,14 @@ import {
   Settings,
   AlertCircle,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Palette,
+  Check
 } from 'lucide-react';
 
 import SEO from './components/SEO';
 import { usePortfolio } from './hooks/usePortfolio';
+import { COLOR_PALETTES, getPalette } from './utils/palettes';
 
 // Components
 import DashboardSummary from './components/dashboard/DashboardSummary';
@@ -31,6 +34,7 @@ export default function PortfolioApp() {
 
   const {
     isDarkMode,
+    colorPalette,
     accounts,
     activeTab,
     notification,
@@ -59,6 +63,21 @@ export default function PortfolioApp() {
     0
   );
   const hasAccounts = Object.keys(accounts).length > 0;
+  const [paletteMenuOpen, setPaletteMenuOpen] = useState(false);
+  const paletteMenuRef = useRef(null);
+  const activePaletteObj = getPalette(colorPalette);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (paletteMenuRef.current && !paletteMenuRef.current.contains(e.target)) {
+        setPaletteMenuOpen(false);
+      }
+    };
+    if (paletteMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [paletteMenuOpen]);
 
   const navTabs = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: false },
@@ -69,7 +88,7 @@ export default function PortfolioApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 pb-24 sm:pb-0 font-sans">
+    <div className="app-shell-bg min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 pb-24 sm:pb-0 font-sans">
       <SEO
         title="Dashboard"
         description="Manage your portfolio, track asset allocation, and calculate rebalancing trades."
@@ -102,6 +121,75 @@ export default function PortfolioApp() {
                 </span>
               </button>
             )}
+            {/* Quick Color Palette Switcher */}
+            <div className="relative" ref={paletteMenuRef}>
+              <button
+                type="button"
+                onClick={() => setPaletteMenuOpen(prev => !prev)}
+                className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200/80 dark:hover:border-zinc-800 transition-all focus:outline-none"
+                aria-label="Select Color Palette"
+                title={`Palette: ${activePaletteObj.name}`}
+              >
+                <div className="flex items-center -space-x-1">
+                  {activePaletteObj.swatches.slice(0, 3).map((hex, i) => (
+                    <span
+                      key={i}
+                      style={{ backgroundColor: hex }}
+                      className="w-2.5 h-2.5 rounded-full ring-1 ring-white dark:ring-zinc-950"
+                    />
+                  ))}
+                </div>
+                <span className="hidden md:inline text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                  {activePaletteObj.shortName}
+                </span>
+              </button>
+
+              {paletteMenuOpen && (
+                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-lg p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                    Color Palette
+                  </div>
+                  {Object.values(COLOR_PALETTES).map(pal => {
+                    const isSelected = colorPalette === pal.id;
+                    return (
+                      <button
+                        key={pal.id}
+                        type="button"
+                        onClick={() => {
+                          actions.setColorPalette(pal.id);
+                          setPaletteMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-left transition-colors ${
+                          isSelected
+                            ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50'
+                            : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <div className="text-xs font-semibold flex items-center gap-1.5">
+                            <span>{pal.name}</span>
+                            {isSelected && <Check className="w-3 h-3 text-zinc-900 dark:text-zinc-100" />}
+                          </div>
+                          <div className="text-[10px] text-zinc-400 truncate">
+                            {pal.description}
+                          </div>
+                        </div>
+                        <div className="flex items-center -space-x-1 shrink-0">
+                          {pal.swatches.map((hex, i) => (
+                            <span
+                              key={i}
+                              style={{ backgroundColor: hex }}
+                              className="w-3 h-3 rounded-full ring-1 ring-white dark:ring-zinc-900"
+                            />
+                          ))}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             <button onClick={actions.toggleTheme} className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200 border border-transparent hover:border-zinc-200/80 dark:hover:border-zinc-800 transition-all focus:outline-none" aria-label="Toggle Dark Mode">
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -145,6 +233,7 @@ export default function PortfolioApp() {
               setActiveTab={actions.setActiveTab}
               setShowAccountModal={actions.setShowAccountModal}
               isDarkMode={isDarkMode}
+              colorPalette={colorPalette}
               loadDemoData={actions.loadDemoData}
               equityStrategy={equityStrategy}
               bondAllocation={bondAllocation}
@@ -237,6 +326,10 @@ export default function PortfolioApp() {
                 loadDemoData={actions.loadDemoData}
                 startTour={actions.startTour}
                 resetAllData={actions.resetAllData}
+                colorPalette={colorPalette}
+                setColorPalette={actions.setColorPalette}
+                isDarkMode={isDarkMode}
+                toggleTheme={actions.toggleTheme}
               />
             </div>
           )}

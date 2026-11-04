@@ -33,7 +33,8 @@ import {
     PieChart as PieChartIcon
 } from 'lucide-react';
 import Card from '../ui/Card';
-import { ASSET_CLASSES, DEFAULT_EQUITY_SPLIT, TAX_STRATEGIES } from '../../utils/constants';
+import { ASSET_CLASSES, DEFAULT_EQUITY_SPLIT, TAX_STRATEGIES, applyPaletteToAssetClasses } from '../../utils/constants';
+import { getPalette } from '../../utils/palettes';
 import { generateGlidePathData, getSuggestedBondAllocation } from '../../utils/finance';
 
 const formatCurrency = (val) =>
@@ -67,18 +68,13 @@ const isStrategyCustomized = (equityStrategy) => {
     return defKeys.some(k => DEFAULT_EQUITY_SPLIT[k] !== equityStrategy[k]);
 };
 
-const MACRO_COLORS = {
-    equity: '#10b981', // emerald-500
-    fixed: '#6366f1',  // indigo-500
-    cash: '#64748b'    // slate-500
-};
-
 const DashboardSummary = ({
     portfolioMetrics,
     rebalancingPlan,
     accounts,
     setActiveTab,
     isDarkMode,
+    colorPalette = 'botanical',
     loadDemoData,
     equityStrategy,
     bondAllocation = 10,
@@ -89,6 +85,11 @@ const DashboardSummary = ({
     retirementYear = new Date().getFullYear() + 25,
     userAge = 38
 }) => {
+    const activePalette = useMemo(() => {
+        applyPaletteToAssetClasses(colorPalette);
+        return getPalette(colorPalette);
+    }, [colorPalette]);
+    const macroColors = activePalette.macroColors;
     const {
         currentAllocation,
         targets,
@@ -143,7 +144,10 @@ const DashboardSummary = ({
     ];
 
     // --- Derived Analytics for Visualizations ---
-    const assetList = useMemo(() => Object.values(ASSET_CLASSES), []);
+    const assetList = useMemo(() => {
+        applyPaletteToAssetClasses(colorPalette);
+        return Object.values(ASSET_CLASSES).map(a => ({ ...a }));
+    }, [colorPalette]);
 
     // 1. Chart & Drift Data
     const driftItems = useMemo(() => {
@@ -209,7 +213,7 @@ const DashboardSummary = ({
                 target: targetTotals.equity,
                 currentPct: investableTotal > 0 ? (totals.equity / investableTotal) * 100 : 0,
                 targetPct: investableTotal > 0 ? (targetTotals.equity / investableTotal) * 100 : 0,
-                color: MACRO_COLORS.equity
+                color: macroColors.equity
             },
             {
                 id: 'macro_fixed',
@@ -218,7 +222,7 @@ const DashboardSummary = ({
                 target: targetTotals.fixed,
                 currentPct: investableTotal > 0 ? (totals.fixed / investableTotal) * 100 : 0,
                 targetPct: investableTotal > 0 ? (targetTotals.fixed / investableTotal) * 100 : 0,
-                color: MACRO_COLORS.fixed
+                color: macroColors.fixed
             },
             {
                 id: 'macro_cash',
@@ -227,10 +231,10 @@ const DashboardSummary = ({
                 target: targetTotals.cash,
                 currentPct: investableTotal > 0 ? (totals.cash / investableTotal) * 100 : 0,
                 targetPct: investableTotal > 0 ? (targetTotals.cash / investableTotal) * 100 : 0,
-                color: MACRO_COLORS.cash
+                color: macroColors.cash
             }
         ].filter(d => d.current > 1 || d.target > 1);
-    }, [driftItems, investableTotal]);
+    }, [driftItems, investableTotal, macroColors]);
 
     const activeDonutData = donutMode === 'general' ? macroData : driftItems;
 
@@ -333,7 +337,7 @@ const DashboardSummary = ({
                     holdings: [{ name: d.name, value: d.current, color: d.color }]
                 }));
         }
-    }, [accounts, accountEmergencyMap, treemapGroup, driftItems, investableTotal, hsaStrategy]);
+    }, [accounts, accountEmergencyMap, treemapGroup, driftItems, investableTotal, hsaStrategy, colorPalette]);
 
     // 3. Tax-Location X-Ray Data
     const taxLocationBuckets = useMemo(() => {
@@ -1195,8 +1199,8 @@ const DashboardSummary = ({
                                             labelStyle={chartTooltipLabelStyle}
                                             itemStyle={chartTooltipItemStyle}
                                         />
-                                        <Bar dataKey="current" name="Current ($)" fill="#059669" radius={[0, 4, 4, 0]} barSize={12} />
-                                        <Bar dataKey="target" name="Target ($)" fill="#64748b" radius={[0, 4, 4, 0]} barSize={12} />
+                                        <Bar dataKey="current" name="Current ($)" fill={macroColors.equity} radius={[0, 4, 4, 0]} barSize={12} />
+                                        <Bar dataKey="target" name="Target ($)" fill={macroColors.cash} radius={[0, 4, 4, 0]} barSize={12} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -1338,12 +1342,12 @@ const DashboardSummary = ({
                                 <AreaChart data={glidePathSeries} margin={{ top: 28, right: 16, left: 0, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="dashEquityGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#059669" stopOpacity={0.28} />
-                                            <stop offset="95%" stopColor="#059669" stopOpacity={0.02} />
+                                            <stop offset="5%" stopColor={macroColors.equity} stopOpacity={0.28} />
+                                            <stop offset="95%" stopColor={macroColors.equity} stopOpacity={0.02} />
                                         </linearGradient>
                                         <linearGradient id="dashBondGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.32} />
-                                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.04} />
+                                            <stop offset="5%" stopColor={macroColors.fixed} stopOpacity={0.32} />
+                                            <stop offset="95%" stopColor={macroColors.fixed} stopOpacity={0.04} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#27272a' : '#e5e7eb'} />
@@ -1369,7 +1373,7 @@ const DashboardSummary = ({
                                         type="monotone"
                                         dataKey="equities"
                                         name="Target Equities"
-                                        stroke="#059669"
+                                        stroke={macroColors.equity}
                                         strokeWidth={2}
                                         fill="url(#dashEquityGrad)"
                                     />
@@ -1377,7 +1381,7 @@ const DashboardSummary = ({
                                         type="monotone"
                                         dataKey="bonds"
                                         name="Target Bonds"
-                                        stroke="#4f46e5"
+                                        stroke={macroColors.fixed}
                                         strokeWidth={2}
                                         fill="url(#dashBondGrad)"
                                     />

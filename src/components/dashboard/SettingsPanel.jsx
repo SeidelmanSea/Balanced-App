@@ -1,7 +1,8 @@
 
 import React, { useRef } from 'react';
-import { Settings, Save, Download, Upload, MousePointerClick, Activity, Heart, AlertCircle, Trash2, Coffee } from 'lucide-react';
+import { Settings, Save, Download, Upload, MousePointerClick, Activity, Heart, AlertCircle, Trash2, Coffee, Palette, Check, Sun, Moon } from 'lucide-react';
 import Card from '../ui/Card';
+import { COLOR_PALETTES } from '../../utils/palettes';
 
 import { usePWAInstall } from '../../hooks/usePWAInstall';
 
@@ -10,7 +11,11 @@ const SettingsPanel = ({
     handleImportData,
     loadDemoData,
     startTour,
-    resetAllData
+    resetAllData,
+    colorPalette = 'botanical',
+    setColorPalette,
+    isDarkMode,
+    toggleTheme
 }) => {
     const fileInputRef = useRef(null);
     const { isSupported, isInstalled, triggerInstall, isIOS } = usePWAInstall();
@@ -19,8 +24,71 @@ const SettingsPanel = ({
         <div className="max-w-3xl mx-auto animate-in fade-in duration-500 space-y-5">
             <div>
                 <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">Settings</h2>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage local portfolio backups, guided tour, and application state.</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Customize your visual palette, manage local backups, and control application state.</p>
             </div>
+
+            {/* APPEARANCE & COLOR PALETTE */}
+            <Card className="p-6">
+                <div className="flex items-center justify-between mb-5 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+                    <div>
+                        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Appearance & color palette</h3>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Select a curated data-visualization palette for charts, asset tags, and surfaces.</p>
+                    </div>
+                    {toggleTheme && (
+                        <button
+                            type="button"
+                            onClick={toggleTheme}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+                        >
+                            {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                            <span>{isDarkMode ? 'Light mode' : 'Dark mode'}</span>
+                        </button>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {Object.values(COLOR_PALETTES).map((pal) => {
+                        const isSelected = colorPalette === pal.id;
+                        return (
+                            <button
+                                key={pal.id}
+                                type="button"
+                                onClick={() => setColorPalette && setColorPalette(pal.id)}
+                                className={`text-left p-3.5 rounded-lg border transition-all flex flex-col justify-between gap-2.5 ${
+                                    isSelected
+                                        ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-800/70 shadow-2xs'
+                                        : 'border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-white dark:bg-zinc-900/40'
+                                }`}
+                            >
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                                            {pal.name}
+                                        </span>
+                                        {isSelected && (
+                                            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900">
+                                                <Check className="w-2.5 h-2.5" />
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center -space-x-1">
+                                        {pal.swatches.map((hex, i) => (
+                                            <span
+                                                key={i}
+                                                style={{ backgroundColor: hex }}
+                                                className="w-3.5 h-3.5 rounded-full ring-2 ring-white dark:ring-zinc-900"
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                                    {pal.description}
+                                </p>
+                            </button>
+                        );
+                    })}
+                </div>
+            </Card>
 
             {/* DATA MANAGEMENT */}
             <Card className="p-6">

@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { ASSET_CLASSES, ACCOUNT_CREATION_OPTIONS, DEMO_DATA, DEFAULT_EQUITY_SPLIT, TOUR_STEPS } from '../utils/constants';
+import { ASSET_CLASSES, ACCOUNT_CREATION_OPTIONS, DEMO_DATA, DEFAULT_EQUITY_SPLIT, TOUR_STEPS, applyPaletteToAssetClasses } from '../utils/constants';
+import { DEFAULT_PALETTE_ID } from '../utils/palettes';
 import { detectStrategy } from '../utils/finance';
 import { parseCSV, parsePasteData } from '../utils/parsers';
 
 export function usePortfolio() {
     const [isDarkMode, setIsDarkMode] = useState(true);
+    const [colorPalette, setColorPalette] = useState(DEFAULT_PALETTE_ID);
     const [bondAllocation, setBondAllocation] = useState(10);
     const [cashAllocation, setCashAllocation] = useState(0);
     const [emergencyFund, setEmergencyFund] = useState(10000);
@@ -43,7 +45,15 @@ export function usePortfolio() {
     const yearsToRetirement = retirementYear - currentYear;
     const effectiveAge = 65 - yearsToRetirement;
 
-    const activeAssets = ASSET_CLASSES;
+    const activeAssets = useMemo(() => {
+        applyPaletteToAssetClasses(colorPalette);
+        return { ...ASSET_CLASSES };
+    }, [colorPalette]);
+
+    useEffect(() => {
+        applyPaletteToAssetClasses(colorPalette);
+        document.documentElement.setAttribute('data-palette', colorPalette);
+    }, [colorPalette]);
 
     useEffect(() => {
         if (notification.message) {
@@ -84,6 +94,10 @@ export function usePortfolio() {
                     setRetirementYear(new Date().getFullYear() + (65 - parsed.userAge));
                 }
                 if (parsed.isDarkMode !== undefined) setIsDarkMode(parsed.isDarkMode);
+                if (parsed.colorPalette) {
+                    setColorPalette(parsed.colorPalette);
+                    applyPaletteToAssetClasses(parsed.colorPalette);
+                }
                 if (parsed.equityStrategy !== undefined) setEquityStrategy(parsed.equityStrategy);
                 if (parsed.cashAllocation !== undefined) setCashAllocation(parsed.cashAllocation);
                 if (parsed.taxStrategy) setTaxStrategy(parsed.taxStrategy);
@@ -115,12 +129,12 @@ export function usePortfolio() {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             localStorage.setItem('balanced_data_v7', JSON.stringify({
-                accounts, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, hsaStrategy
+                accounts, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear, isDarkMode, colorPalette, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, hsaStrategy
             }));
         }, 1000);
 
         return () => clearTimeout(timeoutId);
-    }, [accounts, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear, isDarkMode, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, hsaStrategy]);
+    }, [accounts, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear, isDarkMode, colorPalette, equityStrategy, bondStrategyMode, taxStrategy, rebalanceModeTaxable, rebalanceModeSheltered, hsaStrategy]);
 
 
     const createAccount = (nameArg, typeArg) => {
@@ -194,6 +208,7 @@ export function usePortfolio() {
             equityStrategy,
             taxStrategy,
             hsaStrategy,
+            colorPalette,
             rebalanceModeTaxable,
             rebalanceModeSheltered
         };
@@ -244,6 +259,7 @@ export function usePortfolio() {
                             setEquityStrategy(importedData.equityStrategy || DEFAULT_EQUITY_SPLIT);
                             setTaxStrategy(importedData.taxStrategy || 'standard');
                             if (importedData.hsaStrategy !== undefined) setHsaStrategy(importedData.hsaStrategy);
+                            if (importedData.colorPalette) setColorPalette(importedData.colorPalette);
                             if (importedData.rebalanceModeTaxable) setRebalanceModeTaxable(importedData.rebalanceModeTaxable);
                             if (importedData.rebalanceModeSheltered) setRebalanceModeSheltered(importedData.rebalanceModeSheltered);
                             setNotification({ message: 'Data restored successfully', type: 'success' });
@@ -1164,7 +1180,7 @@ export function usePortfolio() {
 
     return {
         state: {
-            isDarkMode, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear,
+            isDarkMode, colorPalette, bondAllocation, cashAllocation, emergencyFund, userAge, retirementYear,
             bondStrategyMode, equityStrategy, isAddingAsset, taxStrategy, hsaStrategy,
             rebalanceModeTaxable, rebalanceModeSheltered, accounts,
             showAccountModal, newAccountName, newAccountType, fileInputRef,
@@ -1175,7 +1191,7 @@ export function usePortfolio() {
         metrics: portfolioMetrics,
         rebalancingPlan,
         actions: {
-            setIsDarkMode, setBondAllocation, setCashAllocation, setEmergencyFund, setUserAge, setRetirementYear,
+            setIsDarkMode, setColorPalette, setBondAllocation, setCashAllocation, setEmergencyFund, setUserAge, setRetirementYear,
             setBondStrategyMode, setEquityStrategy, setIsAddingAsset, setTaxStrategy, setHsaStrategy,
             setRebalanceModeTaxable, setRebalanceModeSheltered, setAccounts,
             setShowAccountModal, setNewAccountName, setNewAccountType, setActiveTab,
