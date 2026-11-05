@@ -28,6 +28,7 @@ import SettingsPanel from './components/dashboard/SettingsPanel';
 import WelcomeModal from './components/dashboard/WelcomeModal';
 import TourOverlay from './components/dashboard/TourOverlay';
 import ConfirmationModal from './components/ui/ConfirmationModal';
+import BrandLogo from './components/ui/BrandLogo';
 
 export default function PortfolioApp() {
   const { state, actions, metrics, rebalancingPlan } = usePortfolio();
@@ -99,7 +100,7 @@ export default function PortfolioApp() {
       <header className="bg-white/85 dark:bg-zinc-950/85 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800/80 sticky top-0 z-30 transition-colors duration-200">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src="/pwa-icon.svg" alt="Balanced" className="w-7 h-7 rounded-lg" />
+            <BrandLogo className="w-7 h-7 rounded-lg shrink-0" colorPalette={colorPalette} />
             <h1 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Balanced</h1>
             <span className="hidden sm:inline-block text-zinc-300 dark:text-zinc-700">/</span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:inline-block font-medium">Portfolio OS</span>

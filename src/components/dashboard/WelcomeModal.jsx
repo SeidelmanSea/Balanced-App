@@ -1,5 +1,6 @@
 import React from 'react';
-import { LayoutDashboard, MousePointerClick, Activity } from 'lucide-react';
+import { MousePointerClick, Activity } from 'lucide-react';
+import BrandLogo from '../ui/BrandLogo';
 
 const WelcomeModal = ({ show, onLoadDemo, onStartTour, onDismiss }) => {
     if (!show) return null;
@@ -9,8 +10,8 @@ const WelcomeModal = ({ show, onLoadDemo, onStartTour, onDismiss }) => {
             <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-lg animate-in fade-in zoom-in-95 duration-300">
                 <div className="p-8">
                     <div className="text-center mb-6">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 mb-4">
-                            <LayoutDashboard className="w-8 h-8 text-white" />
+                        <div className="inline-flex items-center justify-center mb-4">
+                            <BrandLogo className="w-16 h-16 rounded-2xl shadow-sm" />
                         </div>
                         <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Welcome to Balanced!</h2>
                         <p className="text-zinc-600 dark:text-zinc-400">A tax-efficient portfolio rebalancing tool for serious investors.</p>
